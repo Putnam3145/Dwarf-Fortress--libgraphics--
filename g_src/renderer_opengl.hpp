@@ -1,3 +1,5 @@
+// DEPRECATED--NOT NECESSARY ANYMORE? PROBABLY DELETE>
+
 // STANDARD
 class renderer_opengl : public renderer {
 public:

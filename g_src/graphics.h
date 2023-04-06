@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <cassert>
+#include <variant>
+#include <cstring>
 using std::string;
 
 #include "GL/glew.h"
@@ -24,7 +26,7 @@ struct palettest
 		}
 	void copy_from(palettest &src)
 		{
-		memmove(color,src.color,sizeof(uint8_t)*PALETTE_COLORNUM*3);
+		std::memmove(color,src.color,sizeof(uint8_t)*PALETTE_COLORNUM*3);
 		}
 };
 
@@ -2977,6 +2979,25 @@ struct interface_setst
 	void swap_with_main();
 };
 
+class cached_texturest {
+	int w, h;
+	std::variant<SDL_Texture*, SDL_Surface*> tex;
+public:
+	cached_texturest();
+	cached_texturest(SDL_Surface* s);
+	~cached_texturest();
+	SDL_Texture* get_texture();
+	void get_size(int& out_w, int& out_h) {
+		out_w = w;
+		out_h = h;
+	}
+};
+
+struct texblitst {
+	int32_t x, y;
+	int8_t tex;
+};
+
 class graphicst
 {
 	public:
@@ -2991,7 +3012,7 @@ class graphicst
 
 		int32_t viewport_zoom_factor;
 
-		long screenx,screeny;
+		int32_t screenx,screeny;
 		char screenf,screenb;
 		char screenbright;
 		bool use_old_16_colors;
@@ -3042,7 +3063,8 @@ class graphicst
 			bool main_thread_requesting_reshape_activate_map_port;//set to true by main thread, set to false by graphics thread
 
 		long clipx[2],clipy[2];
-		long tex_pos[TEXTURENUM];
+		cached_texturest tex[TEXTURENUM];
+		svector<texblitst> texblits;
 
 		long rect_id;
 
@@ -7840,6 +7862,8 @@ class graphicst
 	void erasescreen();
             void erasescreen_rect(int x1, int x2, int y1, int y2);
 	void setclipping(long x1,long x2,long y1,long y2);
+
+	void add_texture_blit(int32_t which);
 
 	void add_tile(long texp,char addcolor);
 	void add_tile_grayscale(long texp,char cf,char cbr);

@@ -7,7 +7,7 @@ extern "C" {
 #ifdef __APPLE__
 # include "ncursesw/curses.h"
 #else
-# include <ncursesw/curses.h>
+# include <ncurses.h>
 #endif
 # undef COLOR_BLUE
 # undef COLOR_CYAN

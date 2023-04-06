@@ -2,10 +2,7 @@
 
 
 bool renderer_offscreen::init_video(int w, int h) {
-  if (screen) SDL_FreeSurface(screen);
   // Create an offscreen buffer
-  screen = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
-  assert(screen);
   return true;
 }
 
@@ -46,7 +43,6 @@ renderer_offscreen::~renderer_offscreen() {
 
   renderer::screentexpos_refresh_buffer = NULL;
 
-  SDL_FreeSurface(screen);
 }
 
 // Create an offscreen renderer of a given grid-size
@@ -91,7 +87,7 @@ void renderer_offscreen::update_all(int offset_x, int offset_y) {
     for (int y = 0; y < gps.dimy; y++) {
       // Read tiles from gps, create cached texture
       Either<texture_fullid,int32_t/*texture_ttfid*/> id = screen_to_texid(x, y);
-      SDL_Surface *tex = //id.isL ?
+      SDL_Texture *tex = //id.isL ?
         tile_cache_lookup(id.left) /*:
         ttf_manager.get_texture(id.right)*/;
       if (id.isL) {
@@ -106,7 +102,7 @@ void renderer_offscreen::update_all(int offset_x, int offset_y) {
       dst.x = dispx * (x+offset_x);
       dst.y = dispy * (y+offset_y);
       // And blit.
-      if(tex!=NULL)SDL_BlitSurface(tex, NULL, screen, &dst);
+      //if(tex!=NULL)SDL_RenderCopy(renderer_sdl, tex, NULL, &dst);
     }
   }
 }
@@ -114,5 +110,4 @@ void renderer_offscreen::update_all(int offset_x, int offset_y) {
 // Save the image to some file
 void renderer_offscreen::save_to_file(const string &file) {
   // TODO: Support png, etc.
-  SDL_SaveBMP(screen, file.c_str());
 }

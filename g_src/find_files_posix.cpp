@@ -1,3 +1,4 @@
+#ifndef WIN32
 #include "platform.h"
 #include <cerrno>
 #include <string>
@@ -12,12 +13,10 @@
 
 extern "C" {
 #include <zlib.h>
-#ifndef WIN32
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <sys/time.h>
 # include <signal.h>
-#endif
 }
 #include "svector.h"
 #include "random.h"
@@ -183,3 +182,4 @@ void find_directories_by_pattern_with_exception(const char* pattern, stringvects
 	}
 	globfree(&g);
 }
+#endif

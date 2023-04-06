@@ -4,7 +4,7 @@
 
 #include "resize++.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 //code adapted by David Olsen from Lanczos filtering article on wikipedia.org
 
@@ -231,11 +231,11 @@ SDL_Surface* SDL_Resize(SDL_Surface *src, int new_w, int new_h, bool free, int f
         //No change in size. Return an optimized image.
         if (is_alpha)
         {
-            dst = SDL_DisplayFormatAlpha(src);
-            SDL_SetAlpha(src, SDL_SRCALPHA, 0);
+            dst = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_ABGR8888, 0);
+            //SDL_SetSurfaceAlphaMod(src, 0);
         }
         else        
-            dst = SDL_DisplayFormat(src);
+            dst = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_BGR888, 0);
         
         if (free)
             SDL_FreeSurface(src);
@@ -266,8 +266,8 @@ SDL_Surface* SDL_Resize(SDL_Surface *src, int new_w, int new_h, bool free, int f
 		//so there's something here that causes happy faces etc. to vanish
     //if (is_alpha)
         {
-            temp = SDL_DisplayFormatAlpha(dst);
-            SDL_SetAlpha(temp, SDL_SRCALPHA, 0);
+            temp = SDL_ConvertSurfaceFormat(dst, SDL_PIXELFORMAT_ABGR8888, 0);
+            //SDL_SetSurfaceAlphaMod(temp, 0);
         }
         //else        
           //  temp = SDL_DisplayFormat(dst);            

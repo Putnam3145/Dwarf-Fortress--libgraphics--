@@ -11,19 +11,21 @@
 
 #include "ViewBase.h"
 #include "keybindings.h"
+#ifdef CURSES
 #include "curses.h"
-
-#include <SDL/SDL.h>
+#endif
+#include <SDL2/SDL.h>
 
 typedef Uint32 Time;
 
 enum Repeat {
   REPEAT_NOT,  // Don't repeat at all. Furthermore, cancel other repeats.
   REPEAT_SLOW, // Repeat normally.
-  REPEAT_FAST  // Repeat instantly, without waiting for the first-repeat interval.
+  REPEAT_FAST,  // Repeat instantly, without waiting for the first-repeat interval.
+  REPEAT_MWHEEL // Count *down* from repeat until it's 0, original value set by mouse wheel y
 };
 
-enum MatchType { type_unicode, type_key, type_button };
+enum MatchType { type_key, type_button, type_mwheel };
 
 Uint8 getModState();
 std::string translate_mod(Uint8 mod);
@@ -40,18 +42,18 @@ struct EventMatch {
   Uint8 mod;      // not defined for type=unicode. 1: shift, 2: ctrl, 4:alt
   Uint8 scancode; // not defined for type=button
   union {
-    Uint16 unicode;
-    SDLKey key;
+    SDL_Keycode key;
     Uint8 button;
+    Sint32 y;
   };
   
   bool operator== (const EventMatch &other) const {
     if (mod != other.mod) return false;
     if (type != other.type) return false;
     switch (type) {
-    case type_unicode: return unicode == other.unicode;
     case type_key: return key == other.key;
     case type_button: return button == other.button;
+    case type_mwheel: return y == other.y;
     default: return false;
     }
   }
@@ -60,9 +62,9 @@ struct EventMatch {
     if (mod != other.mod) return mod < other.mod;
     if (type != other.type) return type < other.type;
     switch (type) {
-    case type_unicode: return unicode < other.unicode;
     case type_key: return key < other.key;
     case type_button: return button < other.button;
+    case type_mwheel: return y < other.y;
     default: return false;
     }
   }
@@ -127,7 +129,7 @@ class enabler_inputst {
 
   // Updating the key-bindings
   void register_key(); // Sets the next key-press to be stored instead of executed.
-  list<RegisteredKey> getRegisteredKey(); // Returns a description of stored keys. Max one of each type.
+  std::list<RegisteredKey> getRegisteredKey(); // Returns a description of stored keys. Max one of each type.
   void bindRegisteredKey(MatchType type, InterfaceKey key); // Binds one of the stored keys to key
   bool is_registering(); // Returns true if we're still waiting for a key-hit
     void stop_registering_key();

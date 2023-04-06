@@ -18,6 +18,9 @@
 #include <queue>
 #include <set>
 #include <functional>
+#include <array>
+#include <atomic>
+#include <semaphore>
 
 using std::vector;
 using std::pair;
@@ -27,14 +30,14 @@ using std::list;
 using std::stack;
 using std::queue;
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_thread.h>
 #ifdef __APPLE__
 # include <SDL_ttf/SDL_ttf.h>
 # include <SDL_image/SDL_image.h>
 #else
-# include <SDL/SDL_ttf.h>
-# include <SDL/SDL_image.h>
+# include <SDL2/SDL_ttf.h>
+# include <SDL2/SDL_image.h>
 #endif
 
 #include "GL/glew.h"
@@ -549,6 +552,7 @@ class textures
   friend class renderer_opengl;
  private:
   vector<SDL_Surface *> raws;
+  vector<int32_t> free_spaces;
   int32_t init_texture_size;
   bool uploaded;
   long add_texture(SDL_Surface*);
@@ -568,14 +572,7 @@ class textures
   int textureCount() {
     return (int)raws.size();
   }
-  // Upload in-memory textures to the GPU
-  // When textures are uploaded, any alteration to a texture
-  // is automatically reflected in the uploaded copy - eg. it's replaced.
-  // This is very expensive in opengl mode. Don't do it often.
-  void upload_textures();
-  // Also, you really should try to remove uploaded textures before
-  // deleting a window, in case of driver memory leaks.
-  void remove_uploaded_textures();
+  // opengl textures were here--they're in the git history, circa february 1 2023
   // Returns the most recent texture data
   SDL_Surface *get_texture_data(long pos);
 
@@ -586,7 +583,6 @@ class textures
 	{
 	init_texture_size=(int32_t)raws.size();
 	}
-
   // Clone a texture
   long clone_texture(long src);
   // Remove all color, but not transparency
@@ -606,9 +602,9 @@ class textures
   void refresh_multi_pdim(const string &filename,svector<long> &tex_pos,long dimx,long dimy,
 		       bool convert_magenta);
   // Loads a single texture from a file, returning the handle
-  long load(const string &filename, bool convert_magenta);
+  cached_texturest load(const string &filename, bool convert_magenta);
   // To delete a texture..
-  void delete_texture(long pos);
+  void delete_texture(int32_t pos);
   void delete_texture(SDL_Surface *srf);
 
   void delete_all_post_init_textures();
@@ -674,6 +670,7 @@ class renderer {
   long *screentexpos_top_anchored;
   long *screentexpos_top_anchored_x,*screentexpos_top_anchored_y;
   uint32_t *screentexpos_top_flag;
+  uint8_t *directtexcopy;
   // For partial printing:
   unsigned char *screen_old;
   long *screentexpos_old;
@@ -687,6 +684,8 @@ class renderer {
   long *screentexpos_top_anchored_old;
   long *screentexpos_top_anchored_x_old,*screentexpos_top_anchored_y_old;
   uint32_t *screentexpos_top_flag_old;
+
+  uint8_t* directtexcopy_old;
 
   int32_t *screentexpos_refresh_buffer;
 
@@ -707,12 +706,16 @@ class renderer {
   virtual void update_full_viewport(graphic_viewportst *vp) = 0;
   virtual void update_full_map_port(graphic_map_portst *vp) = 0;
   virtual void clean_tile_cache() = 0;
+  virtual void tidy_tile_cache()=0;
+  virtual void clean_cached_tile(int32_t texpos,float r,float g,float b,float br,float bg,float bb,uint32_t flag)=0;
   virtual void render() = 0;
   virtual void set_fullscreen() {} // Should read from enabler.is_fullscreen()
   virtual void zoom(zoom_commands cmd) {};
   virtual void resize(int w, int h) = 0;
   virtual void grid_resize(int w, int h) = 0;
   virtual void set_viewport_zoom_factor(int32_t nfactor) = 0;
+  virtual SDL_Renderer* get_renderer() = 0;
+  virtual SDL_Window* get_window() = 0;
   void swap_arrays();
   renderer() {
     screen = NULL;
@@ -754,6 +757,11 @@ class renderer {
   virtual bool uses_opengl() { return false; };
 };
 
+enum FullscreenState : uint8_t {
+	FULLSCREEN = BIT1,
+	EXCLUSIVE = BIT2
+};
+
 class enablerst : public enabler_inputst
 {
   friend class initst;
@@ -762,7 +770,7 @@ class enablerst : public enabler_inputst
   friend class renderer_opengl;
   friend class renderer_curses;
 
-  bool fullscreen;
+  uint8_t fullscreen_state;
   stack<pair<int,int> > overridden_grid_sizes;
 
   class renderer *renderer;
@@ -815,12 +823,12 @@ class enablerst : public enabler_inputst
   Chan<async_cmd> async_tobox;    // Messages to the simulation thread
   Chan<async_msg> async_frombox;  // Messages from the simulation thread, and acknowledgements of those to
   Chan<zoom_commands> async_zoom; // Zoom commands (from the simulation thread)
-  Chan<void> async_fromcomplete;  // Barrier for async_msg requests that require acknowledgement
+  std::binary_semaphore async_fromcomplete;  // Barrier for async_msg requests that require acknowledgement
  public:
-  Uint32 renderer_threadid;
+  SDL_threadID renderer_threadid;
 	bool must_do_render_things_before_display;
  private:
-
+	 
   void pause_async_loop();
   void async_wait();
   void unpause_async_loop() {
@@ -856,7 +864,9 @@ class enablerst : public enabler_inputst
 
   // OpenGL state (wrappers)
   class textures textures; // Font/graphics texture catalog
-  GLsync sync; // Rendering barrier
+  SDL_Renderer* main_renderer() {
+	  return renderer ? renderer->get_renderer() : NULL;
+  }
   void reset_textures() {
     async_frombox.write(async_msg(async_msg::reset_textures));
   }
@@ -879,20 +889,36 @@ class enablerst : public enabler_inputst
   
   
   // Window management
-  bool is_fullscreen() { return fullscreen; }
-  void toggle_fullscreen() {
-    fullscreen = !fullscreen;
+  uint8_t get_fullscreen() { return fullscreen_state;  }
+  bool is_fullscreen() { return fullscreen_state & FULLSCREEN; }
+  void set_fullscreen(uint8_t new_state) {
+	  fullscreen_state = new_state;
     async_zoom.write(zoom_fullscreen);
   }
-	void wants_to_resize_fullscreen()
-		{
-		if(!fullscreen)fullscreen=true;
-		async_zoom.write(zoom_fullscreen);
+  void toggle_fullscreen() {
+	  fullscreen_state ^= FULLSCREEN;
+	  async_zoom.write(zoom_fullscreen);
+  }
+  void wants_to_resize_fullscreen() {
+	  if (!(fullscreen_state & FULLSCREEN)) {
+		  fullscreen_state |= FULLSCREEN;
+		  async_zoom.write(zoom_fullscreen);
 		}
+  }
+  void clean_cached_tile(int32_t texpos,float r,float g,float b,float br,float bg,float bb,uint32_t flag)
+	  {
+	  renderer->clean_cached_tile(texpos, r, g, b, br, bg, bb, flag);
+	  }
 
   // TOADY: MOVE THESE TO "FRAMERATE INTERFACE"
-  MVar<int> simticks, gputicks;
+  std::atomic<int> simticks, gputicks;
   Uint32 clock; // An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.
+  bool mouse_focus;
+  std::array<char, 32> last_text_input;
+  inline const char* get_text_input() { return last_text_input.data(); }
+  void set_listen_to_text(bool listening);
+  void set_text_input(SDL_Event ev);
+  void clear_text_input();
 };
 #endif
 

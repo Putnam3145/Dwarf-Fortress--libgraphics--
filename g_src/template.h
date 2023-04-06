@@ -277,24 +277,27 @@ template<class T> VIndex add_to_global_id_vector(T ptr,svector<T> &vect)
 	int32_t size=(int32_t)vect.size();
 	if(size==0)
 		{
-		vect.push_back(ptr);
-		return 1;
+		vect.push_back(std::move(ptr));
+		return 0;
 		}
 	if(vect[size-1]->global_id<ptr->global_id)
 		{
-		vect.push_back(ptr);
-		return size;
+		vect.push_back(std::move(ptr));
+		return size-1;
 		}
-
+	if (vect[0]->global_id>ptr->global_id)
+		{
+		vect.insert(0,std::move(ptr));
+		return 0;
+		}
 	int32_t start=0;
 	int32_t end=size-1;
-	T cptr;
 	int32_t mid;
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr->global_id==ptr->global_id)return -1;
 		if(start==end)
 			{
@@ -303,13 +306,13 @@ template<class T> VIndex add_to_global_id_vector(T ptr,svector<T> &vect)
 				if(start+1>=size)return -1;//push_back() FOR UNIQUE ALREADY HANDLED
 				else
 					{
-					vect.insert(start+1,ptr);
+					vect.insert(start+1,std::move(ptr));
 					return start+1;
 					}
 				}
 			else if(cptr->global_id>ptr->global_id)
 				{
-				vect.insert(start,ptr);
+				vect.insert(start,std::move(ptr));
 				return start;
 				}
 			return -1;
@@ -321,37 +324,37 @@ template<class T> VIndex add_to_global_id_vector(T ptr,svector<T> &vect)
 
 	if(end<0)
 		{
-		T cptr=vect[start];
+		T &cptr=vect[start];
 		if(cptr->global_id<ptr->global_id)
 			{
 			if(start+1>=size)return -1;//push_back() FOR UNIQUE ALREADY HANDLED
 			else
 				{
-				vect.insert(start+1,ptr);
+				vect.insert(start+1,std::move(ptr));
 				return start+1;
 				}
 			}
 		else if(cptr->global_id>ptr->global_id)
 			{
-			vect.insert(start,ptr);
+			vect.insert(start,std::move(ptr));
 			return start;
 			}
 		}
 	else if(end<size)
 		{
-		T cptr=vect[end];
+		T &cptr=vect[end];
 		if(cptr->global_id<ptr->global_id)
 			{
 			if(end+1>=size)return -1;//push_back() FOR UNIQUE ALREADY HANDLED
 			else
 				{
-				vect.insert(end+1,ptr);
+				vect.insert(end+1,std::move(ptr));
 				return end+1;
 				}
 			}
 		else if(cptr->global_id>ptr->global_id)
 			{
-			vect.insert(end,ptr);
+			vect.insert(end,std::move(ptr));
 			return end;
 			}
 		}
@@ -407,13 +410,12 @@ template<class T> T get_from_global_id_vector(int32_t id,svector<T> &vect)
 	int32_t start=0;
 	int32_t end=(int32_t)vect.size()-1;
 
-	T cptr;
 	int32_t mid;
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr->global_id==id)return cptr;
 		else if(cptr->global_id>id)end=mid-1;
 		else start=mid+1;
@@ -427,13 +429,12 @@ template<class T> int32_t get_index_from_global_id_vector(int32_t id,svector<T> 
 	int32_t start=0;
 	int32_t end=(int32_t)vect.size()-1;
 
-	T cptr;
 	int32_t mid;
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr->global_id==id)return mid;
 		else if(cptr->global_id>id)end=mid-1;
 		else start=mid+1;
@@ -459,13 +460,12 @@ template<class T> VIndex add_possible_duplicate_to_binary_vector(T ptr,svector<T
 	int32_t start=0;
 	int32_t end=size-1;
 	int32_t mid;
-	T cptr;
 
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==ptr)
 			{
 			vect.insert(mid,ptr);//INSERT A COPY HERE SINCE THIS IS A NON-UNIQUE VECTOR
@@ -492,7 +492,7 @@ template<class T> VIndex add_possible_duplicate_to_binary_vector(T ptr,svector<T
 
 	if(end<0)
 		{
-		T cptr=vect[start];
+		T &cptr=vect[start];
 		if(cptr<ptr)
 			{
 			if(start+1>=size)vect.push_back(ptr);
@@ -507,7 +507,7 @@ template<class T> VIndex add_possible_duplicate_to_binary_vector(T ptr,svector<T
 		}
 	else if(end<size)
 		{
-		T cptr=vect[end];
+		T &cptr=vect[end];
 		if(cptr<ptr)
 			{
 			if(end+1>=size)vect.push_back(ptr);
@@ -542,13 +542,12 @@ template<class T> VIndex add_unique_to_binary_vector(T ptr,svector<T> &vect)
 	int32_t start=0;
 	int32_t end=size-1;
 	int32_t mid;
-	T cptr;
 
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==ptr)return -1;//ALREADY IN VECTOR
 		if(start==end)
 			{
@@ -573,7 +572,7 @@ template<class T> VIndex add_unique_to_binary_vector(T ptr,svector<T> &vect)
 
 	if(end<0)
 		{
-		T cptr=vect[start];
+		T &cptr=vect[start];
 		if(cptr<ptr)
 			{
 			if(start+1>=size)return -1;//push_back() CASE ALREADY HANDLED
@@ -589,7 +588,7 @@ template<class T> VIndex add_unique_to_binary_vector(T ptr,svector<T> &vect)
 		}
 	else if(end<size)
 		{
-		T cptr=vect[end];
+		T &cptr=vect[end];
 		if(cptr<ptr)
 			{
 			if(end+1>=size)return -1;//push_back() CASE ALREADY HANDLED
@@ -626,13 +625,12 @@ template<class T> VIndex add_unique_to_binary_vector_always_index(T ptr,svector<
 	int32_t start=0;
 	int32_t end=size-1;
 	int32_t mid;
-	T cptr;
 
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==ptr){was_present=true;return mid;}//ALREADY IN VECTOR
 		if(start==end)
 			{
@@ -657,7 +655,7 @@ template<class T> VIndex add_unique_to_binary_vector_always_index(T ptr,svector<
 
 	if(end<0)
 		{
-		T cptr=vect[start];
+		T &cptr=vect[start];
 		if(cptr<ptr)
 			{
 			if(start+1>=size)return -1;//push_back() CASE ALREADY HANDLED
@@ -674,7 +672,7 @@ template<class T> VIndex add_unique_to_binary_vector_always_index(T ptr,svector<
 		}
 	else if(end<size)
 		{
-		T cptr=vect[end];
+		T &cptr=vect[end];
 		if(cptr<ptr)
 			{
 			if(end+1>=size)return -1;//push_back() CASE ALREADY HANDLED
@@ -697,13 +695,11 @@ template<class T> void remove_from_binary_vector(T ptr,svector<T> &vect)
 	int32_t start=0;
 	int32_t end=(int32_t)vect.size()-1;
 	int32_t mid;
-	T cptr;
-
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==ptr)
 			{
 			vect.erase(mid);
@@ -723,13 +719,12 @@ template<class T> int32_t get_index_from_binary_vector(T id,svector<T> &vect)
 	int32_t start=0;
 	int32_t end=size-1;
 	int32_t mid;
-	T cptr;
 
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==id)
 			{
 			return mid;
@@ -751,13 +746,12 @@ template<class T> int32_t get_floor_index_from_binary_vector(T ptr,svector<T> &v
 	int32_t start=0;
 	int32_t end=size-1;
 	int32_t mid;
-	T cptr;
 
 	while(start<=end)
 		{
 		mid=(start+end)>>1;
 
-		cptr=vect[mid];
+		T &cptr=vect[mid];
 		if(cptr==ptr)
 			{
 			while(mid>0)
@@ -788,7 +782,7 @@ template<class T> int32_t get_floor_index_from_binary_vector(T ptr,svector<T> &v
 
 	if(end<0)
 		{
-		T cptr=vect[start];
+		T &cptr=vect[start];
 		if(cptr<ptr)
 			{
 			if(start+1>=size)return start;
@@ -802,7 +796,7 @@ template<class T> int32_t get_floor_index_from_binary_vector(T ptr,svector<T> &v
 		}
 	else if(end<size)
 		{
-		T cptr=vect[end];
+		T &cptr=vect[end];
 		if(cptr<ptr)
 			{
 			if(end+1>=size)return end;
