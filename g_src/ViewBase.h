@@ -17,29 +17,17 @@ struct world_gen_param_valuest;
 
 void draw_nineslice(int32_t* slice, int sy, int sx, int ey, int ex, bool override=false);
 
-struct scrollbarst
-{
-    int32_t sel;
-    int32_t sel_min;
-    int32_t sel_max;
-    int32_t page_size;
-    int32_t print_sy;
-    int32_t print_ey;
+struct scrollbarst {
 
-    int32_t scroller_sy;
-    int32_t scroller_ey;
+    int32_t sel = 0;
+    int32_t sel_min = 0;
+    int32_t sel_max = 0;
+    int32_t page_size; // missing initial value
+    int32_t print_sy = 0;
+    int32_t print_ey = 0;
 
-
-    scrollbarst()
-    {
-        sel = 0;
-        sel_min = 0;
-        sel_max = 0;
-        print_sy = 0;
-        print_ey = 0;
-        scroller_sy = 0;
-        scroller_ey = 0;
-    }
+    int32_t scroller_sy = 0;
+    int32_t scroller_ey = 0;
 
     void init(int32_t n_sel, int32_t n_smn, int32_t n_smx, int32_t npnm, int32_t psy, int32_t pey)
     {
@@ -164,9 +152,7 @@ struct scrollbarst
     bool handle_events(std::set<InterfaceKey>& events, int32_t& scroll_position, bool& scrolling);
 };
 
-class abstract_interfacest
-{
-public:
+struct abstract_interfacest {
     virtual void feed(std::set<InterfaceKey> &events) = 0;
     virtual void logic() = 0;
     virtual void render() = 0;
@@ -550,28 +536,26 @@ enum InterfaceBreakdownTypes
 	INTERFACE_BREAKDOWNNUM
 };
 
-class viewscreenst : abstract_interfacest
-{
-	public:
-		viewscreenst *child;
-		viewscreenst *parent;
-		char breakdownlevel;
+struct viewscreenst : abstract_interfacest {
+	viewscreenst *child;
+	viewscreenst *parent;
+	char breakdownlevel;
 
-		char option_key_pressed;
-        widgets::container widgets;
-        virtual void feed(std::set<InterfaceKey>& events) { widgets.feed(events); }
-        virtual void logic() { widgets.logic(); }
-        virtual void render() { widgets.render(); }
-        virtual void resize(int w, int h){}
+	char option_key_pressed;
+    widgets::container widgets;
+    virtual void feed(std::set<InterfaceKey>& events) { widgets.feed(events); }
+    virtual void logic() { widgets.logic(); }
+    virtual void render() { widgets.render(); }
+    virtual void resize(int w, int h){}
 
 #ifdef CURSES_MOVIES
-		virtual char movies_okay(){return 1;}
+	virtual char movies_okay(){return 1;}
 #endif
 
-		virtual void set_port_flags();
+	virtual void set_port_flags();
 
-		viewscreenst();
-		virtual ~viewscreenst(){}
+	viewscreenst();
+	virtual ~viewscreenst(){}
 };
 
 #endif

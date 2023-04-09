@@ -1,11 +1,9 @@
 #ifndef TEXTLINES_H
 #define TEXTLINES_H
 
-struct textlinesst
-{
+struct textlinesst {
+
 	stringvectst text;
-
-
 
 	void load_raw_to_lines(const char *filename);
 

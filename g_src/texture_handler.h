@@ -3,28 +3,21 @@
 
 #include "textlines.h"
 
-struct palette_pagest
-{
+struct palette_pagest {
+
 	string token;
 
 	string graphics_dir;
 
 	string filename;
 
-
-	int32_t default_row;
+	int32_t default_row = -1;
 	stringvectst color_token;
-		svector<int32_t> color_row;//linked
-
-
-	palette_pagest()
-		{
-		default_row=-1;
-		}
+	svector<int32_t> color_row;//linked
 };
 
-struct tile_pagest
-{
+struct tile_pagest {
+
 	string token;
 
 	string graphics_dir;
@@ -40,52 +33,43 @@ struct tile_pagest
 	svector<long> texpos_gs;
 	svector<long> datapos_gs;
 
-	char loaded;
-
-
-
-	tile_pagest()
-		{
-		loaded=0;
-		}
+	char loaded = 0;
 
 	void load_graphics();
 	void refresh_graphics();
 };
 
-class texture_handlerst
-{
-	public:
-		svector<tile_pagest *> page;
-		svector<palette_pagest *> palette;
+struct texture_handlerst {
+	// are you sure the svector is the right type here? not a map?
+	svector<tile_pagest *> page;
+	svector<palette_pagest *> palette;
 
+	void clean();
+	void adopt_new_lines(textlinesst &lines,const string &graphics_dir);
 
-		void clean();
-		void adopt_new_lines(textlinesst &lines,const string &graphics_dir);
+	~texture_handlerst()
+		{
+		clean();
+		}
 
-		~texture_handlerst()
+	tile_pagest *get_tile_page_by_token(string &tk)
+		{
+		int32_t t;
+		for(t=0;t<page.size();t++)
 			{
-			clean();
+			if(page[t]->token==tk)return page[t];
 			}
-
-		tile_pagest *get_tile_page_by_token(string &tk)
+		return NULL;
+		}
+	palette_pagest *get_palette_page_by_token(string &tk)
+		{
+		int32_t t;
+		for(t=0;t<palette.size();t++)
 			{
-			int32_t t;
-			for(t=0;t<page.size();t++)
-				{
-				if(page[t]->token==tk)return page[t];
-				}
-			return NULL;
+			if(palette[t]->token==tk)return palette[t];
 			}
-		palette_pagest *get_palette_page_by_token(string &tk)
-			{
-			int32_t t;
-			for(t=0;t<palette.size();t++)
-				{
-				if(palette[t]->token==tk)return palette[t];
-				}
-			return NULL;
-			}
+		return NULL;
+		}
 };
 
 #endif

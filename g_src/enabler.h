@@ -95,135 +95,137 @@ using std::queue;
 
 #define GAME_TITLE_STRING "Dwarf Fortress"
 
-class pstringst
-{
- public:
+struct pstringst {
   string dat;
 };
 
-class stringvectst
-{
-	public:
-		svector<pstringst *> str;
+struct stringvectst {
+	svector<pstringst *> str;
 
-		void add_string(const string &st)
+	void add_string(const string &st)
+		{
+		pstringst *newp=new pstringst;
+			newp->dat=st;
+		str.push_back(newp);
+		}
+
+	long add_unique_string(const string &st)
+		{
+		long i;
+		for(i=(long)str.size()-1;i>=0;i--)
+			{
+			if(str[i]->dat==st)return i;
+			}
+		add_string(st);
+		return (long)str.size()-1;
+		}
+
+	void add_string(const char *st)
+		{
+		if(st!=NULL)
 			{
 			pstringst *newp=new pstringst;
 				newp->dat=st;
 			str.push_back(newp);
 			}
+		}
 
-		long add_unique_string(const string &st)
+	void insert_string(long k,const string &st)
+		{
+		pstringst *newp=new pstringst;
+			newp->dat=st;
+		if(str.size()>k)str.insert(k,newp);
+		else str.push_back(newp);
+		}
+
+	~stringvectst()
+		{
+		clean();
+		}
+
+	void clean()
+		{
+		while(str.size()>0)
 			{
-			long i;
-			for(i=(long)str.size()-1;i>=0;i--)
+			delete str[0];
+			str.erase(0);
+			}
+		}
+
+	void read_file(file_compressorst &filecomp,long loadversion)
+		{
+		int32_t dummy;
+		filecomp.read_file(dummy);
+		str.resize(dummy);
+
+		long s;
+		for(s=0;s<dummy;s++)
+			{
+			str[s]=new pstringst;
+			filecomp.read_file(str[s]->dat);
+			}
+		}
+	void write_file(file_compressorst &filecomp)
+		{
+		int32_t dummy=(int32_t)str.size();
+		filecomp.write_file(dummy);
+
+		long s;
+		for(s=0;s<dummy;s++)
+			{
+			filecomp.write_file(str[s]->dat);
+			}
+		}
+
+	void copy_from(const stringvectst &src)
+		{
+		clean();
+
+		str.resize(src.str.size());
+
+		long s;
+		for(s=(long)src.str.size()-1;s>=0;s--)
+			{
+			str[s]=new pstringst;
+				str[s]->dat=src.str[s]->dat;
+			}
+		}
+
+	bool has_string(const string &st)
+		{
+		long i;
+		for(i=(long)str.size()-1;i>=0;i--)
+			{
+			if(str[i]->dat==st)return true;
+			}
+		return false;
+		}
+
+	void remove_string(const string &st)
+		{
+		long i;
+		for(i=(long)str.size()-1;i>=0;i--)
+			{
+			if(str[i]->dat==st)
 				{
-				if(str[i]->dat==st)return i;
-				}
-			add_string(st);
-			return (long)str.size()-1;
-			}
-
-		void add_string(const char *st)
-			{
-			if(st!=NULL)
-				{
-				pstringst *newp=new pstringst;
-					newp->dat=st;
-				str.push_back(newp);
-				}
-			}
-
-		void insert_string(long k,const string &st)
-			{
-			pstringst *newp=new pstringst;
-				newp->dat=st;
-			if(str.size()>k)str.insert(k,newp);
-			else str.push_back(newp);
-			}
-
-		~stringvectst()
-			{
-			clean();
-			}
-
-		void clean()
-			{
-			while(str.size()>0)
-				{
-				delete str[0];
-				str.erase(0);
-				}
-			}
-
-		void read_file(file_compressorst &filecomp,long loadversion)
-			{
-			int32_t dummy;
-			filecomp.read_file(dummy);
-			str.resize(dummy);
-
-			long s;
-			for(s=0;s<dummy;s++)
-				{
-				str[s]=new pstringst;
-				filecomp.read_file(str[s]->dat);
-				}
-			}
-		void write_file(file_compressorst &filecomp)
-			{
-			int32_t dummy=(int32_t)str.size();
-			filecomp.write_file(dummy);
-
-			long s;
-			for(s=0;s<dummy;s++)
-				{
-				filecomp.write_file(str[s]->dat);
-				}
-			}
-
-		void copy_from(const stringvectst &src)
-			{
-			clean();
-
-			str.resize(src.str.size());
-
-			long s;
-			for(s=(long)src.str.size()-1;s>=0;s--)
-				{
-				str[s]=new pstringst;
-					str[s]->dat=src.str[s]->dat;
-				}
-			}
-
-		bool has_string(const string &st)
-			{
-			long i;
-			for(i=(long)str.size()-1;i>=0;i--)
-				{
-				if(str[i]->dat==st)return true;
-				}
-			return false;
-			}
-
-		void remove_string(const string &st)
-			{
-			long i;
-			for(i=(long)str.size()-1;i>=0;i--)
-				{
-				if(str[i]->dat==st)
-					{
-					delete str[i];
-					str.erase(i);
-					}
+				delete str[i];
+				str.erase(i);
 				}
 			}
+		}
 
-		void operator=(stringvectst &two);
+	void operator=(stringvectst &two);
 };
 
-class flagarrayst
-{
-	public:
+class flagarrayst {
+
+  private:
+
+    unsigned char *array;
+    int32_t slotnum;
+  
+  public:
+
 		flagarrayst()
 			{
 			slotnum=0;
@@ -337,10 +339,6 @@ class flagarrayst
 				slotnum=0;
 				}
 			}
-
-	private:
-		unsigned char *array;
-		int32_t slotnum;
 };
 
 #ifdef ENABLER

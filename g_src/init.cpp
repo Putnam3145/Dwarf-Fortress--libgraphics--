@@ -47,24 +47,6 @@ extern graphicst gps;
 
 int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b,uint8_t color_br);
 
-init_displayst::init_displayst()
-{
-	flag.set_size_on_flag_num(INIT_DISPLAY_FLAGNUM);
-		flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
-		flag.add_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
-
-	interface_scaling_desired_width=170;
-	interface_scaling_desired_height=64;
-	interface_scaling_percentage=100;
-
-	windowed=INIT_DISPLAY_WINDOW_TRUE;
-	filter_mode = InitDisplayFilterMode::AUTO;
-
-	partial_print_count=0;
-
-	max_interface_percentage=100;
-}
-
 void initst::begin()
 {
   static bool called = false;

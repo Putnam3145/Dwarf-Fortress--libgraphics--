@@ -15,15 +15,9 @@ using std::string;
 
 #define PALETTE_COLORNUM 18
 
-struct palettest
-{
-	uint8_t color[PALETTE_COLORNUM*3];
+struct palettest {
+	uint8_t color[PALETTE_COLORNUM*3]{128};
 
-	palettest()
-		{
-		int32_t c;
-		for(c=0;c<PALETTE_COLORNUM*3;++c)color[c]=128;
-		}
 	void copy_from(palettest &src)
 		{
 		std::memmove(color,src.color,sizeof(uint8_t)*PALETTE_COLORNUM*3);
@@ -1409,9 +1403,9 @@ enum GraphicsRampType
 #define GRAPHIC_VIEWPORT_FLAG_ACTIVE BIT1
 #define GRAPHIC_VIEWPORT_FLAG_SHOW_LIQUID_NUMBERS BIT2
 
-struct graphic_viewportst
-{
-	uint32_t flag;
+struct graphic_viewportst {
+
+	uint32_t flag = 0;
 
 	int32_t dim_x,dim_y;
 	int32_t clipx[2],clipy[2];
@@ -1481,7 +1475,6 @@ struct graphic_viewportst
 
 	graphic_viewportst()
 		{
-		flag=0;
 		screentexpos=NULL;
 		screentexpos_background=NULL;
 		screentexpos_background_two=NULL;
@@ -2551,8 +2544,8 @@ typedef int32_t TextureBridge;
 	#define VIEWPORT_SPATTER_FLAG_FIRE_FRAME_4 (BIT29|BIT30)
 #define VIEWPORT_SPATTER_FLAG_ACCEPTS_SPATTER BIT32
 
-struct interface_setst
-{
+struct interface_setst {
+
 	int32_t texpos_calendar_month[12][3];
 	int32_t texpos_calendar_day_past[3];
 	int32_t texpos_calendar_day_current[3];

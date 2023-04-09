@@ -3,38 +3,35 @@
 
 #include "enabler.h"
 
-class init_fontst
-{
-	public:
-		long basic_font_texpos[256];
-		long small_font_texpos[256];
-		long large_font_texpos[256];
-		long basic_font_datapos[256];
-		long small_font_datapos[256];
-		long large_font_datapos[256];
+struct init_fontst {
+	long basic_font_texpos[256];
+	long small_font_texpos[256];
+	long large_font_texpos[256];
+	long basic_font_datapos[256];
+	long small_font_datapos[256];
+	long large_font_datapos[256];
 
-		long basic_font_texpos_top[256];
-		long small_font_texpos_top[256];
-		long large_font_texpos_top[256];
-		long basic_font_texpos_bot[256];
-		long small_font_texpos_bot[256];
-		long large_font_texpos_bot[256];
+	long basic_font_texpos_top[256];
+	long small_font_texpos_top[256];
+	long large_font_texpos_top[256];
+	long basic_font_texpos_bot[256];
+	long small_font_texpos_bot[256];
+	long large_font_texpos_bot[256];
 
-		float basic_font_adjx;
-		float basic_font_adjy;
-		float small_font_adjx;
-		float small_font_adjy;
-		float large_font_adjx;
-		float large_font_adjy;
-		long basic_font_dispx;
-		long basic_font_dispy;
-		long small_font_dispx;
-		long small_font_dispy;
-		long large_font_dispx;
-		long large_font_dispy;
+	float basic_font_adjx;
+	float basic_font_adjy;
+	float small_font_adjx;
+	float small_font_adjy;
+	float large_font_adjx;
+	float large_font_adjy;
+	long basic_font_dispx;
+	long basic_font_dispy;
+	long small_font_dispx;
+	long small_font_dispy;
+	long large_font_dispx;
+	long large_font_dispy;
 
-
-		void create_derived_font_textures();
+	void create_derived_font_textures();
 };
 
 enum InitDisplayFlag
@@ -75,30 +72,30 @@ enum struct InitDisplayFilterMode : int32_t {
 	NUM
 };
 
-class init_displayst
-{
- public:
+struct init_displayst {
+  int32_t max_interface_percentage = 100;
+  int32_t interface_scaling_desired_width = 170;
+  int32_t interface_scaling_desired_height = 64;
+  int32_t interface_scaling_percentage = 100;
   flagarrayst flag;
-  InitDisplayWindow windowed;
+
+  init_displayst(){
+		flag.set_size_on_flag_num(INIT_DISPLAY_FLAGNUM);
+		flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
+		flag.add_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
+	}
+
+  InitDisplayWindow windowed = INIT_DISPLAY_WINDOW_TRUE;
 
   int grid_x, grid_y; // The *current* display grid size, kept up to date
-
   int desired_fullscreen_width, desired_fullscreen_height;
   int actual_fullscreen_width, actual_fullscreen_height;
   int desired_windowed_width, desired_windowed_height;
   int actual_windowed_width, actual_windowed_height;
-  int32_t max_interface_percentage;
 
-  int32_t interface_scaling_desired_width;
-  int32_t interface_scaling_desired_height;
-  int32_t interface_scaling_percentage;
+  char partial_print_count = 0;
 
-  
-  char partial_print_count;
-
-  InitDisplayFilterMode filter_mode;
-
-  init_displayst();
+  InitDisplayFilterMode filter_mode = InitDisplayFilterMode::AUTO;
 };
 
 enum InitMediaFlag
@@ -109,26 +106,17 @@ enum InitMediaFlag
 	INIT_MEDIA_FLAGNUM
 };
 
-class init_mediast
-{
-	public:
-		flagarrayst flag;
-		int32_t volume_master;
-		int32_t volume_music;
-		int32_t volume_ambience;
-		int32_t volume_sfx;
-		int32_t time_between_songs;
+struct init_mediast {
+	int32_t volume_master = 255;
+	int32_t volume_music = 255;
+	int32_t volume_ambience = 220;
+	int32_t volume_sfx = 255;
+	int32_t time_between_songs = 240;
+	flagarrayst flag;
 
-
-		init_mediast()
-			{
-			flag.set_size_on_flag_num(INIT_MEDIA_FLAGNUM);
-			volume_master=255;
-			volume_music=255;
-			volume_ambience=220;
-			volume_sfx=255;
-			time_between_songs=240;
-			}
+	init_mediast(){
+		flag.set_size_on_flag_num(INIT_MEDIA_FLAGNUM);
+	}
 };
 
 enum InitInputFlag
@@ -138,30 +126,19 @@ enum InitInputFlag
 	INIT_INPUT_FLAGNUM
 };
 
-class init_inputst
-{
- public:
-  int32_t hold_time;
-  int32_t repeat_time;
-  int32_t macro_time;
-  int32_t pause_zoom_no_interface_ms;
+struct init_inputst {
+  int32_t hold_time = 150;
+  int32_t repeat_time = 150;
+  int32_t macro_time = 75;
+  int32_t pause_zoom_no_interface_ms = 0;
+  int32_t zoom_speed = 10;
+  int32_t repeat_accel_start = 10;
+  int32_t repeat_accel_limit = 1;
   flagarrayst flag;
-  int32_t zoom_speed;
-  int32_t repeat_accel_start;
-  int32_t repeat_accel_limit;
   
-  init_inputst()
-    {
-      hold_time=150;
-      repeat_time=150;
-      macro_time=75;
-      pause_zoom_no_interface_ms=0;
-      flag.set_size_on_flag_num(INIT_INPUT_FLAGNUM);
-
-      zoom_speed = 10;
-      repeat_accel_start = 10;
-      repeat_accel_limit = 1;
-    }
+  init_inputst(){
+    flag.set_size_on_flag_num(INIT_INPUT_FLAGNUM);
+  }
 };
 
 enum InitWindowFlag
@@ -172,17 +149,14 @@ enum InitWindowFlag
 	INIT_WINDOW_FLAGNUM
 };
 
-class init_windowst
-{
-	public:
-		flagarrayst flag;
+struct init_windowst {
+	flagarrayst flag;
 
-		init_windowst()
-			{
-			flag.set_size_on_flag_num(INIT_WINDOW_FLAGNUM);
-				flag.add_flag(INIT_WINDOW_FLAG_VSYNC_OFF);
-				flag.add_flag(INIT_WINDOW_FLAG_TEXTURE_LINEAR);
-			}
+	init_windowst(){
+		flag.set_size_on_flag_num(INIT_WINDOW_FLAGNUM);
+		flag.add_flag(INIT_WINDOW_FLAG_VSYNC_OFF);
+		flag.add_flag(INIT_WINDOW_FLAG_TEXTURE_LINEAR);
+	}
 };
 
 enum InitLoadBarTextureType
@@ -203,139 +177,142 @@ typedef int32_t InitLoadBarTexture;
 #define INIT_FILTER_TEXTURENUM 30
 #define INIT_TABS_TEXTURENUM 30
 
-class initst
-{
-	public:
-		init_displayst display;
-		init_mediast media;
-		init_inputst input;
-		init_fontst font;
-		init_windowst window;
+struct initst {
 
-		//these are just used for save/load purposes
-		int32_t fps_cap;
-		int32_t gfps_cap;
+	init_displayst display;
+	init_mediast media;
+	init_inputst input;
+	init_fontst font;
+	init_windowst window;
 
-		long load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];
-		long intro_button_texpos[INIT_INTRO_BUTTON_TEXTURENUM];
-			int32_t texpos_neutral_intro_button[9];
-			int32_t texpos_confirm_intro_button[9];
-			int32_t texpos_cancel_intro_button[9];
-			int32_t texpos_selected_intro_button[9];
-			int32_t texpos_unselected_intro_button[9];
-			int32_t texpos_open_list_button[9];
-			int32_t texpos_increase_button[9];
-			int32_t texpos_decrease_button[9];
-			int32_t texpos_nullify_button[9];
-			int32_t texpos_left_arrow_button[9];
-			int32_t texpos_right_arrow_button[9];
-			int32_t texpos_up_arrow_button[9];
-			int32_t texpos_down_arrow_button[9];
-		long border_texpos[INIT_BORDER_TEXTURENUM];
-			int32_t texpos_border_nw;
-			int32_t texpos_border_n;
-			int32_t texpos_border_ne;
-			int32_t texpos_border_w;
-			int32_t texpos_border_interior;
-			int32_t texpos_border_e;
-			int32_t texpos_border_sw;
-			int32_t texpos_border_s;
-			int32_t texpos_border_se;
-			int32_t texpos_border_join_n;
-			int32_t texpos_border_join_s;
-			int32_t texpos_border_join_w;
-			int32_t texpos_border_join_e;
-			int32_t texpos_border_inside_nswe;
-			int32_t texpos_border_inside_nsw;
-			int32_t texpos_border_inside_nse;
-			int32_t texpos_border_inside_nwe;
-			int32_t texpos_border_inside_swe;
-			int32_t texpos_border_inside_ns;
-			int32_t texpos_border_inside_we;
-		long scrollbar_texpos[INIT_SCROLLBAR_TEXTURENUM];
-			int32_t texpos_scrollbar[2][3];
-			int32_t texpos_scrollbar_up_hover[2];
-			int32_t texpos_scrollbar_up_pressed[2];
-			int32_t texpos_scrollbar_down_hover[2];
-			int32_t texpos_scrollbar_down_pressed[2];
-			int32_t texpos_scrollbar_small_scroller[2][2];
-			int32_t texpos_scrollbar_small_scroller_hover[2][2];
-			int32_t texpos_scrollbar_top_scroller[2];
-			int32_t texpos_scrollbar_top_scroller_hover[2];
-			int32_t texpos_scrollbar_bottom_scroller[2];
-			int32_t texpos_scrollbar_bottom_scroller_hover[2];
-			int32_t texpos_scrollbar_blank_scroller[2];
-			int32_t texpos_scrollbar_blank_scroller_hover[2];
-			int32_t texpos_scrollbar_center_scroller[2];
-			int32_t texpos_scrollbar_center_scroller_hover[2];
-			int32_t texpos_scrollbar_offcenter_scroller[2][2];
-			int32_t texpos_scrollbar_offcenter_scroller_hover[2][2];
-		long filter_texpos[INIT_FILTER_TEXTURENUM];
-			int32_t texpos_button_filter[6][3];
-			int32_t texpos_button_filter_name[4][3];
-		long tabs_texpos[INIT_TABS_TEXTURENUM];
-			int32_t texpos_tab_unselected[5][2];
-			int32_t texpos_tab_selected[5][2];
+	//these are just used for save/load purposes
+	int32_t fps_cap;
+	int32_t gfps_cap;
 
-		//classic basic interface
-		long classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];
-		int32_t classic_texpos_neutral_intro_button[9];
-		int32_t classic_texpos_confirm_intro_button[9];
-		int32_t classic_texpos_cancel_intro_button[9];
-		int32_t classic_texpos_selected_intro_button[9];
-		int32_t classic_texpos_unselected_intro_button[9];
-		int32_t classic_texpos_open_list_button[9];
-		int32_t classic_texpos_increase_button[9];
-		int32_t classic_texpos_decrease_button[9];
-		int32_t classic_texpos_nullify_button[9];
-		int32_t classic_texpos_left_arrow_button[9];
-		int32_t classic_texpos_right_arrow_button[9];
-		int32_t classic_texpos_up_arrow_button[9];
-		int32_t classic_texpos_down_arrow_button[9];
-		int32_t classic_texpos_border_nw;
-		int32_t classic_texpos_border_n;
-		int32_t classic_texpos_border_ne;
-		int32_t classic_texpos_border_w;
-		int32_t classic_texpos_border_interior;
-		int32_t classic_texpos_border_e;
-		int32_t classic_texpos_border_sw;
-		int32_t classic_texpos_border_s;
-		int32_t classic_texpos_border_se;
-		int32_t classic_texpos_border_join_n;
-		int32_t classic_texpos_border_join_s;
-		int32_t classic_texpos_border_join_w;
-		int32_t classic_texpos_border_join_e;
-		int32_t classic_texpos_border_inside_nswe;
-		int32_t classic_texpos_border_inside_nsw;
-		int32_t classic_texpos_border_inside_nse;
-		int32_t classic_texpos_border_inside_nwe;
-		int32_t classic_texpos_border_inside_swe;
-		int32_t classic_texpos_border_inside_ns;
-		int32_t classic_texpos_border_inside_we;
-		int32_t classic_texpos_scrollbar[2][3];
-		int32_t classic_texpos_scrollbar_up_hover[2];
-		int32_t classic_texpos_scrollbar_up_pressed[2];
-		int32_t classic_texpos_scrollbar_down_hover[2];
-		int32_t classic_texpos_scrollbar_down_pressed[2];
-		int32_t classic_texpos_scrollbar_small_scroller[2][2];
-		int32_t classic_texpos_scrollbar_small_scroller_hover[2][2];
-		int32_t classic_texpos_scrollbar_top_scroller[2];
-		int32_t classic_texpos_scrollbar_top_scroller_hover[2];
-		int32_t classic_texpos_scrollbar_bottom_scroller[2];
-		int32_t classic_texpos_scrollbar_bottom_scroller_hover[2];
-		int32_t classic_texpos_scrollbar_blank_scroller[2];
-		int32_t classic_texpos_scrollbar_blank_scroller_hover[2];
-		int32_t classic_texpos_scrollbar_center_scroller[2];
-		int32_t classic_texpos_scrollbar_center_scroller_hover[2];
-		int32_t classic_texpos_scrollbar_offcenter_scroller[2][2];
-		int32_t classic_texpos_scrollbar_offcenter_scroller_hover[2][2];
-		int32_t classic_texpos_button_filter[6][3];
-		int32_t classic_texpos_button_filter_name[4][3];
-		int32_t classic_texpos_tab_unselected[5][2];
-		int32_t classic_texpos_tab_selected[5][2];
+	long load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];
+	long intro_button_texpos[INIT_INTRO_BUTTON_TEXTURENUM];
+	int32_t texpos_neutral_intro_button[9];
+	int32_t texpos_confirm_intro_button[9];
+	int32_t texpos_cancel_intro_button[9];
+	int32_t texpos_selected_intro_button[9];
+	int32_t texpos_unselected_intro_button[9];
+	int32_t texpos_open_list_button[9];
+	int32_t texpos_increase_button[9];
+	int32_t texpos_decrease_button[9];
+	int32_t texpos_nullify_button[9];
+	int32_t texpos_left_arrow_button[9];
+	int32_t texpos_right_arrow_button[9];
+	int32_t texpos_up_arrow_button[9];
+	int32_t texpos_down_arrow_button[9];
 
-		void begin();
-		void swap_basic_sets();
+	long border_texpos[INIT_BORDER_TEXTURENUM];
+	int32_t texpos_border_nw;
+	int32_t texpos_border_n;
+	int32_t texpos_border_ne;
+	int32_t texpos_border_w;
+	int32_t texpos_border_interior;
+	int32_t texpos_border_e;
+	int32_t texpos_border_sw;
+	int32_t texpos_border_s;
+	int32_t texpos_border_se;
+	int32_t texpos_border_join_n;
+	int32_t texpos_border_join_s;
+	int32_t texpos_border_join_w;
+	int32_t texpos_border_join_e;
+	int32_t texpos_border_inside_nswe;
+	int32_t texpos_border_inside_nsw;
+	int32_t texpos_border_inside_nse;
+	int32_t texpos_border_inside_nwe;
+	int32_t texpos_border_inside_swe;
+	int32_t texpos_border_inside_ns;
+	int32_t texpos_border_inside_we;
+
+	long scrollbar_texpos[INIT_SCROLLBAR_TEXTURENUM];
+	int32_t texpos_scrollbar[2][3];
+	int32_t texpos_scrollbar_up_hover[2];
+	int32_t texpos_scrollbar_up_pressed[2];
+	int32_t texpos_scrollbar_down_hover[2];
+	int32_t texpos_scrollbar_down_pressed[2];
+	int32_t texpos_scrollbar_small_scroller[2][2];
+	int32_t texpos_scrollbar_small_scroller_hover[2][2];
+	int32_t texpos_scrollbar_top_scroller[2];
+	int32_t texpos_scrollbar_top_scroller_hover[2];
+	int32_t texpos_scrollbar_bottom_scroller[2];
+	int32_t texpos_scrollbar_bottom_scroller_hover[2];
+	int32_t texpos_scrollbar_blank_scroller[2];
+	int32_t texpos_scrollbar_blank_scroller_hover[2];
+	int32_t texpos_scrollbar_center_scroller[2];
+	int32_t texpos_scrollbar_center_scroller_hover[2];
+	int32_t texpos_scrollbar_offcenter_scroller[2][2];
+	int32_t texpos_scrollbar_offcenter_scroller_hover[2][2];
+
+	long filter_texpos[INIT_FILTER_TEXTURENUM];
+	int32_t texpos_button_filter[6][3];
+	int32_t texpos_button_filter_name[4][3];
+	
+	long tabs_texpos[INIT_TABS_TEXTURENUM];
+	int32_t texpos_tab_unselected[5][2];
+	int32_t texpos_tab_selected[5][2];
+
+	//classic basic interface
+	long classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];
+	int32_t classic_texpos_neutral_intro_button[9];
+	int32_t classic_texpos_confirm_intro_button[9];
+	int32_t classic_texpos_cancel_intro_button[9];
+	int32_t classic_texpos_selected_intro_button[9];
+	int32_t classic_texpos_unselected_intro_button[9];
+	int32_t classic_texpos_open_list_button[9];
+	int32_t classic_texpos_increase_button[9];
+	int32_t classic_texpos_decrease_button[9];
+	int32_t classic_texpos_nullify_button[9];
+	int32_t classic_texpos_left_arrow_button[9];
+	int32_t classic_texpos_right_arrow_button[9];
+	int32_t classic_texpos_up_arrow_button[9];
+	int32_t classic_texpos_down_arrow_button[9];
+	int32_t classic_texpos_border_nw;
+	int32_t classic_texpos_border_n;
+	int32_t classic_texpos_border_ne;
+	int32_t classic_texpos_border_w;
+	int32_t classic_texpos_border_interior;
+	int32_t classic_texpos_border_e;
+	int32_t classic_texpos_border_sw;
+	int32_t classic_texpos_border_s;
+	int32_t classic_texpos_border_se;
+	int32_t classic_texpos_border_join_n;
+	int32_t classic_texpos_border_join_s;
+	int32_t classic_texpos_border_join_w;
+	int32_t classic_texpos_border_join_e;
+	int32_t classic_texpos_border_inside_nswe;
+	int32_t classic_texpos_border_inside_nsw;
+	int32_t classic_texpos_border_inside_nse;
+	int32_t classic_texpos_border_inside_nwe;
+	int32_t classic_texpos_border_inside_swe;
+	int32_t classic_texpos_border_inside_ns;
+	int32_t classic_texpos_border_inside_we;
+	int32_t classic_texpos_scrollbar[2][3];
+	int32_t classic_texpos_scrollbar_up_hover[2];
+	int32_t classic_texpos_scrollbar_up_pressed[2];
+	int32_t classic_texpos_scrollbar_down_hover[2];
+	int32_t classic_texpos_scrollbar_down_pressed[2];
+	int32_t classic_texpos_scrollbar_small_scroller[2][2];
+	int32_t classic_texpos_scrollbar_small_scroller_hover[2][2];
+	int32_t classic_texpos_scrollbar_top_scroller[2];
+	int32_t classic_texpos_scrollbar_top_scroller_hover[2];
+	int32_t classic_texpos_scrollbar_bottom_scroller[2];
+	int32_t classic_texpos_scrollbar_bottom_scroller_hover[2];
+	int32_t classic_texpos_scrollbar_blank_scroller[2];
+	int32_t classic_texpos_scrollbar_blank_scroller_hover[2];
+	int32_t classic_texpos_scrollbar_center_scroller[2];
+	int32_t classic_texpos_scrollbar_center_scroller_hover[2];
+	int32_t classic_texpos_scrollbar_offcenter_scroller[2][2];
+	int32_t classic_texpos_scrollbar_offcenter_scroller_hover[2][2];
+	int32_t classic_texpos_button_filter[6][3];
+	int32_t classic_texpos_button_filter_name[4][3];
+	int32_t classic_texpos_tab_unselected[5][2];
+	int32_t classic_texpos_tab_selected[5][2];
+
+	void begin();
+	void swap_basic_sets();
 };
 
 extern initst init;
