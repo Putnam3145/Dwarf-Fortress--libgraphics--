@@ -16,7 +16,13 @@ using std::string;
 #define PALETTE_COLORNUM 18
 
 struct palettest {
-	uint8_t color[PALETTE_COLORNUM*3]{128};
+	uint8_t color[PALETTE_COLORNUM*3];
+
+	palettest()
+		{
+		int32_t c;
+		for(c=0;c<PALETTE_COLORNUM*3;++c)color[c]=128;
+		}
 
 	void copy_from(palettest &src)
 		{
