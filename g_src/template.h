@@ -1,3 +1,31 @@
+/**
+ * The templated svector operation functions here are written
+ * pre c++11 range-based for-loop and std::algorithm, which
+ * guarantee efficient hardware implementations for various
+ * architectures.
+ * 
+ * A number of comments on the safety of the methods below...
+ * 
+ * Also: It appears that these functions exist primarily to
+ * make the svector behave like an std::multiset w. contiguous memory.
+ * Consider using a multi-set instead of the custom binary-
+ * search, unique insert, etc. implementations!
+ * This also has better hardware guarantees across architectures.
+ * And you can remove a TON of iteration in these methods.
+ * If you DO NEED the contiguous memory, just be aware of the
+ * performance penalties you are paying for keeping it sorted.
+*/
+
+#include <algorithm>
+
+// This function takes an arbitrary svector type, accumulates
+// if it has a += operator implementation, but then downcasts
+// to an int32_t.
+// If this isn't a vector of type int32_t, then the downcast
+// is probably not a good idea, and the template should be removed. 
+// Unless you are storing this in a pointer / array.
+// So the utilization matters for the downcast.
+
 template <class T> int32_t get_vector_sum(svector<T> &vec)
 {
 	T total=0;
@@ -8,6 +36,14 @@ template <class T> int32_t get_vector_sum(svector<T> &vec)
 		}
 	return total;
 }
+
+// potentially replace with (considering downcast):
+/*
+template <class T>
+int32_t get_vector_sum(svector<T> &vec){
+	return std::accumulate(vec);
+}
+*/
 
 template <class T> int32_t get_random_biased_index(svector<T> &chance)
 {
@@ -31,39 +67,39 @@ template <class T> int32_t get_random_biased_index(svector<T> &chance)
 	return 0;//MORE FUNCTIONS WILL BE HAPPIER WITH 0 THAN -1 HERE
 }
 
-template <class T> void zero_vector(svector<T> &vc)
-{
-	//NOTE: vector MEMORY IS GUARANTEED TO BE CONTIGUOUS, AND THIS IS FASTER THAN GOING THROUGH ONE BY ONE
-			//apparently this gives linux a headache though, so back to the slower way
-	//int32_t sz=vc.size();
-	//if(sz==0)return;
-	//memset(&(vc[0]),0,sizeof(T)*sz);
-	auto ii_s=vc.begin(),ii_e=vc.end();
-	for(;ii_s<ii_e;++ii_s)(*ii_s)=0;
+// This function is valid for any class with a valid
+// assignment operator with a "0" number literal
+template <class T>
+void zero_vector(svector<T> &vec){
+	std::fill(vec.begin(), vec.end(), 0);
 }
 
-template <class T> bool positive_vector(svector<T> &vc)
-{
-	auto ii_s=vc.begin(),ii_e=vc.end();
-	for(;ii_s<ii_e;++ii_s)
-		{
-		if((*ii_s)>0)return true;
-		}
+// Note that this returns true if _any_ element is positive!
+// valid template for any type with a greater-than comparison
+// operator with a "0" number literal
+template <class T> 
+bool positive_vector(svector<T> &vec){
+	for(auto& v: vec)
+		if(v > 0) return true;
 	return false;
 }
 
-template <class T> void add_unique_to_vector(T nl,svector<T> &vc)
-{
-	auto ii_s=vc.begin(),ii_e=vc.end();
-	for(;ii_s<ii_e;++ii_s)
-		{
-		if((*ii_s)==nl)return;
-		}
-	vc.push_back(nl);
+// Valid template for any type with a self-comparison operator
+template <class T> 
+void add_unique_to_vector(T nl, svector<T> &vec){
+	for(auto& v: vec)
+		if(v == nl) return;
+	vec.push_back(nl);
 }
 
-template <class T,class T2> void add_dual_unique_to_vectors(T nl,T2 nl2,svector<T> &vc,svector<T2> &vc2)
-{
+// This function is very strange!
+// Here, we use two separate template types, but also have an implicit
+// requirement that they have equal extent?
+// Potentially unify the template parameters if possible.
+// Notice that ii_e2 is never used!
+template <class T,class T2>
+void add_dual_unique_to_vectors(T nl,T2 nl2,svector<T> &vc,svector<T2> &vc2){
+	assert(vc.size() == vc2.size()); // otherwise unexpected behavior??
 	auto ii_s=vc.begin(),ii_e=vc.end();
 	auto ii_s2=vc2.begin(),ii_e2=vc2.end();
 	for(;ii_s<ii_e;++ii_s,++ii_s2)
@@ -75,13 +111,19 @@ template <class T,class T2> void add_dual_unique_to_vectors(T nl,T2 nl2,svector<
 	vc2.push_back(nl2);
 }
 
-template <class T,class T2,class T3,class T4> void add_quad_unique_to_vectors(T nl,T2 nl2,T3 nl3,T4 nl4,
-																				svector<T> &vc,svector<T2> &vc2,svector<T3> &vc3,svector<T4> &vc4)
-{
+// Exact same issues here as above!
+// Implicit extent requirement, or assumption
+// that the first vector has the largest extent.
+template <class T,class T2,class T3,class T4> 
+void add_quad_unique_to_vectors(T nl,T2 nl2,T3 nl3,T4 nl4,
+	svector<T> &vc,svector<T2> &vc2,svector<T3> &vc3,svector<T4> &vc4){
+	assert(vc.size() == vc2.size()); // otherwise unexpected behavior??
+	assert(vc.size() == vc3.size()); // otherwise unexpected behavior??
+	assert(vc.size() == vc4.size()); // otherwise unexpected behavior??
 	auto ii_s=vc.begin(),ii_e=vc.end();
-	auto ii_s2=vc2.begin(),ii_e2=vc2.end();
-	auto ii_s3=vc3.begin(),ii_e3=vc3.end();
-	auto ii_s4=vc4.begin(),ii_e4=vc4.end();
+	auto ii_s2=vc2.begin(),ii_e2=vc2.end();	// ii_e2 unused
+	auto ii_s3=vc3.begin(),ii_e3=vc3.end();	// ii_e3 unused
+	auto ii_s4=vc4.begin(),ii_e4=vc4.end();	// ii_e4 unused
 	for(;ii_s<ii_e;++ii_s,++ii_s2,++ii_s3,++ii_s4)
 		{
 		if((*ii_s)==nl&&
@@ -95,6 +137,9 @@ template <class T,class T2,class T3,class T4> void add_quad_unique_to_vectors(T 
 	vc4.push_back(nl4);
 }
 
+// why is there an explicit cast of the index-type to int32_t?
+// using a size_t is probably the prudent move.
+// std::multiset obviates this iteration
 template <class T> void remove_all_from_vector(T nl,svector<T> &vc)
 {
 	int32_t i;
@@ -104,6 +149,7 @@ template <class T> void remove_all_from_vector(T nl,svector<T> &vc)
 		}
 }
 
+// this depends on application... but same explicit cast.
 template <class T,class T2> void remove_all_from_dual_vectors(T nl,T2 nl2,svector<T> &vc,svector<T2> &vc2)
 {
 	int32_t i;
@@ -118,6 +164,7 @@ template <class T,class T2> void remove_all_from_dual_vectors(T nl,T2 nl2,svecto
 		}
 }
 
+// Here, I think using a size_t is also a good idea.
 template <class T> int32_t get_vector_index(T a,svector<T> &v)
 {
 	auto ii_s=v.begin(),ii_e=v.end();
@@ -129,6 +176,7 @@ template <class T> int32_t get_vector_index(T a,svector<T> &v)
 	return -1;
 }
 
+// same here as above
 template <class T,class T2> int32_t get_dual_vector_index(T a1,T2 a2,svector<T> &vc,svector<T2> &vc2)
 {
 	auto ii_s=vc.begin(),ii_e=vc.end();
@@ -142,6 +190,7 @@ template <class T,class T2> int32_t get_dual_vector_index(T a1,T2 a2,svector<T> 
 	return -1;
 }
 
+// same here as above
 template <class T,class T2,class T3,class T4> int32_t get_quad_vector_index(T a1,T2 a2,T3 a3,T4 a4,
 																		svector<T> &vc,svector<T2> &vc2,
 																		svector<T3> &vc3,svector<T4> &vc4)
@@ -161,21 +210,21 @@ template <class T,class T2,class T3,class T4> int32_t get_quad_vector_index(T a1
 	return -1;
 }
 
-template <class T> void merge_vectors(T &master, T &merger)
-{
+template <class T> void merge_vectors(T &master, T &merger){
 	auto ii_s=merger.begin(),ii_e=merger.end();
-	for(;ii_s<ii_e;++ii_s)
-		{
+	for(;ii_s<ii_e;++ii_s){
 		auto ii_s2=master.begin(),ii_e2=master.end();
-		for(;ii_s2<ii_e2;++ii_s2)
-			{
+		for(;ii_s2<ii_e2;++ii_s2){
 			if((*ii_s)==(*ii_s2))break;
-			}
-		if(ii_s2>=ii_e2)
-			{
-			master.push_back((*ii_s));
-			}
 		}
+		// doesn't this check for the end-condition of the nested loop?
+		// meaning that the element was not found in the first vector?
+		// i.e. we add the element if it is not already in master.
+		// if possible, using a set here would make this faster too.
+		if(ii_s2>=ii_e2){	
+			master.push_back((*ii_s));
+		}
+	}
 }
 
 template <class T> int32_t get_common_element_vector_index(T &master, T &merger)
@@ -247,6 +296,7 @@ template <class T,class T2,class T3,class T4> void merge_quad_vectors(T &master,
 		}
 }
 
+// This could also do without the explicit cast
 template <class T> void cull_vectors(T &master,T &cull)
 {
 	int32_t i,i2;
@@ -263,15 +313,16 @@ template <class T> void cull_vectors(T &master,T &cull)
 		}
 }
 
-template <class T> void push_on_vector(T &master,T &new_stuff)
-{
-	auto ii_s=new_stuff.begin(),ii_e=new_stuff.end();
-	for(;ii_s<ii_e;++ii_s)
-		{
-		master.push_back(*ii_s);
-		}
+template <class T>
+void push_on_vector(T &master, T &new_stuff){
+	master.insert(master.end(), new_stuff.begin(), new_stuff.end());
 }
 
+// why use vindex here? it is a type-alias for int32_t.
+// does the index type change anywhere in the main code?
+// unless this is relevant due to pointer-magic, I would use size_t.
+// this function also does a binary search to add unique ids...
+// consider using a set or multiset.
 template<class T> VIndex add_to_global_id_vector(T ptr,svector<T> &vect)
 {
 	int32_t size=(int32_t)vect.size();
@@ -361,6 +412,11 @@ template<class T> VIndex add_to_global_id_vector(T ptr,svector<T> &vect)
 	return -1;//push_back() FOR UNIQUE ALREADY HANDLED SO NO else
 }
 
+// This is effectively a binary search, which implies the vector is sorted.
+// does it need to be contiguous memory? -> consider a set or multiset.
+// Otherwise, keeping sorted contiguous memory is definitely a performance killer.
+// this is true for the next few methods.
+// also the int32_t cast
 template<class T> void remove_from_global_id_vector(T ptr,svector<T> &vect)
 {
 	int32_t start=0;
@@ -405,6 +461,8 @@ template<class T> void remove_from_global_id_vector_by_id(int32_t id,svector<T> 
 		}
 }
 
+// can you constrain this svector to pointer-type?
+// I guess this is being used for svectors of c-string?
 template<class T> T get_from_global_id_vector(int32_t id,svector<T> &vect)
 {
 	int32_t start=0;
@@ -424,6 +482,7 @@ template<class T> T get_from_global_id_vector(int32_t id,svector<T> &vect)
 	return NULL;
 }
 
+// use size_t unless handling pointers of the return value
 template<class T> int32_t get_index_from_global_id_vector(int32_t id,svector<T> &vect)
 {
 	int32_t start=0;
@@ -818,6 +877,9 @@ template<class T> void fixed_array_push_back(T ptr,T *vect,int32_t &size,int32_t
 	size++;
 }
 
+// what happends here if index > size?
+// i.e. size is 0, but I insert at 2?
+// what happens if index > max?
 template<class T> void fixed_array_insert(int32_t index,T ptr,T *vect,int32_t &size,int32_t max)
 {
 	if(size>=max)return;
@@ -1096,6 +1158,11 @@ template<class T> int32_t get_index_from_local_id_vector(int32_t id,svector<T> &
 	return -1;
 }
 
+// Why are you casting the size_type of the vector, over which one has
+// no control, down to int16_t, when the actual "short" type is a member
+// of the template type? There is no use in the explicit int16_t types
+// in this method. Using a size_t obviates casts.
+// the same issue is true below!!!!
 template<class T> void add_to_short_id_vector(T ptr,svector<T> &vect)
 {
 	int16_t size=(int16_t)vect.size();
@@ -1182,6 +1249,9 @@ template<class T> void remove_from_short_id_vector(T ptr,svector<T> &vect)
 
 template<class T> T get_from_short_id_vector(int16_t id,svector<T> &vect)
 {
+	// as mentioned above, using an int16_t downcast for the 
+	// svector size_type carries unnecessary cost
+	// the actual int16_t type is a member of the template parameter.
 	int16_t start=0;
 	int16_t end=(int16_t)vect.size()-1;
 	int16_t mid;
@@ -1228,6 +1298,7 @@ template<class T> int16_t get_index_from_short_id_vector(int16_t id,svector<T> &
 	return -1;
 }
 
+// the following methods have the same size_type cast issues
 template<class T> void add_to_local_id_64_vector(T ptr,svector<T> &vect)
 {
 	int64_t size=(int64_t)vect.size();
