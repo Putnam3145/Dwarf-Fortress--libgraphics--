@@ -348,36 +348,53 @@ extern "C" {
     return _waddnwstr(w, s, n);
   }
 
+  bool load_curses() {
+    
+    handle = dlopen("libncursesw.so.5", RTLD_LAZY);
+    if(handle) return true;
+
+    handle = dlopen("libncursesw.so", RTLD_LAZY);
+    if(handle) return true;
+
+    puts("Didn't find any flavor of libncursesw, attempting libncurses");
+    sleep(5);
+
+    handle = dlopen("libncurses.dylib", RTLD_LAZY);
+    if (handle) return true;
+
+    handle = dlopen("libncurses.so.5", RTLD_LAZY);
+    if (handle) return true;
+    
+    handle = dlopen("libncurses.so", RTLD_LAZY);
+    if (handle) return true;
+
+    handle = dlopen("libncurses.5.4.dylib", RTLD_LAZY);
+    if (handle) return true;
+
+    handle = dlopen("/usr/lib/libncurses.dylib", RTLD_LAZY);
+    if (handle) return true;
+
+    handle = dlopen("/usr/lib/libncurses.5.4.dylib", RTLD_LAZY);
+    if (handle) return true;
+
+    return false;
+
+  }
+
   void init_curses() {
     static bool stub_initialized = false;
     // Initialize the stub
     if (!stub_initialized) {
       stub_initialized = true;
-      // We prefer libncursesw, but we'll accept libncurses if we have to
-      handle = dlopen("libncursesw.so.5", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncursesw.so", RTLD_LAZY);
-      if (handle) goto opened;
-      puts("Didn't find any flavor of libncursesw, attempting libncurses");
-      sleep(5);
-      handle = dlopen("libncurses.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.so.5", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.so", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.5.4.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("/usr/lib/libncurses.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("/usr/lib/libncurses.5.4.dylib", RTLD_LAZY);
-      if (handle) goto opened;
 
-    opened:
-      if (!handle) {
+      // We prefer libncursesw, but we'll accept libncurses if we have to
+
+      handle = NULL;
+      if (!load_curses()) {
         puts("Unable to open any flavor of libncurses!");
         exit(EXIT_FAILURE);
       }
+
       // Okay, look up our symbols
       int *pairs = (int*)dlsym_orexit("COLOR_PAIRS");
       COLOR_PAIRS = *pairs;

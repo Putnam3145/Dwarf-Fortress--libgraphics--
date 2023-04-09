@@ -68,20 +68,18 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_to_texid(int x,
 
     if (texpos) {
       ret.texpos = texpos;
-      if (stp_flag & SCREENTEXPOS_FLAG_GRAYSCALE) {
+      if (stp_flag & SCREENTEXPOS_FLAG_GRAYSCALE || stp_flag & SCREENTEXPOS_FLAG_ADDCOLOR) {
         ret.r = (float)s[1]/255.0f;
         ret.g = (float)s[2]/255.0f;
         ret.b = (float)s[3]/255.0f;
         ret.br = (float)s[4]/255.0f;
         ret.bg = (float)s[5]/255.0f;
         ret.bb = (float)s[6]/255.0f;
-      } else if (stp_flag & SCREENTEXPOS_FLAG_ADDCOLOR) {
-        goto use_ch;
       } else {
         ret.r = ret.g = ret.b = 1;
         ret.br = ret.bg = ret.bb = 0;
       }
-      goto skip_ch;
+      return Either<texture_fullid,int32_t/*texture_ttfid*/>(ret);
     }
   }
   
@@ -101,15 +99,12 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_to_texid(int x,
 		}
 	else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
 
- use_ch:
-    ret.r = (float)s[1]/255.0f;
-    ret.g = (float)s[2]/255.0f;
-    ret.b = (float)s[3]/255.0f;
-    ret.br = (float)s[4]/255.0f;
-    ret.bg = (float)s[5]/255.0f;
-    ret.bb = (float)s[6]/255.0f;
-
- skip_ch:
+  ret.r = (float)s[1]/255.0f;
+  ret.g = (float)s[2]/255.0f;
+  ret.b = (float)s[3]/255.0f;
+  ret.br = (float)s[4]/255.0f;
+  ret.bg = (float)s[5]/255.0f;
+  ret.bb = (float)s[6]/255.0f;
 
   return Either<texture_fullid,int32_t/*texture_ttfid*/>(ret);
 }
@@ -145,20 +140,18 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_top_to_texid(in
 
     if (texpos) {
       ret.texpos = texpos;
-      if (stp_flag & SCREENTEXPOS_FLAG_GRAYSCALE) {
+      if (stp_flag & SCREENTEXPOS_FLAG_GRAYSCALE || stp_flag & SCREENTEXPOS_FLAG_ADDCOLOR) {
         ret.r = (float)s[1]/255.0f;
         ret.g = (float)s[2]/255.0f;
         ret.b = (float)s[3]/255.0f;
         ret.br = (float)s[4]/255.0f;
         ret.bg = (float)s[5]/255.0f;
         ret.bb = (float)s[6]/255.0f;
-      } else if (stp_flag & SCREENTEXPOS_FLAG_ADDCOLOR) {
-        goto use_ch;
-      } else {
+      }  else {
         ret.r = ret.g = ret.b = 1;
         ret.br = ret.bg = ret.bb = 0;
       }
-      goto skip_ch;
+      return Either<texture_fullid,int32_t/*texture_ttfid*/>(ret);
     }
   }
   
@@ -176,15 +169,12 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_top_to_texid(in
 		}
 	else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
 
- use_ch:
-    ret.r = (float)s[1]/255.0f;
-    ret.g = (float)s[2]/255.0f;
-    ret.b = (float)s[3]/255.0f;
-    ret.br = (float)s[4]/255.0f;
-    ret.bg = (float)s[5]/255.0f;
-    ret.bb = (float)s[6]/255.0f;
-
- skip_ch:
+  ret.r = (float)s[1]/255.0f;
+  ret.g = (float)s[2]/255.0f;
+  ret.b = (float)s[3]/255.0f;
+  ret.br = (float)s[4]/255.0f;
+  ret.bg = (float)s[5]/255.0f;
+  ret.bb = (float)s[6]/255.0f;
 
   return Either<texture_fullid,int32_t/*texture_ttfid*/>(ret);
 }
