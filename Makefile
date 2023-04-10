@@ -1,7 +1,7 @@
 # Dwarf-Fortress Libgraphics Makefile
 # Author: @weigert
 # Version 1.0
-# Tested on MacOSX (M1 arm) (soon: GNU/Linux, x86 arm)
+# Tested on MacOSX (M1 arm) (soon: GNU/Linux, x86 amd)
 
 # Install Location Configuration
 INCPATH = -I/usr/local/include
