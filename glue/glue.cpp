@@ -3,14 +3,15 @@
 
 /**
  * glue.hpp
- * 
+ *
  * glue methods for making the code compilable,
  * providing external symbols and (stub) function
  * definitions
 */
 
-#include "../g_src/random.h"
+// random.h glue
 
+#include "../g_src/random.h"
 int mt_index[MT_BUFFER_NUM];
 short mt_cur_buffer;
 short mt_virtual_buffer;
@@ -61,8 +62,7 @@ int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b
 
 // ViewBase.cpp glue
 
-
-#include "../g_src/KeyBindingScreen.h"
+#include "../g_src/KeybindingScreen.h"
 viewscreenst::viewscreenst(){}
 void viewscreenst::set_port_flags() {
 }
@@ -70,10 +70,8 @@ void viewscreenst::set_port_flags() {
 // other stuff
 
 #include "../g_src/basics.h"
-
 GameMode gamemode;
 GameType gametype;
-
 int32_t movie_version;
 
 #endif // DF_GLUE_CPP
