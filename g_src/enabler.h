@@ -33,8 +33,8 @@ using std::queue;
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_thread.h>
 #ifdef __APPLE__
-# include <SDL_ttf/SDL_ttf.h>
-# include <SDL_image/SDL_image.h>
+# include <SDL2/SDL_ttf.h>
+# include <SDL2/SDL_image.h>
 #else
 # include <SDL2/SDL_ttf.h>
 # include <SDL2/SDL_image.h>
