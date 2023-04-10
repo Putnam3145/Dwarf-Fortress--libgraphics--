@@ -1,4 +1,4 @@
-#include "../release_type.h"
+//#include "../release_type.h"
 
 #include "platform.h"
 #include <string.h>

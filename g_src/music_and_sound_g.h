@@ -15,7 +15,7 @@
 
 #include <variant>
 
-#include "../platform.h"
+#include "platform.h"
 
 #ifdef WIN32
 #include "../../fmod/inc/fmod.hpp"
