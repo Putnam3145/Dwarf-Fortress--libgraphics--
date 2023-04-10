@@ -1,7 +1,7 @@
 # Dwarf-Fortress Libgraphics Makefile
 # Author: @weigert
 # Version 1.0
-# Tested on MacOSX (amd, M1 arm) (soon: GNU/Linux)
+# Tested on MacOSX (M1 arm) (soon: GNU/Linux, x86 arm)
 
 # Install Location Configuration
 INCPATH = -I/usr/local/include
@@ -11,8 +11,6 @@ LINKOS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lz
 # Compilation Settings
 CC = g++-10 -std=c++20
 CF = -Wfatal-errors -O3 -g -DDF_GLUE_CPP
-
-# MacOS: Dependencies install with homegrew
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)			#Detect GNU/Linux
@@ -25,7 +23,7 @@ endif
 
 .PHONY: all
 all:
-	@echo "Dwarf-Fortress libgraphics ...";
+	@echo "Compiling Dwarf-Fortress libgraphics (main)...";
 	@$(CC) $(CF) $(INCPATH) $(LIBPATH) $(LINKOS) \
     g_src/basics.cpp \
     g_src/command_line.cpp \
