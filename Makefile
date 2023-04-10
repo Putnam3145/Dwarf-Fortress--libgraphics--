@@ -1,21 +1,20 @@
 # Dwarf-Fortress Libgraphics Makefile
-# Author: @weigert
-# Version 1.0
-# Tested on MacOSX (M1 arm) (soon: GNU/Linux, x86 amd)
+# Tested on MacOSX (M1, arm) GNU/Linux (Ubuntu, x86 amd)
 
 # Install Location Configuration
 INCPATH = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
-LINKOS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lz
+LINKOS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lz -ldl -lpthread
 
 # Compilation Settings
-CC = g++-10 -std=c++20
+CC = g++-11 -std=c++20
 CF = -Wfatal-errors -O3 -g -DDF_GLUE_CPP
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)			#Detect GNU/Linux
 endif
-ifeq ($(UNAME), Darwin)			#Detext MacOS
+ifeq ($(UNAME), Darwin)			#Detect MacOS
+# assume dependency installation w. homebrew
 INCPATH = -I/opt/homebrew/include
 LIBPATH = -L/opt/homebrew/lib
 CC = g++-12 -std=c++20
@@ -24,7 +23,7 @@ endif
 .PHONY: all
 all:
 	@echo "Compiling Dwarf-Fortress libgraphics (main)...";
-	@$(CC) $(CF) $(INCPATH) $(LIBPATH) $(LINKOS) \
+	@$(CC) $(CF) $(INCPATH) $(LIBPATH) \
     g_src/basics.cpp \
     g_src/command_line.cpp \
     g_src/dfhooks.cpp \
@@ -46,5 +45,5 @@ all:
     g_src/ViewBase.cpp \
     g_src/win32_compat.cpp \
     glue/glue.cpp \
-	-o main
+	$(LINKOS) -o main
 	@echo "Done";
