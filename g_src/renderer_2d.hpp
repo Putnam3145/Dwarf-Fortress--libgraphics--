@@ -149,7 +149,7 @@ protected:
 			case InitDisplayFilterMode::AUTO:
 			{
 				auto port_mod = viewport_zoom_factor % 128;
-				should_do_soft_resize = port_mod > 16 && port_mod < 112;
+				should_do_soft_resize = port_mod >= 16 && port_mod <= 112;
 				break;
 			}
 			case InitDisplayFilterMode::LANCZOS:
@@ -173,7 +173,7 @@ protected:
 			case InitDisplayFilterMode::AUTO:
 			{
 				auto port_mod = (dispx_z*128/dispx)%128;
-				should_do_soft_resize = port_mod > 16 && port_mod < 112;
+				should_do_soft_resize = port_mod >= 8 && port_mod <= 120;
 				break;
 			}
 			case InitDisplayFilterMode::LANCZOS:
@@ -182,7 +182,9 @@ protected:
 		}
 		if (should_do_soft_resize)
 		{
-			SDL_Surface* disp = SDL_Resize(color, dispx_z * surf->w / dispx, dispy_z * surf->h / dispy);
+			surf->w=dispx;
+			surf->h=dispy; // bad bad bad
+			SDL_Surface* disp = SDL_Resize(color, dispx_z, dispy_z);
 			tile_cache[id] = SDL_CreateTextureFromSurface(sdl_renderer, disp);
 			SDL_FreeSurface(disp);
 			return tile_cache[id];
@@ -223,7 +225,7 @@ protected:
 	{
 		SDL_SetWindowFullscreen(window,window_flags);
 		SDL_SetWindowSize(window, w, h);
-		SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		clean_tile_cache();
 	}
 	else
 	{
@@ -3854,7 +3856,7 @@ void do_blank_screen_fill()
 
   void compute_forced_zoom() {
     forced_steps = 0;
-
+	clean_tile_cache();
     const int dispx = (enabler.flag & ENABLERFLAG_BASIC_TEXT) ?
 		init.font.basic_font_dispx :
 		(enabler.is_fullscreen() ?
