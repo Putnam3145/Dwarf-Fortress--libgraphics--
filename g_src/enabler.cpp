@@ -862,9 +862,9 @@ void enablerst::do_frame() {
     gputicks++;
     outstanding_gframes--;
   }
-
   // Sleep until the next gframe
   if (outstanding_gframes < 1) {
+    emit_logs(); // flush game/error logs whenever we have to sleep
     float fragment = 1 - outstanding_gframes;
     float milliseconds = fragment / gfps * 1000;
     // cout << milliseconds << endl;

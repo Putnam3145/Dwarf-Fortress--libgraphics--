@@ -93,6 +93,7 @@ void garbage_collect(object_pool<T,N> &pool,std::vector<T *> &glob)
 			{
 			still_extant.insert(obj->get_pool_id());
 			}
+		if (still_extant.empty()) return;
 		const auto m=*still_extant.rbegin();
 		for (auto i=0; i<=m; i++)
 			{

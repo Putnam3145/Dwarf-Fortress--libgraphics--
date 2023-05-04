@@ -1301,6 +1301,7 @@ typedef uint32_t Edging;
 	#define VIEWPORT_WALL_FLAG_TYPE_WORN_STONE_1 (22<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 	#define VIEWPORT_WALL_FLAG_TYPE_WORN_STONE_2 (23<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 	#define VIEWPORT_WALL_FLAG_TYPE_WORN_STONE_3 (24<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
+	#define VIEWPORT_WALL_FLAG_TYPE_ICE_SMOOTH (25<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 #define VIEWPORT_WALL_FLAG_VARIANT_BITS (BIT21|BIT22)
 	#define VIEWPORT_WALL_FLAG_VARIANT_SHIFT 20
 	#define VIEWPORT_WALL_FLAG_VARIANT_1 0
@@ -3158,7 +3159,45 @@ class graphicst
 		int32_t palette_stair_down_texpos;
 		int32_t smooth_floor_texpos;
 		int32_t workshop_floor_texpos;
+
 		int32_t texpos_fortification;
+		int32_t texpos_fortification_open_nswe;
+		int32_t texpos_fortification_open_nsw;
+		int32_t texpos_fortification_open_nse;
+		int32_t texpos_fortification_open_nwe;
+		int32_t texpos_fortification_open_swe;
+		int32_t texpos_fortification_open_ns;
+		int32_t texpos_fortification_open_we;
+		int32_t texpos_fortification_open_nw;
+		int32_t texpos_fortification_open_ne;
+		int32_t texpos_fortification_open_sw;
+		int32_t texpos_fortification_open_se;
+
+		int32_t texpos_fortification_ice;
+		int32_t texpos_fortification_ice_open_nswe;
+		int32_t texpos_fortification_ice_open_nsw;
+		int32_t texpos_fortification_ice_open_nse;
+		int32_t texpos_fortification_ice_open_nwe;
+		int32_t texpos_fortification_ice_open_swe;
+		int32_t texpos_fortification_ice_open_ns;
+		int32_t texpos_fortification_ice_open_we;
+		int32_t texpos_fortification_ice_open_nw;
+		int32_t texpos_fortification_ice_open_ne;
+		int32_t texpos_fortification_ice_open_sw;
+		int32_t texpos_fortification_ice_open_se;
+
+		int32_t texpos_fortification_wood;
+		int32_t texpos_fortification_wood_open_nswe;
+		int32_t texpos_fortification_wood_open_nsw;
+		int32_t texpos_fortification_wood_open_nse;
+		int32_t texpos_fortification_wood_open_nwe;
+		int32_t texpos_fortification_wood_open_swe;
+		int32_t texpos_fortification_wood_open_ns;
+		int32_t texpos_fortification_wood_open_we;
+		int32_t texpos_fortification_wood_open_nw;
+		int32_t texpos_fortification_wood_open_ne;
+		int32_t texpos_fortification_wood_open_sw;
+		int32_t texpos_fortification_wood_open_se;
 
 		svector<int32_t> texpos_custom_symbol;
 
@@ -4140,6 +4179,26 @@ class graphicst
 		int32_t ice_wall_sw_texpos;
 		int32_t ice_wall_se_texpos;
 
+		int32_t smoothed_ice_wall_nswe_texpos;
+		int32_t smoothed_ice_wall_swe_texpos;
+		int32_t smoothed_ice_wall_nwe_texpos;
+		int32_t smoothed_ice_wall_nse_texpos;
+		int32_t smoothed_ice_wall_nsw_texpos;
+		int32_t smoothed_ice_wall_n_w_texpos;
+		int32_t smoothed_ice_wall_n_e_texpos;
+		int32_t smoothed_ice_wall_s_w_texpos;
+		int32_t smoothed_ice_wall_s_e_texpos;
+		int32_t smoothed_ice_wall_n_s_texpos;
+		int32_t smoothed_ice_wall_w_e_texpos;
+		int32_t smoothed_ice_wall_n_texpos;
+		int32_t smoothed_ice_wall_s_texpos;
+		int32_t smoothed_ice_wall_w_texpos;
+		int32_t smoothed_ice_wall_e_texpos;
+		int32_t smoothed_ice_wall_nw_texpos;
+		int32_t smoothed_ice_wall_ne_texpos;
+		int32_t smoothed_ice_wall_sw_texpos;
+		int32_t smoothed_ice_wall_se_texpos;
+
 		int32_t magma_wall_nswe_texpos;
 		int32_t magma_wall_swe_texpos;
 		int32_t magma_wall_nwe_texpos;
@@ -4472,6 +4531,7 @@ class graphicst
 		int32_t texpos_floor_stone_block;
 		int32_t texpos_floor_stone_engraved_non_palette;
 		int32_t texpos_floor_stone_engraved_palette;
+		//********************************* BETTER ENGRAVINGS vars
 
 		int32_t texpos_floor_wood;
 		int32_t texpos_floor_ice_rough;
