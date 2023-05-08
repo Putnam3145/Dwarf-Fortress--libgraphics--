@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include "svector.h"
+#include "dfhooks.h"
 //#include "ttf_manager.hpp"
 
 /*
@@ -1056,6 +1057,8 @@ void render_things()
 	currentscreen->render();
 	}
   else gps.erasescreen();
+
+  hooks_prerender();
 
   // Render REC when recording macros. Definitely want this screen-specific. Or do we?
   const Time now = SDL_GetTicks();
@@ -4763,6 +4766,7 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_floor_stone_block=0;
 	texpos_floor_stone_engraved_non_palette=0;
 	texpos_floor_stone_engraved_palette=0;
+	//********************************* BETTER ENGRAVINGS init
 
 	texpos_floor_wood=0;
 	texpos_floor_ice_rough=0;
@@ -4825,7 +4829,46 @@ void graphicst::zero_and_clear_all_texpos()
 	palette_stair_down_texpos=0;
 	smooth_floor_texpos=0;
 	workshop_floor_texpos=0;
+
 	texpos_fortification=0;
+	texpos_fortification_open_nswe=0;
+	texpos_fortification_open_nsw=0;
+	texpos_fortification_open_nse=0;
+	texpos_fortification_open_nwe=0;
+	texpos_fortification_open_swe=0;
+	texpos_fortification_open_ns=0;
+	texpos_fortification_open_we=0;
+	texpos_fortification_open_nw=0;
+	texpos_fortification_open_ne=0;
+	texpos_fortification_open_sw=0;
+	texpos_fortification_open_se=0;
+
+	texpos_fortification_ice=0;
+	texpos_fortification_ice_open_nswe=0;
+	texpos_fortification_ice_open_nsw=0;
+	texpos_fortification_ice_open_nse=0;
+	texpos_fortification_ice_open_nwe=0;
+	texpos_fortification_ice_open_swe=0;
+	texpos_fortification_ice_open_ns=0;
+	texpos_fortification_ice_open_we=0;
+	texpos_fortification_ice_open_nw=0;
+	texpos_fortification_ice_open_ne=0;
+	texpos_fortification_ice_open_sw=0;
+	texpos_fortification_ice_open_se=0;
+
+	texpos_fortification_wood=0;
+	texpos_fortification_wood_open_nswe=0;
+	texpos_fortification_wood_open_nsw=0;
+	texpos_fortification_wood_open_nse=0;
+	texpos_fortification_wood_open_nwe=0;
+	texpos_fortification_wood_open_swe=0;
+	texpos_fortification_wood_open_ns=0;
+	texpos_fortification_wood_open_we=0;
+	texpos_fortification_wood_open_nw=0;
+	texpos_fortification_wood_open_ne=0;
+	texpos_fortification_wood_open_sw=0;
+	texpos_fortification_wood_open_se=0;
+
 	texpos_unit_selector_pasture=0;
 	texpos_unit_selector_pit=0;
 	texpos_unit_selector_pond=0;
@@ -6442,6 +6485,26 @@ void graphicst::zero_and_clear_all_texpos()
 	ice_wall_ne_texpos=0;
 	ice_wall_sw_texpos=0;
 	ice_wall_se_texpos=0;
+
+	smoothed_ice_wall_nswe_texpos=0;
+	smoothed_ice_wall_swe_texpos=0;
+	smoothed_ice_wall_nwe_texpos=0;
+	smoothed_ice_wall_nse_texpos=0;
+	smoothed_ice_wall_nsw_texpos=0;
+	smoothed_ice_wall_n_w_texpos=0;
+	smoothed_ice_wall_n_e_texpos=0;
+	smoothed_ice_wall_s_w_texpos=0;
+	smoothed_ice_wall_s_e_texpos=0;
+	smoothed_ice_wall_n_s_texpos=0;
+	smoothed_ice_wall_w_e_texpos=0;
+	smoothed_ice_wall_n_texpos=0;
+	smoothed_ice_wall_s_texpos=0;
+	smoothed_ice_wall_w_texpos=0;
+	smoothed_ice_wall_e_texpos=0;
+	smoothed_ice_wall_nw_texpos=0;
+	smoothed_ice_wall_ne_texpos=0;
+	smoothed_ice_wall_sw_texpos=0;
+	smoothed_ice_wall_se_texpos=0;
 
 	magma_wall_nswe_texpos=0;
 	magma_wall_swe_texpos=0;

@@ -11,6 +11,7 @@
 #include "random.h"
 #include "init.h"
 #include "music_and_sound_g.h"
+#include "dfhooks.h"
 #ifndef NO_FMOD
 extern musicsoundst musicsound;
 #endif
@@ -1035,7 +1036,8 @@ void enablerst::async_loop() {
       if (async_frames < 0) async_frames = 0;
       update_fps();
     }
-    SDL_NumJoysticks(); // Hook for dfhack
+	SDL_NumJoysticks();
+	hooks_update();
   }
 }
 
@@ -1155,6 +1157,7 @@ void enablerst::eventLoop_SDL()
         pause_async_loop();
         paused_loop = true;
       }
+	  if (hooks_sdl_event(&event)) continue;
       // Handle SDL events
       switch (event.type) {
       case SDL_KEYDOWN:
@@ -1318,6 +1321,7 @@ int enablerst::loop(string cmdline) {
   */
 
   // At this point we should have a window that is setup to render DF.
+  hooks_init();
   if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT)) {
 #ifdef CURSES
     eventLoop_ncurses();
@@ -1327,6 +1331,7 @@ int enablerst::loop(string cmdline) {
     eventLoop_SDL();
   }
 
+  hooks_shutdown();
   endroutine();
 
   // Clean up graphical resources

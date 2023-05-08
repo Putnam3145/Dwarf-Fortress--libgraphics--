@@ -173,6 +173,7 @@ void enablerst::eventLoop_ncurses() {
         pause_async_loop();
         paused_loop = true;
       }
+      if (hooks_ncurses_key(key)) continue;
       bool esc = false;
       if (key == KEY_MOUSE) {
         MEVENT ev;
