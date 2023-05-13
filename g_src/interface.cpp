@@ -1420,6 +1420,7 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 			enabler.set_listen_to_text(false);
 			return 0;
 			}
+		bool any_valid=false;
 		for (size_t i = 0; i < 32; i++) {
 			char entry = text_input[i];
 			if (entry == '\0') break;
@@ -1435,11 +1436,20 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 				if (entry >= 'a' && entry <= 'z' && (flag & STRINGENTRY_CAPS)) {
 					entry += 'A' - 'a';
 				}
+				any_valid=true;
 				str.push_back(entry);
 				if (str.length() >= maxlen || entry == '\0' || entry == 0xA) break;
 			}
 		}
-		return 1;
+		if (any_valid)
+			{
+			events.clear();
+			return 1;
+			}
+		else
+			{
+			return 0;
+			}
 	}
 }
 

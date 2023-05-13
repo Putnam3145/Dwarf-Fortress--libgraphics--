@@ -181,14 +181,12 @@ protected:
 				break;
 		}
 		if (should_do_soft_resize)
-		{
-			surf->w=dispx;
-			surf->h=dispy; // bad bad bad
-			SDL_Surface* disp = SDL_Resize(color, dispx_z, dispy_z);
+			{
+			SDL_Surface* disp = SDL_Resize(color, dispx_z * surf->w / dispx, dispy_z * surf->h / dispy);
 			tile_cache[id] = SDL_CreateTextureFromSurface(sdl_renderer, disp);
 			SDL_FreeSurface(disp);
 			return tile_cache[id];
-		}
+			}
 	}
 
 	tile_cache[id] = SDL_CreateTextureFromSurface(sdl_renderer, color);
@@ -3939,8 +3937,6 @@ void do_blank_screen_fill()
   }
 
   pair<int,int> compute_zoom(bool clamp = false) {
-	if(enabler.flag & ENABLERFLAG_BASIC_TEXT)
-
     const int dispx = (enabler.flag & ENABLERFLAG_BASIC_TEXT) ?
 		init.font.basic_font_dispx :
 		(enabler.is_fullscreen() ?

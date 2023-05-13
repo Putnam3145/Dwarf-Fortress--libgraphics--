@@ -202,7 +202,7 @@ void initst::begin()
 						{
 						display.interface_scaling_percentage=convert_string_to_long(token2);
 						if(display.interface_scaling_percentage<100)display.interface_scaling_percentage=100;
-						if(display.interface_scaling_percentage>100)display.interface_scaling_percentage=400;
+						if(display.interface_scaling_percentage>400)display.interface_scaling_percentage=400;
 						}
 					if(token=="WINDOWED")
 						{
