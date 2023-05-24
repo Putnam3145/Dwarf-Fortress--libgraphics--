@@ -227,7 +227,7 @@ void graphicst::addcoloredst(const char *str,const char *colorstr)
           screenx=0;
           if (s >= slen) break;
         }
-      
+
       changecolor((colorstr[s] & 7),((colorstr[s] & 56))>>3,((colorstr[s] & 64))>>6);
       addchar(str[s]);
     }
@@ -332,7 +332,7 @@ void graphicst::addst_flag(const string &str_orig, justification just, int space
 			screenx=0;
 			if(s>=str.length())break;
 			}
-        
+
 		addchar_flag(str[s],1,sflag);
 		}
 }
@@ -354,7 +354,7 @@ void graphicst::addst(const string &str_orig, justification just, int space)
             screenx=0;
             if(s>=str.length())break;
           }
-        
+
         addchar(str[s]);
       }
 	/*
@@ -412,7 +412,7 @@ void graphicst::top_addst_flag(const string &str_orig, justification just, int s
 			screenx=0;
 			if(s>=str.length())break;
 			}
-        
+
 		top_addchar_flag(str[s],1,sflag);
 		}
 }
@@ -434,7 +434,7 @@ void graphicst::top_addst(const string &str_orig, justification just, int space)
             screenx=0;
             if(s>=str.length())break;
           }
-        
+
         top_addchar(str[s]);
       }
 	/*
@@ -490,7 +490,7 @@ void graphicst::erasescreen_clip()
 }
 
 void graphicst::erasescreen_rect(int x1, int x2, int y1, int y2)
-{ 
+{
   changecolor(0,0,0);
   for (int x = x1; x <= x2; x++) {
     for (int y = y1; y <= y2; y++) {
@@ -1082,7 +1082,7 @@ void render_things()
   //GRAB CURRENT SCREEN AT THE END OF THE LIST
   viewscreenst *currentscreen=&gview.view;
   while(currentscreen->child!=NULL)currentscreen=currentscreen->child;
-  
+
   //NO INTERFACE LEFT, LEAVE
   if(currentscreen==&gview.view)
 	{
@@ -1090,13 +1090,14 @@ void render_things()
 	return;
 	}
 
-  hooks_prerender();
-
   if(currentscreen->breakdownlevel==INTERFACE_BREAKDOWN_NONE)
 	{
 	currentscreen->render();
 	}
   else gps.erasescreen();
+
+  // allow external code to render over the screen
+  hooks_prerender();
 
   // Render REC when recording macros. Definitely want this screen-specific. Or do we?
   const Time now = SDL_GetTicks();
@@ -1578,7 +1579,7 @@ void graphicst::copy_pixel_data_with_alpha_mask(SDL_Surface *src,SDL_Surface *al
 			}
 		}
 }
-	
+
 void graphicst::copy_transformed_pixel_data(SDL_Surface *src,SDL_Surface *dst,int32_t cw_rotate,bool flip_vert)
 {
 	//assumes both surfaces are locked, same dimensions for src/dst, square
@@ -2019,7 +2020,7 @@ void graphicst::create_derived_textures()
 				if(color!=NULL)
 					{
 					SDL_LockSurface(color);
-      
+
 					switch(i)
 						{
 						case 0:copy_transformed_pixel_data(tex,color,0,true);break;
@@ -2060,7 +2061,7 @@ void graphicst::create_derived_textures()
 				if(color!=NULL)
 					{
 					SDL_LockSurface(color);
-      
+
 					switch(i)
 						{
 						case 0:copy_transformed_pixel_data(tex,color,180,true);break;
@@ -2101,7 +2102,7 @@ void graphicst::create_derived_textures()
 				if(color!=NULL)
 					{
 					SDL_LockSurface(color);
-      
+
 					switch(i)
 						{
 						case 0:copy_transformed_pixel_data(tex,color,90,false);break;
@@ -2140,7 +2141,7 @@ void graphicst::create_derived_textures()
 				if(color!=NULL)
 					{
 					SDL_LockSurface(color);
-      
+
 					switch(i)
 						{
 						case 0:copy_transformed_pixel_data(tex,color,90,false);break;
@@ -4733,7 +4734,7 @@ void graphicst::create_derived_textures()
 				{
 				SDL_LockSurface(tex);
 				SDL_LockSurface(color);
-      
+
 				copy_transformed_pixel_data(tex,color,0,false);
 
 				SDL_UnlockSurface(color);
@@ -4755,7 +4756,7 @@ void graphicst::create_derived_textures()
 				{
 				SDL_LockSurface(tex);
 				SDL_LockSurface(color);
-      
+
 				copy_transformed_pixel_data(tex,color,0,false);
 
 				SDL_UnlockSurface(color);
