@@ -790,6 +790,7 @@ void enablerst::async_loop() {
       async_frames--;
       if (async_frames < 0) async_frames = 0;
       update_fps();
+	  clear_text_input();
     }
 	SDL_NumJoysticks();
 	hooks_update();
@@ -887,7 +888,6 @@ void enablerst::eventLoop_SDL()
     Uint32 now = SDL_GetTicks();
 	bool already_wheeled = false;
     bool paused_loop = false;
-	last_text_input.fill('\0');
 
     // Check for zoom commands
     zoom_commands zoom;
@@ -903,6 +903,8 @@ void enablerst::eventLoop_SDL()
       else
         renderer->zoom(zoom);
     }
+
+	bool any_text_event=false;
 
     // Check for SDL events
     while (SDL_PollEvent(&event)) {
@@ -936,6 +938,7 @@ void enablerst::eventLoop_SDL()
         break;
 	  case SDL_TEXTINPUT:
 		enabler.set_text_input(event);
+		any_text_event=true;
 		break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:
@@ -1223,6 +1226,7 @@ void enablerst::set_gfps(int gfps) {
 
 void enablerst::set_listen_to_text(bool listen) 
 {
+	listening_to_text=listen;
 }
 
 void enablerst::set_text_input(SDL_Event ev) {

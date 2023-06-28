@@ -198,43 +198,34 @@ protected:
   }
   
   virtual bool init_video(int w, int h) {
+	Uint32 renderer_flags=SDL_RENDERER_TARGETTEXTURE;
+	if(init.display.flag.has_flag(INIT_DISPLAY_FLAG_SOFTWARE)) renderer_flags|=SDL_RENDERER_SOFTWARE;
     // Get ourselves a 2D SDL window
 	  Uint32 window_flags = 0;
-
-	  Uint32 renderer_flags=SDL_RENDERER_TARGETTEXTURE;
-    // Set it up for windowed or fullscreen, depending.
-	{
-		auto f = enabler.get_fullscreen();
-		if (f & FULLSCREEN) {
-			window_flags= SDL_WINDOW_FULLSCREEN_DESKTOP;
-			}
-		else {
-			window_flags&=~SDL_WINDOW_BORDERLESS;
-			}
-	}
-
 	if(!init.display.flag.has_flag(INIT_DISPLAY_FLAG_NOT_RESIZABLE))
 		window_flags|= SDL_WINDOW_RESIZABLE;
-
-	if(init.display.flag.has_flag(INIT_DISPLAY_FLAG_SOFTWARE))
-		renderer_flags|=SDL_RENDERER_SOFTWARE;
-    // (Re)create the window
-	if (window)
-	{
-		SDL_SetWindowFullscreen(window,window_flags);
-		SDL_SetWindowSize(window, w, h);
-		clean_tile_cache();
-	}
-	else
-	{
-		window = SDL_CreateWindow(GAME_TITLE_STRING, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,w,h,window_flags);
+	if (!window)
+		{
+		window = SDL_CreateWindow(GAME_TITLE_STRING, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,init.display.desired_windowed_width,init.display.desired_windowed_height,window_flags);
 		sdl_renderer = SDL_CreateRenderer(window,-1,renderer_flags);
-	}
+		}
+    // Set it up for windowed or fullscreen, depending.
+	auto f = enabler.get_fullscreen();
+	if (window && (f & FULLSCREEN)) {
+		window_flags= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		}
+	else {
+		window_flags&=~SDL_WINDOW_BORDERLESS;
+		}
+
+    // (Re)create the window
+	SDL_SetWindowFullscreen(window,window_flags);
+	SDL_SetWindowSize(window, w, h);
+	clean_tile_cache();
 	screen_tex = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_TARGET, w, h);
 	SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SCALING, "1");
 	SDL_RenderSetLogicalSize(sdl_renderer, w, h);
 	if (!window || !sdl_renderer || !screen_tex) cout << "INIT FAILED!" << endl;
-
 
 	return window && sdl_renderer && screen_tex;
   }

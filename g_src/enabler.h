@@ -915,6 +915,7 @@ class enablerst : public enabler_inputst
   Uint32 clock; // An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.
   bool mouse_focus;
   std::array<char, 32> last_text_input;
+  bool listening_to_text;
   inline const char* get_text_input() { return last_text_input.data(); }
   void set_listen_to_text(bool listening);
   void set_text_input(SDL_Event ev);

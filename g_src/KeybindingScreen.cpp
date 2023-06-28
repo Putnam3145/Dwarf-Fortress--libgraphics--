@@ -381,9 +381,12 @@ void MacroScreenLoad::render() {
 
 MacroScreenSave::MacroScreenSave() : id(init.display.grid_x - 7, 0) {
   enabler.flag |= ENABLERFLAG_RENDER;
+  id.input=true;
 }
 
 void MacroScreenSave::logic() {
+    if (parent) parent->logic();
+    id.logic();
 }
 
 void MacroScreenSave::feed(set<InterfaceKey> &input) {
@@ -403,13 +406,13 @@ void MacroScreenSave::feed(set<InterfaceKey> &input) {
 
 void MacroScreenSave::render() {
   if (parent) parent->render();
-  const int x1 = 3,
+  const int x1 = 5,
     x2 = init.display.grid_x-4,
     y1 = init.display.grid_y/2-1,
     y2 = init.display.grid_y/2+2;
   id.set_extents(y1, y2, x1, x2);
+  id.maxlen = 48;
   id.arrange();
-  id.maxlen = x2 - x1 - 2;
   id.render();
   // gps.renewscreen();
 }

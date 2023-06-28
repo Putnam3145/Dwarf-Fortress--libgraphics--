@@ -771,11 +771,6 @@ void textbox::feed(set<InterfaceKey> &events) {
     toggle.feed(events);
     if (input) {
         if (standardstringentry(str, maxlen, flags, events)) {
-            events.clear();
-			enabler.clear_text_input();
-		}
-		else {
-			input = false;
 			callback(this);
 		}
     }

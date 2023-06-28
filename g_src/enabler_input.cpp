@@ -189,9 +189,26 @@ string translate_mod(Uint8 mod) {
   return ret;
 }
 
+
 static string display(const EventMatch &match) {
+    static const std::map<SDL_Keycode,string> capitals={ {SDLK_a, "A"},
+        {SDLK_b, "B"},{SDLK_c, "C"},{SDLK_d, "D"},{SDLK_e, "E"},{SDLK_f, "F"},
+        {SDLK_g, "G"},{SDLK_h, "H"},{SDLK_i, "I"},{SDLK_h, "J"},{SDLK_j, "K"},
+        {SDLK_k, "L"},{SDLK_l, "M"},{SDLK_m, "N"},{SDLK_n, "O"},{SDLK_o, "P"},
+        {SDLK_p, "Q"},{SDLK_q, "R"},{SDLK_r, "S"},{SDLK_t, "T"},{SDLK_u, "U"},
+        {SDLK_v, "V"},{SDLK_w, "W"},{SDLK_x, "X"},{SDLK_y, "Y"},{SDLK_z, "Z"},
+        };
   ostringstream ret;
-  ret << translate_mod(match.mod);
+  bool is_letter=false;
+  if (match.type==type_key&&(match.mod&1)&&capitals.contains(match.key))
+      {
+      is_letter=true;
+      if (match.mod==1)
+          {
+          return capitals.find(match.key)->second;
+          }
+      }
+  ret << translate_mod(is_letter?(match.mod&~1):match.mod);
   switch (match.type) {
   case type_key: {
     map<SDL_Keycode,string>::iterator it = sdlNames.left.find(match.key);
@@ -302,7 +319,7 @@ bool enabler_inputst::load_keybindings(const string &file) {
     lines.push_back(line);
   }
   if(lines.size()==0)return false;
-
+  static const string control_version("[VERSION:*]");
   static const string bind("[BIND:*:*]");
   static const string sym("[SYM:*:*]");
   static const string key("[KEY:*]");
@@ -312,7 +329,13 @@ bool enabler_inputst::load_keybindings(const string &file) {
   list<string>::iterator line = lines.begin();
   vector<string> match;
 
+  int version=0;
+
   while (line != lines.end()) {
+    if (parse_line(*line,control_version,match))
+        {
+        version=std::stoi(match[1]);
+        }
     if (parse_line(*line, bind, match)) {
       map<string,InterfaceKey>::iterator it = bindingNames.right.find(match[1]);
       if (it != bindingNames.right.end()) {
@@ -390,7 +413,7 @@ bool enabler_inputst::load_keybindings(const string &file) {
             string str = match[2];
             matcher.button = atoi(str.c_str());
             if (matcher.button) {
-                if (matcher.button == 4 || matcher.button == 5) {
+                if (version<1 && (matcher.button == 4 || matcher.button == 5)) {
                     matcher.type = type_mwheel;
                     bool up = matcher.button == 4;
                     matcher.y = up ? 1 : -1;
@@ -453,6 +476,9 @@ void enabler_inputst::save_keybindings(const string &file) {
     map.insert(pair<InterfaceKey,EventMatch>(it->second,it->first));
   // Insert an empty line for the benefit of note/wordpad
   s << endl;
+    
+  // INPUT KEYBINDINGS VERSION--UPDATE THIS IF ANYTHING NEEDS MIGRATED
+  s<<"[VERSION:1]"<<endl;
   // And write.
   for (multimap<InterfaceKey,EventMatch>::iterator it = map.begin(); it != map.end(); ++it) {
     if (!s.good()) {

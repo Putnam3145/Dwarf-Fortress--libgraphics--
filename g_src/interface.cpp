@@ -1399,11 +1399,11 @@ char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<Interfa
 	return ret;
 }
 
-std::set<char> invalid_filename_chars = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'};
+std::set<char> invalid_filename_chars={ '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
 
 char standardstringentry(string& str, int maxlen, unsigned int flag, std::set<InterfaceKey>& events) {
 	char r = standardstringentry(str, maxlen, flag, events, enabler.get_text_input());
-	enabler.clear_text_input();
+	if(r) enabler.clear_text_input();
 	return r;
 }
 
@@ -1412,12 +1412,18 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 	enabler.set_listen_to_text(true); // cheap cheap cheap
 	if (events.count(INTERFACEKEY_STRING_A000) && str.length()>0) {
 		str.pop_back();
+		events.clear();
 		return 1;
 	}
 	else {
-		if(str.length()>=maxlen||events.count(INTERFACEKEY_SELECT)||events.count(INTERFACEKEY_LEAVESCREEN)) 
+		if(events.count(INTERFACEKEY_SELECT)||events.count(INTERFACEKEY_LEAVESCREEN)||enabler.mouse_rbut) 
 			{
 			enabler.set_listen_to_text(false);
+			return 0;
+			}
+		events.clear();
+		if (str.length()>=maxlen)
+			{
 			return 0;
 			}
 		bool any_valid=false;
@@ -1441,15 +1447,7 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 				if (str.length() >= maxlen || entry == '\0' || entry == 0xA) break;
 			}
 		}
-		if (any_valid)
-			{
-			events.clear();
-			return 1;
-			}
-		else
-			{
-			return 0;
-			}
+		return any_valid;
 	}
 }
 
