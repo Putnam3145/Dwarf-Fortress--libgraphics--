@@ -412,6 +412,21 @@ file_compressorst::file_compressorst()
 	f.clear();
 }
 
+std::string_view get_base_path_str()
+{
+	static char *base_folder;
+	if(!base_folder)
+		{
+		base_folder=SDL_GetBasePath();
+		}
+	return base_folder;
+}
+
+std::filesystem::path get_base_path()
+	{
+	return std::filesystem::path(get_base_path_str());
+	}
+
 void copy_file(const string &src,const string &dst)
 {
 	std::ifstream in_stream(src.c_str(),std::ios_base::binary);

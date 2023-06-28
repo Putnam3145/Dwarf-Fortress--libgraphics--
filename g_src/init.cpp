@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <zlib.h>
+#include <unordered_map>
 #include "../zlib/contrib/minizip/unzip.h"
 
 #include "svector.h"
@@ -49,11 +50,7 @@ int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b
 init_displayst::init_displayst()
 {
 	flag.set_size_on_flag_num(INIT_DISPLAY_FLAGNUM);
-		flag.add_flag(INIT_DISPLAY_FLAG_BLACK_SPACE);
 		flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
-		flag.add_flag(INIT_DISPLAY_FLAG_2D);
-		flag.add_flag(INIT_DISPLAY_FLAG_2DHW);
-		flag.add_flag(INIT_DISPLAY_FLAG_PARTIAL_PRINT);
 		flag.add_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
 
 	interface_scaling_desired_width=170;
@@ -61,6 +58,7 @@ init_displayst::init_displayst()
 	interface_scaling_percentage=100;
 
 	windowed=INIT_DISPLAY_WINDOW_TRUE;
+	filter_mode = InitDisplayFilterMode::AUTO;
 
 	partial_print_count=0;
 
@@ -147,7 +145,21 @@ void initst::begin()
 						if(display.max_interface_percentage>100)display.max_interface_percentage=100;
 						if(display.max_interface_percentage<1)display.max_interface_percentage=1;
 						}
-
+					if(!token.compare("PRINT_MODE"))
+						{
+						std::unordered_map<std::string,int32_t> modes = {
+								{"SOFTWARE", INIT_DISPLAY_FLAG_SOFTWARE},
+								{"AUTO", 0},
+								{"2D", INIT_DISPLAY_FLAG_SOFTWARE},
+								{"STANDARD", 0},
+								{"TEXT", INIT_DISPLAY_FLAG_TEXT}
+								};
+						auto it=modes.find(token2);
+						if(it!=modes.end()) 
+							{
+							display.flag.add_flag(it->second);
+							}
+						}
 					if(token=="FPS")
 						{
 						if(token2=="YES")
@@ -190,7 +202,7 @@ void initst::begin()
 						{
 						display.interface_scaling_percentage=convert_string_to_long(token2);
 						if(display.interface_scaling_percentage<100)display.interface_scaling_percentage=100;
-						if(display.interface_scaling_percentage>100)display.interface_scaling_percentage=400;
+						if(display.interface_scaling_percentage>400)display.interface_scaling_percentage=400;
 						}
 					if(token=="WINDOWED")
 						{
@@ -205,6 +217,21 @@ void initst::begin()
 						if(token2=="PROMPT")
 							{
 							display.windowed=INIT_DISPLAY_WINDOW_PROMPT;
+							}
+						}
+					if (token == "TEXTURE_PARAM")
+						{
+						if (token2 == "NEAREST") 
+							{
+							display.filter_mode = InitDisplayFilterMode::NEAREST;
+							}
+						if (token2 == "LANCZOS")
+							{
+							display.filter_mode = InitDisplayFilterMode::LANCZOS;
+							}
+						if (token2 == "AUTO")
+							{
+							display.filter_mode = InitDisplayFilterMode::AUTO;
 							}
 						}
 					if(!token.compare("SOUND"))
@@ -558,6 +585,12 @@ void initst::begin()
 #ifdef _DEBUG
         enabler.window.isFullScreen = FALSE;
 #else
+		/// TODO TODO REMOVE THIS AS SOON AS TEXT MODE'S BACK IN
+	if(display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT))
+		{
+		display.flag.remove_flag(INIT_DISPLAY_FLAG_TEXT);
+		puts("Text mode is not supported for now");
+		}
         
         //FULL SCREEN QUERY, UNLESS IT'S ALREADY SET IN INIT
 
@@ -566,22 +599,26 @@ void initst::begin()
             {
               if(display.windowed==INIT_DISPLAY_WINDOW_TRUE)
                 {
-                  enabler.fullscreen = false;
+                  enabler.fullscreen_state = 0;
                 }
               else if(display.windowed==INIT_DISPLAY_WINDOW_FALSE)
                 {
-                  enabler.fullscreen = true;
+                  enabler.fullscreen_state = FULLSCREEN;
                 }
+			  else if (display.windowed == INIT_DISPLAY_WINDOW_EXCLUSIVE)
+			  {
+				  enabler.fullscreen_state = FULLSCREEN|EXCLUSIVE;
+			  }
               else
                 {
                   if (MessageBox (NULL, "Run in Fullscreen Mode?  You can set your preferences in data/init/init.txt.\rUnless you've changed your bindings, you can press F11 to toggle this setting any time.", "Start FullScreen?", MB_YESNO | MB_ICONQUESTION) == IDNO) {
-                    enabler.fullscreen = false; // If Not, Run In Windowed Mode
+                    enabler.fullscreen_state = 0; // If Not, Run In Windowed Mode
                   } else {
-                    enabler.fullscreen = true;
+					enabler.fullscreen_state = FULLSCREEN;
                   }
                 }
             }
-          else enabler.fullscreen = false;
+          else enabler.fullscreen_state = 0;
         }
 #endif
         
@@ -598,16 +635,16 @@ void initst::begin()
 #endif
 
 #ifndef CLASSIC_VERSION
-	gps.tex_pos[TEXTURE_MOUSE]=enabler.textures.load("data/art/mouse.png", true);
-	gps.tex_pos[TEXTURE_PUBLISHER]=enabler.textures.load("data/art/pixel_kf.png", true);
-	gps.tex_pos[TEXTURE_PUBLISHER_SMALL]=enabler.textures.load("data/art/pixel_kf_small.png", true);
-	gps.tex_pos[TEXTURE_PUBLISHER_TINY]=enabler.textures.load("data/art/pixel_kf_tiny.png", true);
-	gps.tex_pos[TEXTURE_TITLE]=enabler.textures.load("data/art/df_logo.png", true);
-	gps.tex_pos[TEXTURE_TITLE_BACKGROUND]=enabler.textures.load("data/art/title_background.png", true);
-	gps.tex_pos[TEXTURE_DEVELOPER]=enabler.textures.load("data/art/bay12.png", true);
-	gps.tex_pos[TEXTURE_DEVELOPER_SMALL]=enabler.textures.load("data/art/bay12_small.png", true);
-	gps.tex_pos[TEXTURE_DEVELOPER_TINY]=enabler.textures.load("data/art/bay12_tiny.png", true);
-	gps.tex_pos[TEXTURE_SOUND_SYSTEM]=enabler.textures.load("data/art/fmod.png", true);
+	gps.tex[TEXTURE_MOUSE]=enabler.textures.load("data/art/mouse.png", true);
+	gps.tex[TEXTURE_PUBLISHER]=enabler.textures.load("data/art/pixel_kf.png", true);
+	gps.tex[TEXTURE_PUBLISHER_SMALL]=enabler.textures.load("data/art/pixel_kf_small.png", true);
+	gps.tex[TEXTURE_PUBLISHER_TINY]=enabler.textures.load("data/art/pixel_kf_tiny.png", true);
+	gps.tex[TEXTURE_TITLE]=enabler.textures.load("data/art/df_logo.png", true);
+	gps.tex[TEXTURE_TITLE_BACKGROUND]=enabler.textures.load("data/art/title_background.png", true);
+	gps.tex[TEXTURE_DEVELOPER]=enabler.textures.load("data/art/bay12.png", true);
+	gps.tex[TEXTURE_DEVELOPER_SMALL]=enabler.textures.load("data/art/bay12_small.png", true);
+	gps.tex[TEXTURE_DEVELOPER_TINY]=enabler.textures.load("data/art/bay12_tiny.png", true);
+	gps.tex[TEXTURE_SOUND_SYSTEM]=enabler.textures.load("data/art/fmod.png", true);
 #endif
 
 	long d3,d4;

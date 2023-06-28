@@ -1,3 +1,13 @@
+#include <map>
+
+#include "curses.h"
+
+using std::map;
+
+using std::pair;
+
+using std::make_pair;
+
 static bool curses_initialized = false;
 
 static void endwin_void() {
@@ -76,6 +86,24 @@ class renderer_curses : public renderer {
     return pair;
   }
 
+  void update_at(int x,int y, int ch, int fg, int bg, int bold, int pair) {
+      if(ch==219&&!bold) {
+          // It's █, which is used for borders and digging designations.
+          // A_REVERSE space looks better if it isn't completely tall.
+          // Which is most of the time, for me at least.
+          // █ <-- Do you see gaps?
+          // █
+          // The color can't be bold.
+          wattrset(*stdscr_p,COLOR_PAIR(pair)|A_REVERSE);
+          mvwaddstr(*stdscr_p,y,x," ");
+          }
+      else {
+          wattrset(*stdscr_p,COLOR_PAIR(pair)|(bold?A_BOLD:0));
+          wchar_t chs[2]={charmap[ch],0};
+          mvwaddwstr(*stdscr_p,y,x,chs);
+          }
+      }
+
 public:
 
   void update_tile(int x, int y) {
@@ -86,27 +114,35 @@ public:
 
     const int pair = lookup_pair(make_pair(fg,bg));
 
-    if (ch == 219 && !bold) {
-      // It's █, which is used for borders and digging designations.
-      // A_REVERSE space looks better if it isn't completely tall.
-      // Which is most of the time, for me at least.
-      // █ <-- Do you see gaps?
-      // █
-      // The color can't be bold.
-      wattrset(*stdscr_p, COLOR_PAIR(pair) | A_REVERSE);
-      mvwaddstr(*stdscr_p, y, x, " ");
-    } else {
-      wattrset(*stdscr_p, COLOR_PAIR(pair) | (bold ? A_BOLD : 0));
-      wchar_t chs[2] = {charmap[ch],0};
-      mvwaddwstr(*stdscr_p, y, x, chs);
-    }
+    update_at(x,y,ch,fg,bg,bold,pair);
+  }
+  void update_anchor_tile(int x,int y) {
+      // we do not have graphics
+  }
+
+  void update_top_tile(int x,int y) {
+      const int ch=gps.screen_top[x*gps.dimy*4+y*4+0];
+      const int fg=gps.screen_top[x*gps.dimy*4+y*4+1];
+      const int bg=gps.screen_top[x*gps.dimy*4+y*4+2];
+      const int bold=gps.screen_top[x*gps.dimy*4+y*4+3];
+
+      const int pair=lookup_pair(make_pair(fg,bg));
+
+      update_at(x,y,ch,fg,bg,bold,pair);
+  }
+
+  void update_top_anchor_tile(int x,int y) {
+      // we do not have graphics
   }
 
   void update_all() {
     for (int x = 0; x < init.display.grid_x; x++)
       for (int y = 0; y < init.display.grid_y; y++)
         update_tile(x, y);
-  }
+    for(int x=0; x<init.display.grid_x; x++)
+        for(int y=0; y<init.display.grid_y; y++)
+            update_top_tile(x,y);
+     }
 
   void render() {
     refresh();
@@ -114,7 +150,7 @@ public:
 
   void resize(int w, int h) {
     if (enabler.overridden_grid_sizes.size() == 0)
-      gps_allocate(w, h);
+      gps_allocate(w, h,w, h,8,12);
     erase();
     // Force a full display cycle
     gps.force_full_display_count = 1;
@@ -122,7 +158,7 @@ public:
   }
 
   void grid_resize(int w, int h) {
-    gps_allocate(w, h);
+      gps_allocate(w,h,w,h,8,12);
   }
 
   renderer_curses() {
@@ -130,8 +166,31 @@ public:
   }
 
   bool get_mouse_coords(int &x, int &y) {
-    return false;
+    return false; // haha, oh no, that won't do at all
   }
+  bool get_precise_mouse_coords(int &x,int &y,int &pixel_x,int &pixel_y) {
+      return false;
+  }
+  SDL_Renderer *get_renderer(){
+      return NULL;
+      }
+  SDL_Window *get_window(){
+      return NULL;
+      }
+  void clean_tile_cache(){}
+  void do_blank_screen_fill(){}
+  void get_current_interface_tile_dims(int32_t &x,int32_t &y) {
+      getmaxyx(*stdscr_p,y,x);
+      }
+  void set_viewport_zoom_factor(int32_t n){}
+  // The following four are, I *think*, actually required for text mode to work, at least in a way that squares with the main game,
+  // and thus I'm commenting them out for now so trying to compile with them just crashes. One day. One day. Hopefully soon!
+  /*
+  void update_full_map_port(graphic_map_portst *port) { report_error("PRINT_MODE","TEXT not supported yet"); abort(); }
+  void update_full_viewport(graphic_viewportst *port) { report_error("PRINT_MODE","TEXT not supported yet"); abort(); }
+  void update_map_port_tile(graphic_map_portst *port, int32_t x,int32_t y) { report_error("PRINT_MODE","TEXT not supported yet"); abort(); }
+  void update_viewport_tile(graphic_viewportst *port,int32_t x,int32_t y) { report_error("PRINT_MODE","TEXT not supported yet"); abort(); }
+  */
 };
 
 // Reads from getch, collapsing utf-8 encoding to the actual unicode

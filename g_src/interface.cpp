@@ -878,7 +878,7 @@ char interfacest::loop() {
       } else {
         set<InterfaceKey> era = enabler.get_input(now);
         if (era.size() == 0) {
-          if(enabler.mouse_lbut || enabler.mouse_rbut || enabler.mouse_mbut) currentscreen->feed(era);
+          if(enabler.mouse_lbut || enabler.mouse_rbut || enabler.mouse_mbut || enabler.get_text_input()[0] != '\0') currentscreen->feed(era);
           break;
         }
         
@@ -1399,382 +1399,56 @@ char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<Interfa
 	return ret;
 }
 
-char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events)
+std::set<char> invalid_filename_chars={ '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
+
+char standardstringentry(string& str, int maxlen, unsigned int flag, std::set<InterfaceKey>& events) {
+	char r = standardstringentry(str, maxlen, flag, events, enabler.get_text_input());
+	if(r) enabler.clear_text_input();
+	return r;
+}
+
+char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events, const char* text_input)
 {
-	unsigned char entry=255;
-	if(flag & STRINGENTRY_LETTERS)
-		{
-		if(events.count(INTERFACEKEY_STRING_A097))entry='a';
-		if(events.count(INTERFACEKEY_STRING_A098))entry='b';
-		if(events.count(INTERFACEKEY_STRING_A099))entry='c';
-		if(events.count(INTERFACEKEY_STRING_A100))entry='d';
-		if(events.count(INTERFACEKEY_STRING_A101))entry='e';
-		if(events.count(INTERFACEKEY_STRING_A102))entry='f';
-		if(events.count(INTERFACEKEY_STRING_A103))entry='g';
-		if(events.count(INTERFACEKEY_STRING_A104))entry='h';
-		if(events.count(INTERFACEKEY_STRING_A105))entry='i';
-		if(events.count(INTERFACEKEY_STRING_A106))entry='j';
-		if(events.count(INTERFACEKEY_STRING_A107))entry='k';
-		if(events.count(INTERFACEKEY_STRING_A108))entry='l';
-		if(events.count(INTERFACEKEY_STRING_A109))entry='m';
-		if(events.count(INTERFACEKEY_STRING_A110))entry='n';
-		if(events.count(INTERFACEKEY_STRING_A111))entry='o';
-		if(events.count(INTERFACEKEY_STRING_A112))entry='p';
-		if(events.count(INTERFACEKEY_STRING_A113))entry='q';
-		if(events.count(INTERFACEKEY_STRING_A114))entry='r';
-		if(events.count(INTERFACEKEY_STRING_A115))entry='s';
-		if(events.count(INTERFACEKEY_STRING_A116))entry='t';
-		if(events.count(INTERFACEKEY_STRING_A117))entry='u';
-		if(events.count(INTERFACEKEY_STRING_A118))entry='v';
-		if(events.count(INTERFACEKEY_STRING_A119))entry='w';
-		if(events.count(INTERFACEKEY_STRING_A120))entry='x';
-		if(events.count(INTERFACEKEY_STRING_A121))entry='y';
-		if(events.count(INTERFACEKEY_STRING_A122))entry='z';
-		if(events.count(INTERFACEKEY_STRING_A065))entry='A';
-		if(events.count(INTERFACEKEY_STRING_A066))entry='B';
-		if(events.count(INTERFACEKEY_STRING_A067))entry='C';
-		if(events.count(INTERFACEKEY_STRING_A068))entry='D';
-		if(events.count(INTERFACEKEY_STRING_A069))entry='E';
-		if(events.count(INTERFACEKEY_STRING_A070))entry='F';
-		if(events.count(INTERFACEKEY_STRING_A071))entry='G';
-		if(events.count(INTERFACEKEY_STRING_A072))entry='H';
-		if(events.count(INTERFACEKEY_STRING_A073))entry='I';
-		if(events.count(INTERFACEKEY_STRING_A074))entry='J';
-		if(events.count(INTERFACEKEY_STRING_A075))entry='K';
-		if(events.count(INTERFACEKEY_STRING_A076))entry='L';
-		if(events.count(INTERFACEKEY_STRING_A077))entry='M';
-		if(events.count(INTERFACEKEY_STRING_A078))entry='N';
-		if(events.count(INTERFACEKEY_STRING_A079))entry='O';
-		if(events.count(INTERFACEKEY_STRING_A080))entry='P';
-		if(events.count(INTERFACEKEY_STRING_A081))entry='Q';
-		if(events.count(INTERFACEKEY_STRING_A082))entry='R';
-		if(events.count(INTERFACEKEY_STRING_A083))entry='S';
-		if(events.count(INTERFACEKEY_STRING_A084))entry='T';
-		if(events.count(INTERFACEKEY_STRING_A085))entry='U';
-		if(events.count(INTERFACEKEY_STRING_A086))entry='V';
-		if(events.count(INTERFACEKEY_STRING_A087))entry='W';
-		if(events.count(INTERFACEKEY_STRING_A088))entry='X';
-		if(events.count(INTERFACEKEY_STRING_A089))entry='Y';
-		if(events.count(INTERFACEKEY_STRING_A090))entry='Z';
-		}
-	if(flag & STRINGENTRY_SPACE)
-		{
-		if(events.count(INTERFACEKEY_STRING_A032))entry=' ';
-		}
-	if(events.count(INTERFACEKEY_STRING_A000))entry='\x0';
-	if(flag & STRINGENTRY_NUMBERS)
-		{
-		if(events.count(INTERFACEKEY_STRING_A048))entry='0';
-		if(events.count(INTERFACEKEY_STRING_A049))entry='1';
-		if(events.count(INTERFACEKEY_STRING_A050))entry='2';
-		if(events.count(INTERFACEKEY_STRING_A051))entry='3';
-		if(events.count(INTERFACEKEY_STRING_A052))entry='4';
-		if(events.count(INTERFACEKEY_STRING_A053))entry='5';
-		if(events.count(INTERFACEKEY_STRING_A054))entry='6';
-		if(events.count(INTERFACEKEY_STRING_A055))entry='7';
-		if(events.count(INTERFACEKEY_STRING_A056))entry='8';
-		if(events.count(INTERFACEKEY_STRING_A057))entry='9';
-		}
-	if(flag & STRINGENTRY_SYMBOLS)
-		{
-		if(events.count(INTERFACEKEY_STRING_A000))entry=0;
-		if(events.count(INTERFACEKEY_STRING_A001))entry=1;
-		if(events.count(INTERFACEKEY_STRING_A002))entry=2;
-		if(events.count(INTERFACEKEY_STRING_A003))entry=3;
-		if(events.count(INTERFACEKEY_STRING_A004))entry=4;
-		if(events.count(INTERFACEKEY_STRING_A005))entry=5;
-		if(events.count(INTERFACEKEY_STRING_A006))entry=6;
-		if(events.count(INTERFACEKEY_STRING_A007))entry=7;
-		if(events.count(INTERFACEKEY_STRING_A008))entry=8;
-		if(events.count(INTERFACEKEY_STRING_A009))entry=9;
-		if(events.count(INTERFACEKEY_STRING_A010))entry=10;
-		if(events.count(INTERFACEKEY_STRING_A011))entry=11;
-		if(events.count(INTERFACEKEY_STRING_A012))entry=12;
-		if(events.count(INTERFACEKEY_STRING_A013))entry=13;
-		if(events.count(INTERFACEKEY_STRING_A014))entry=14;
-		if(events.count(INTERFACEKEY_STRING_A015))entry=15;
-		if(events.count(INTERFACEKEY_STRING_A016))entry=16;
-		if(events.count(INTERFACEKEY_STRING_A017))entry=17;
-		if(events.count(INTERFACEKEY_STRING_A018))entry=18;
-		if(events.count(INTERFACEKEY_STRING_A019))entry=19;
-		if(events.count(INTERFACEKEY_STRING_A020))entry=20;
-		if(events.count(INTERFACEKEY_STRING_A021))entry=21;
-		if(events.count(INTERFACEKEY_STRING_A022))entry=22;
-		if(events.count(INTERFACEKEY_STRING_A023))entry=23;
-		if(events.count(INTERFACEKEY_STRING_A024))entry=24;
-		if(events.count(INTERFACEKEY_STRING_A025))entry=25;
-		if(events.count(INTERFACEKEY_STRING_A026))entry=26;
-		if(events.count(INTERFACEKEY_STRING_A027))entry=27;
-		if(events.count(INTERFACEKEY_STRING_A028))entry=28;
-		if(events.count(INTERFACEKEY_STRING_A029))entry=29;
-		if(events.count(INTERFACEKEY_STRING_A030))entry=30;
-		if(events.count(INTERFACEKEY_STRING_A031))entry=31;
-		if(events.count(INTERFACEKEY_STRING_A032))entry=32;
-		if(events.count(INTERFACEKEY_STRING_A033))entry=33;
-		if(events.count(INTERFACEKEY_STRING_A034))entry=34;
-		if(events.count(INTERFACEKEY_STRING_A035))entry=35;
-		if(events.count(INTERFACEKEY_STRING_A036))entry=36;
-		if(events.count(INTERFACEKEY_STRING_A037))entry=37;
-		if(events.count(INTERFACEKEY_STRING_A038))entry=38;
-		if(events.count(INTERFACEKEY_STRING_A039))entry=39;
-		if(events.count(INTERFACEKEY_STRING_A040))entry=40;
-		if(events.count(INTERFACEKEY_STRING_A041))entry=41;
-		if(events.count(INTERFACEKEY_STRING_A042))entry=42;
-		if(events.count(INTERFACEKEY_STRING_A043))entry=43;
-		if(events.count(INTERFACEKEY_STRING_A044))entry=44;
-		if(events.count(INTERFACEKEY_STRING_A045))entry=45;
-		if(events.count(INTERFACEKEY_STRING_A046))entry=46;
-		if(events.count(INTERFACEKEY_STRING_A047))entry=47;
-		if(events.count(INTERFACEKEY_STRING_A048))entry=48;
-		if(events.count(INTERFACEKEY_STRING_A049))entry=49;
-		if(events.count(INTERFACEKEY_STRING_A050))entry=50;
-		if(events.count(INTERFACEKEY_STRING_A051))entry=51;
-		if(events.count(INTERFACEKEY_STRING_A052))entry=52;
-		if(events.count(INTERFACEKEY_STRING_A053))entry=53;
-		if(events.count(INTERFACEKEY_STRING_A054))entry=54;
-		if(events.count(INTERFACEKEY_STRING_A055))entry=55;
-		if(events.count(INTERFACEKEY_STRING_A056))entry=56;
-		if(events.count(INTERFACEKEY_STRING_A057))entry=57;
-		if(events.count(INTERFACEKEY_STRING_A058))entry=58;
-		if(events.count(INTERFACEKEY_STRING_A059))entry=59;
-		if(events.count(INTERFACEKEY_STRING_A060))entry=60;
-		if(events.count(INTERFACEKEY_STRING_A061))entry=61;
-		if(events.count(INTERFACEKEY_STRING_A062))entry=62;
-		if(events.count(INTERFACEKEY_STRING_A063))entry=63;
-		if(events.count(INTERFACEKEY_STRING_A064))entry=64;
-		if(events.count(INTERFACEKEY_STRING_A065))entry=65;
-		if(events.count(INTERFACEKEY_STRING_A066))entry=66;
-		if(events.count(INTERFACEKEY_STRING_A067))entry=67;
-		if(events.count(INTERFACEKEY_STRING_A068))entry=68;
-		if(events.count(INTERFACEKEY_STRING_A069))entry=69;
-		if(events.count(INTERFACEKEY_STRING_A070))entry=70;
-		if(events.count(INTERFACEKEY_STRING_A071))entry=71;
-		if(events.count(INTERFACEKEY_STRING_A072))entry=72;
-		if(events.count(INTERFACEKEY_STRING_A073))entry=73;
-		if(events.count(INTERFACEKEY_STRING_A074))entry=74;
-		if(events.count(INTERFACEKEY_STRING_A075))entry=75;
-		if(events.count(INTERFACEKEY_STRING_A076))entry=76;
-		if(events.count(INTERFACEKEY_STRING_A077))entry=77;
-		if(events.count(INTERFACEKEY_STRING_A078))entry=78;
-		if(events.count(INTERFACEKEY_STRING_A079))entry=79;
-		if(events.count(INTERFACEKEY_STRING_A080))entry=80;
-		if(events.count(INTERFACEKEY_STRING_A081))entry=81;
-		if(events.count(INTERFACEKEY_STRING_A082))entry=82;
-		if(events.count(INTERFACEKEY_STRING_A083))entry=83;
-		if(events.count(INTERFACEKEY_STRING_A084))entry=84;
-		if(events.count(INTERFACEKEY_STRING_A085))entry=85;
-		if(events.count(INTERFACEKEY_STRING_A086))entry=86;
-		if(events.count(INTERFACEKEY_STRING_A087))entry=87;
-		if(events.count(INTERFACEKEY_STRING_A088))entry=88;
-		if(events.count(INTERFACEKEY_STRING_A089))entry=89;
-		if(events.count(INTERFACEKEY_STRING_A090))entry=90;
-		if(events.count(INTERFACEKEY_STRING_A091))entry=91;
-		if(events.count(INTERFACEKEY_STRING_A092))entry=92;
-		if(events.count(INTERFACEKEY_STRING_A093))entry=93;
-		if(events.count(INTERFACEKEY_STRING_A094))entry=94;
-		if(events.count(INTERFACEKEY_STRING_A095))entry=95;
-		if(events.count(INTERFACEKEY_STRING_A096))entry=96;
-		if(events.count(INTERFACEKEY_STRING_A097))entry=97;
-		if(events.count(INTERFACEKEY_STRING_A098))entry=98;
-		if(events.count(INTERFACEKEY_STRING_A099))entry=99;
-		if(events.count(INTERFACEKEY_STRING_A100))entry=100;
-		if(events.count(INTERFACEKEY_STRING_A101))entry=101;
-		if(events.count(INTERFACEKEY_STRING_A102))entry=102;
-		if(events.count(INTERFACEKEY_STRING_A103))entry=103;
-		if(events.count(INTERFACEKEY_STRING_A104))entry=104;
-		if(events.count(INTERFACEKEY_STRING_A105))entry=105;
-		if(events.count(INTERFACEKEY_STRING_A106))entry=106;
-		if(events.count(INTERFACEKEY_STRING_A107))entry=107;
-		if(events.count(INTERFACEKEY_STRING_A108))entry=108;
-		if(events.count(INTERFACEKEY_STRING_A109))entry=109;
-		if(events.count(INTERFACEKEY_STRING_A110))entry=110;
-		if(events.count(INTERFACEKEY_STRING_A111))entry=111;
-		if(events.count(INTERFACEKEY_STRING_A112))entry=112;
-		if(events.count(INTERFACEKEY_STRING_A113))entry=113;
-		if(events.count(INTERFACEKEY_STRING_A114))entry=114;
-		if(events.count(INTERFACEKEY_STRING_A115))entry=115;
-		if(events.count(INTERFACEKEY_STRING_A116))entry=116;
-		if(events.count(INTERFACEKEY_STRING_A117))entry=117;
-		if(events.count(INTERFACEKEY_STRING_A118))entry=118;
-		if(events.count(INTERFACEKEY_STRING_A119))entry=119;
-		if(events.count(INTERFACEKEY_STRING_A120))entry=120;
-		if(events.count(INTERFACEKEY_STRING_A121))entry=121;
-		if(events.count(INTERFACEKEY_STRING_A122))entry=122;
-		if(events.count(INTERFACEKEY_STRING_A123))entry=123;
-		if(events.count(INTERFACEKEY_STRING_A124))entry=124;
-		if(events.count(INTERFACEKEY_STRING_A125))entry=125;
-		if(events.count(INTERFACEKEY_STRING_A126))entry=126;
-		if(events.count(INTERFACEKEY_STRING_A128))entry=128;
-		if(events.count(INTERFACEKEY_STRING_A129))entry=129;
-		if(events.count(INTERFACEKEY_STRING_A130))entry=130;
-		if(events.count(INTERFACEKEY_STRING_A131))entry=131;
-		if(events.count(INTERFACEKEY_STRING_A132))entry=132;
-		if(events.count(INTERFACEKEY_STRING_A133))entry=133;
-		if(events.count(INTERFACEKEY_STRING_A134))entry=134;
-		if(events.count(INTERFACEKEY_STRING_A135))entry=135;
-		if(events.count(INTERFACEKEY_STRING_A136))entry=136;
-		if(events.count(INTERFACEKEY_STRING_A137))entry=137;
-		if(events.count(INTERFACEKEY_STRING_A138))entry=138;
-		if(events.count(INTERFACEKEY_STRING_A139))entry=139;
-		if(events.count(INTERFACEKEY_STRING_A140))entry=140;
-		if(events.count(INTERFACEKEY_STRING_A141))entry=141;
-		if(events.count(INTERFACEKEY_STRING_A142))entry=142;
-		if(events.count(INTERFACEKEY_STRING_A143))entry=143;
-		if(events.count(INTERFACEKEY_STRING_A144))entry=144;
-		if(events.count(INTERFACEKEY_STRING_A145))entry=145;
-		if(events.count(INTERFACEKEY_STRING_A146))entry=146;
-		if(events.count(INTERFACEKEY_STRING_A147))entry=147;
-		if(events.count(INTERFACEKEY_STRING_A148))entry=148;
-		if(events.count(INTERFACEKEY_STRING_A149))entry=149;
-		if(events.count(INTERFACEKEY_STRING_A150))entry=150;
-		if(events.count(INTERFACEKEY_STRING_A151))entry=151;
-		if(events.count(INTERFACEKEY_STRING_A152))entry=152;
-		if(events.count(INTERFACEKEY_STRING_A153))entry=153;
-		if(events.count(INTERFACEKEY_STRING_A154))entry=154;
-		if(events.count(INTERFACEKEY_STRING_A155))entry=155;
-		if(events.count(INTERFACEKEY_STRING_A156))entry=156;
-		if(events.count(INTERFACEKEY_STRING_A157))entry=157;
-		if(events.count(INTERFACEKEY_STRING_A158))entry=158;
-		if(events.count(INTERFACEKEY_STRING_A159))entry=159;
-		if(events.count(INTERFACEKEY_STRING_A160))entry=160;
-		if(events.count(INTERFACEKEY_STRING_A161))entry=161;
-		if(events.count(INTERFACEKEY_STRING_A162))entry=162;
-		if(events.count(INTERFACEKEY_STRING_A163))entry=163;
-		if(events.count(INTERFACEKEY_STRING_A164))entry=164;
-		if(events.count(INTERFACEKEY_STRING_A165))entry=165;
-		if(events.count(INTERFACEKEY_STRING_A166))entry=166;
-		if(events.count(INTERFACEKEY_STRING_A167))entry=167;
-		if(events.count(INTERFACEKEY_STRING_A168))entry=168;
-		if(events.count(INTERFACEKEY_STRING_A169))entry=169;
-		if(events.count(INTERFACEKEY_STRING_A170))entry=170;
-		if(events.count(INTERFACEKEY_STRING_A171))entry=171;
-		if(events.count(INTERFACEKEY_STRING_A172))entry=172;
-		if(events.count(INTERFACEKEY_STRING_A173))entry=173;
-		if(events.count(INTERFACEKEY_STRING_A174))entry=174;
-		if(events.count(INTERFACEKEY_STRING_A175))entry=175;
-		if(events.count(INTERFACEKEY_STRING_A176))entry=176;
-		if(events.count(INTERFACEKEY_STRING_A177))entry=177;
-		if(events.count(INTERFACEKEY_STRING_A178))entry=178;
-		if(events.count(INTERFACEKEY_STRING_A179))entry=179;
-		if(events.count(INTERFACEKEY_STRING_A180))entry=180;
-		if(events.count(INTERFACEKEY_STRING_A181))entry=181;
-		if(events.count(INTERFACEKEY_STRING_A182))entry=182;
-		if(events.count(INTERFACEKEY_STRING_A183))entry=183;
-		if(events.count(INTERFACEKEY_STRING_A184))entry=184;
-		if(events.count(INTERFACEKEY_STRING_A185))entry=185;
-		if(events.count(INTERFACEKEY_STRING_A186))entry=186;
-		if(events.count(INTERFACEKEY_STRING_A187))entry=187;
-		if(events.count(INTERFACEKEY_STRING_A188))entry=188;
-		if(events.count(INTERFACEKEY_STRING_A189))entry=189;
-		if(events.count(INTERFACEKEY_STRING_A190))entry=190;
-		if(events.count(INTERFACEKEY_STRING_A191))entry=191;
-		if(events.count(INTERFACEKEY_STRING_A192))entry=192;
-		if(events.count(INTERFACEKEY_STRING_A193))entry=193;
-		if(events.count(INTERFACEKEY_STRING_A194))entry=194;
-		if(events.count(INTERFACEKEY_STRING_A195))entry=195;
-		if(events.count(INTERFACEKEY_STRING_A196))entry=196;
-		if(events.count(INTERFACEKEY_STRING_A197))entry=197;
-		if(events.count(INTERFACEKEY_STRING_A198))entry=198;
-		if(events.count(INTERFACEKEY_STRING_A199))entry=199;
-		if(events.count(INTERFACEKEY_STRING_A200))entry=200;
-		if(events.count(INTERFACEKEY_STRING_A201))entry=201;
-		if(events.count(INTERFACEKEY_STRING_A202))entry=202;
-		if(events.count(INTERFACEKEY_STRING_A203))entry=203;
-		if(events.count(INTERFACEKEY_STRING_A204))entry=204;
-		if(events.count(INTERFACEKEY_STRING_A205))entry=205;
-		if(events.count(INTERFACEKEY_STRING_A206))entry=206;
-		if(events.count(INTERFACEKEY_STRING_A207))entry=207;
-		if(events.count(INTERFACEKEY_STRING_A208))entry=208;
-		if(events.count(INTERFACEKEY_STRING_A209))entry=209;
-		if(events.count(INTERFACEKEY_STRING_A210))entry=210;
-		if(events.count(INTERFACEKEY_STRING_A211))entry=211;
-		if(events.count(INTERFACEKEY_STRING_A212))entry=212;
-		if(events.count(INTERFACEKEY_STRING_A213))entry=213;
-		if(events.count(INTERFACEKEY_STRING_A214))entry=214;
-		if(events.count(INTERFACEKEY_STRING_A215))entry=215;
-		if(events.count(INTERFACEKEY_STRING_A216))entry=216;
-		if(events.count(INTERFACEKEY_STRING_A217))entry=217;
-		if(events.count(INTERFACEKEY_STRING_A218))entry=218;
-		if(events.count(INTERFACEKEY_STRING_A219))entry=219;
-		if(events.count(INTERFACEKEY_STRING_A220))entry=220;
-		if(events.count(INTERFACEKEY_STRING_A221))entry=221;
-		if(events.count(INTERFACEKEY_STRING_A222))entry=222;
-		if(events.count(INTERFACEKEY_STRING_A223))entry=223;
-		if(events.count(INTERFACEKEY_STRING_A224))entry=224;
-		if(events.count(INTERFACEKEY_STRING_A225))entry=225;
-		if(events.count(INTERFACEKEY_STRING_A226))entry=226;
-		if(events.count(INTERFACEKEY_STRING_A227))entry=227;
-		if(events.count(INTERFACEKEY_STRING_A228))entry=228;
-		if(events.count(INTERFACEKEY_STRING_A229))entry=229;
-		if(events.count(INTERFACEKEY_STRING_A230))entry=230;
-		if(events.count(INTERFACEKEY_STRING_A231))entry=231;
-		if(events.count(INTERFACEKEY_STRING_A232))entry=232;
-		if(events.count(INTERFACEKEY_STRING_A233))entry=233;
-		if(events.count(INTERFACEKEY_STRING_A234))entry=234;
-		if(events.count(INTERFACEKEY_STRING_A235))entry=235;
-		if(events.count(INTERFACEKEY_STRING_A236))entry=236;
-		if(events.count(INTERFACEKEY_STRING_A237))entry=237;
-		if(events.count(INTERFACEKEY_STRING_A238))entry=238;
-		if(events.count(INTERFACEKEY_STRING_A239))entry=239;
-		if(events.count(INTERFACEKEY_STRING_A240))entry=240;
-		if(events.count(INTERFACEKEY_STRING_A241))entry=241;
-		if(events.count(INTERFACEKEY_STRING_A242))entry=242;
-		if(events.count(INTERFACEKEY_STRING_A243))entry=243;
-		if(events.count(INTERFACEKEY_STRING_A244))entry=244;
-		if(events.count(INTERFACEKEY_STRING_A245))entry=245;
-		if(events.count(INTERFACEKEY_STRING_A246))entry=246;
-		if(events.count(INTERFACEKEY_STRING_A247))entry=247;
-		if(events.count(INTERFACEKEY_STRING_A248))entry=248;
-		if(events.count(INTERFACEKEY_STRING_A249))entry=249;
-		if(events.count(INTERFACEKEY_STRING_A250))entry=250;
-		if(events.count(INTERFACEKEY_STRING_A251))entry=251;
-		if(events.count(INTERFACEKEY_STRING_A252))entry=252;
-		if(events.count(INTERFACEKEY_STRING_A253))entry=253;
-		if(events.count(INTERFACEKEY_STRING_A254))entry=254;
-		if(events.count(INTERFACEKEY_STRING_A255))entry=255;
-		}
-	if(flag & STRINGENTRY_FILENAME)
-		{
-		//squash illegal characters
-		switch(entry)
-			{
-			case '<':
-			case '>':
-			case ':':
-			case '"':
-			case '/':
-			case '\\':
-			case '|':
-			case '?':
-			case '*':
-				return 1;
-			}
-		}
-
-	if(entry!=255)
-		{
-		if(entry=='\x0')
-			{
-			if(str.length()>0)str.resize(str.length()-1);
-			}
-		else
-			{
-			int cursor=(int)str.length();
-			if(cursor>=maxlen)cursor=maxlen-1;
-			if(cursor<0)cursor=0;
-
-			if(str.length()<cursor+1)str.resize(cursor+1);
-
-			if(entry>='a'&&entry<='z'&&(flag & STRINGENTRY_CAPS))str[cursor]=entry+'A'-'a';
-			else str[cursor]=entry;
-			}
-
+	enabler.set_listen_to_text(true); // cheap cheap cheap
+	if (events.count(INTERFACEKEY_STRING_A000) && str.length()>0) {
+		str.pop_back();
 		events.clear();
-
 		return 1;
+	}
+	else {
+		if(events.count(INTERFACEKEY_SELECT)||events.count(INTERFACEKEY_LEAVESCREEN)||enabler.mouse_rbut) 
+			{
+			enabler.set_listen_to_text(false);
+			return 0;
+			}
+		events.clear();
+		if (str.length()>=maxlen)
+			{
+			return 0;
+			}
+		bool any_valid=false;
+		for (size_t i = 0; i < 32; i++) {
+			char entry = text_input[i];
+			if (entry == '\0') break;
+			if (str.length() < maxlen &&
+				(entry == 0xA) ||
+				(!(flag & STRINGENTRY_FILENAME) || invalid_filename_chars.count(entry) == 0) ||
+				(flag & STRINGENTRY_SYMBOLS) ||
+				((flag & STRINGENTRY_LETTERS) && (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z')) ||
+				((flag & STRINGENTRY_SPACE) && entry == ' ') ||
+				((flag & STRINGENTRY_NUMBERS) && (entry >= '0' && entry <= '9'))
+				)
+			{
+				if (entry >= 'a' && entry <= 'z' && (flag & STRINGENTRY_CAPS)) {
+					entry += 'A' - 'a';
+				}
+				any_valid=true;
+				str.push_back(entry);
+				if (str.length() >= maxlen || entry == '\0' || entry == 0xA) break;
+			}
 		}
-
-	return 0;
+		return any_valid;
+	}
 }
 
 //To Do

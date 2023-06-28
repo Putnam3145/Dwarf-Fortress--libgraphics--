@@ -7,9 +7,12 @@
 #define FILE_OUT_BUFF 2000000
 
 #include <string>
+#include <string.h>
 using std::string;
 
 #include <fstream>
+#include <string_view>
+#include <filesystem>
 #include "endian.h"
 #include "svector.h"
 
@@ -297,6 +300,10 @@ class file_compressorst
 		static char def_ibuff[FILE_IN_BUFF];
 		static char def_obuff[FILE_OUT_BUFF];
 };
+
+std::string_view get_base_path_str();
+
+std::filesystem::path get_base_path();
 
 void copy_file(const string &src,const string &dst);
 // Replaces dst with src, removing src in the process. Atomic if possible.

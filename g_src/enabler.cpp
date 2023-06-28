@@ -1,9 +1,3 @@
-#ifdef __APPLE__
-# include "osx_messagebox.h"
-#elif defined(unix)
-# include <gtk/gtk.h>
-#endif
-
 #include <cassert>
 
 #include "platform.h"
@@ -199,7 +193,7 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_top_to_texid(in
 # include "renderer_curses.cpp"
 #endif
 #include "renderer_2d.hpp"
-#include "renderer_opengl.hpp"
+//#include "renderer_opengl.hpp"
 
 #ifndef FULL_RELEASE_VERSION
 bool cinematic_mode=false;
@@ -213,10 +207,9 @@ int32_t cinematic_start_scrollx=0;
 int32_t cinematic_start_scrolly=0;
 #endif
 
-enablerst::enablerst() {
-	must_do_render_things_before_display=false;
-  fullscreen = false;
-  sync = NULL;
+enablerst::enablerst() : async_fromcomplete(false) {
+  must_do_render_things_before_display=false;
+  fullscreen_state = 0;
   renderer = NULL;
   calculated_fps = calculated_gfps = frame_sum = gframe_sum = frame_last = gframe_last = 0;
   fps = 100; gfps = 20;
@@ -227,56 +220,56 @@ enablerst::enablerst() {
 void renderer::display()
 {
 	++gps.refresh_buffer_val;
-	if(gps.refresh_buffer_val>100000000)
+	if (gps.refresh_buffer_val>100000000)
 		{
 		gps.refresh_buffer_val=0;
-		if(gps.screentexpos_refresh_buffer!=NULL)memset(gps.screentexpos_refresh_buffer,0,sizeof(int32_t)*gps.dimx*gps.dimy);
+		if (gps.screentexpos_refresh_buffer!=NULL)memset(gps.screentexpos_refresh_buffer,0,sizeof(int32_t)*gps.dimx*gps.dimy);
 		}
 
 #ifndef FULL_RELEASE_VERSION
-if(cinematic_mode)gps.force_full_display_count=2;
+	if (cinematic_mode)gps.force_full_display_count=2;
 #endif
 
-	if(gps.force_full_display_count)
+	if (gps.force_full_display_count)
 		{
 		do_blank_screen_fill();
 
 		int32_t lvp=LOWER_VIEWPORT_MAX-1;
-		while(lvp>=0)
+		while (lvp>=0)
 			{
-			if(gps.lower_viewport[lvp]!=NULL)
+			if (gps.lower_viewport[lvp]!=NULL)
 				{
-				if(gps.lower_viewport[lvp]->flag & GRAPHIC_VIEWPORT_FLAG_ACTIVE)
+				if (gps.lower_viewport[lvp]->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE)
 					{
 					update_full_viewport(gps.lower_viewport[lvp]);
 					}
 				}
 			--lvp;
 			}
-		if((gps.main_viewport!=NULL)?(gps.main_viewport->flag & GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
+		if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
 			{
 			update_full_viewport(gps.main_viewport);
 			}
 
-		if((gps.main_map_port!=NULL)?(gps.main_map_port->flag & GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
+		if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
 			{
 			update_full_map_port(gps.main_map_port);
 			}
 		}
 	else
 		{
-		if((gps.main_viewport!=NULL)?(gps.main_viewport->flag & GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
+		if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
 			{
 			const int32_t dimx=gps.main_viewport->dim_x;
 			const int32_t dimy=gps.main_viewport->dim_y;
 			int32_t off=0,lvp;
-			for(int32_t x2=0;x2<dimx;++x2)
+			for (int32_t x2=0; x2<dimx; ++x2)
 				{
-				for(int32_t y2=0;y2<dimy;++y2,++off)
+				for (int32_t y2=0; y2<dimy; ++y2,++off)
 					{
 					bool refresh=false;
 
-					if(gps.main_viewport->screentexpos[off]!=gps.main_viewport->screentexpos_old[off]||
+					if (gps.main_viewport->screentexpos[off]!=gps.main_viewport->screentexpos_old[off]||
 						gps.main_viewport->screentexpos_background[off]!=gps.main_viewport->screentexpos_background_old[off]||
 						gps.main_viewport->screentexpos_background_two[off]!=gps.main_viewport->screentexpos_background_two_old[off]||
 						gps.main_viewport->screentexpos_floor_flag[off]!=gps.main_viewport->screentexpos_floor_flag_old[off]||
@@ -301,19 +294,19 @@ if(cinematic_mode)gps.force_full_display_count=2;
 						gps.main_viewport->screentexpos_upright_creature[off]!=gps.main_viewport->screentexpos_upright_creature_old[off]||
 						gps.main_viewport->screentexpos_designation[off]!=gps.main_viewport->screentexpos_designation_old[off]||
 						gps.main_viewport->screentexpos_interface[off]!=gps.main_viewport->screentexpos_interface_old[off])refresh=true;
-					if(!refresh)
+					if (!refresh)
 						{
 						lvp=0;
-						while(lvp<LOWER_VIEWPORT_MAX)
+						while (lvp<LOWER_VIEWPORT_MAX)
 							{
 							graphic_viewportst *vp=gps.lower_viewport[lvp];
-							if(vp==NULL)break;
-							if(!(vp->flag & GRAPHIC_VIEWPORT_FLAG_ACTIVE))
+							if (vp==NULL)break;
+							if (!(vp->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE))
 								{
 								++lvp;
 								continue;
 								}
-							if(vp->screentexpos[off]!=vp->screentexpos_old[off]||
+							if (vp->screentexpos[off]!=vp->screentexpos_old[off]||
 								vp->screentexpos_background[off]!=vp->screentexpos_background_old[off]||
 								vp->screentexpos_background_two[off]!=vp->screentexpos_background_two_old[off]||
 								vp->screentexpos_floor_flag[off]!=vp->screentexpos_floor_flag_old[off]||
@@ -339,16 +332,16 @@ if(cinematic_mode)gps.force_full_display_count=2;
 								vp->screentexpos_designation[off]!=vp->screentexpos_designation_old[off]||
 								vp->screentexpos_interface[off]!=vp->screentexpos_interface_old[off])refresh=true;
 							++lvp;
-							if(refresh)break;
+							if (refresh)break;
 							}
 						}
 
-					if(!refresh)continue;
+					if (!refresh)continue;
 
 					lvp=LOWER_VIEWPORT_MAX-1;
-					while(lvp>=0)
+					while (lvp>=0)
 						{
-						if(gps.lower_viewport[lvp]!=NULL)update_viewport_tile(gps.lower_viewport[lvp],x2,y2);
+						if (gps.lower_viewport[lvp]!=NULL)update_viewport_tile(gps.lower_viewport[lvp],x2,y2);
 						--lvp;
 						}
 					update_viewport_tile(gps.main_viewport,x2,y2);
@@ -356,17 +349,17 @@ if(cinematic_mode)gps.force_full_display_count=2;
 				}
 			}
 
-		if((gps.main_map_port!=NULL)?(gps.main_map_port->flag & GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
+		if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
 			{
 			const int32_t dimx=gps.main_map_port->dim_x;
 			const int32_t dimy=gps.main_map_port->dim_y;
 			int32_t off=0;
-			for(int32_t y2=0;y2<dimy;++y2)
+			for (int32_t y2=0; y2<dimy; ++y2)
 				{
-				for(int32_t x2=0;x2<dimx;++x2,++off)
+				for (int32_t x2=0; x2<dimx; ++x2,++off)
 					{
 					bool refresh=false;
-					if(gps.main_map_port->screentexpos_base[off]!=gps.main_map_port->screentexpos_base_old[off]||
+					if (gps.main_map_port->screentexpos_base[off]!=gps.main_map_port->screentexpos_base_old[off]||
 						gps.main_map_port->screentexpos_edge[0][off]!=gps.main_map_port->screentexpos_edge_old[0][off]||
 						gps.main_map_port->screentexpos_edge[1][off]!=gps.main_map_port->screentexpos_edge_old[1][off]||
 						gps.main_map_port->screentexpos_edge[2][off]!=gps.main_map_port->screentexpos_edge_old[2][off]||
@@ -397,245 +390,12 @@ if(cinematic_mode)gps.force_full_display_count=2;
 						gps.main_map_port->screentexpos_detail_to_ne[off]!=gps.main_map_port->screentexpos_detail_to_ne_old[off]||
 						gps.main_map_port->screentexpos_detail_to_sw[off]!=gps.main_map_port->screentexpos_detail_to_sw_old[off]||
 						gps.main_map_port->screentexpos_detail_to_se[off]!=gps.main_map_port->screentexpos_detail_to_se_old[off])refresh=true;
-					if(refresh)update_map_port_tile(gps.main_map_port,x2,y2);
+					if (refresh)update_map_port_tile(gps.main_map_port,x2,y2);
 					}
 				}
 			}
 		}
-
-  const int dimx = init.display.grid_x;
-  const int dimy = init.display.grid_y;
-	//removed static here because it literally doesn't recognize that this flag has changed otherwise
-		//that is, use_graphics and init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS) return different values
-  bool use_graphics = init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
-
-  if(gps.force_full_display_count)
-	{
-    // Update the entire screen
-    update_all();
-	}
-  else
-	{
-    Uint64 *screenp = (Uint64*)screen, *oldp = (Uint64*)screen_old;
-    if(use_graphics)
-		{
-		int off = 0,x2,y2;
-		if(gps.top_in_use)
-			{
-		    Uint64 *screenp_top = (Uint64*)screen_top, *oldp_top = (Uint64*)screen_top_old;
-
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp, ++screenp_top, ++oldp_top)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						*screenp_top == *oldp_top &&
-						screentexpos[off] == screentexpos_old[off] &&
-						screentexpos_top[off] == screentexpos_top_old[off] &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_top_lower[off] == screentexpos_top_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_top_anchored[off] == screentexpos_top_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_top_anchored_x[off] == screentexpos_top_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_top_anchored_y[off] == screentexpos_top_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_top_flag[off] == screentexpos_top_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_tile(x2, y2);
-						}
-					}
-				}
-			off = 0;
-			screenp = (Uint64*)screen;
-			oldp = (Uint64*)screen_old;
-			screenp_top = (Uint64*)screen_top;
-			oldp_top = (Uint64*)screen_top_old;
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp, ++screenp_top, ++oldp_top)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						*screenp_top == *oldp_top &&
-						screentexpos[off] == screentexpos_old[off] &&
-						screentexpos_top[off] == screentexpos_top_old[off] &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_top_lower[off] == screentexpos_top_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_top_anchored[off] == screentexpos_top_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_top_anchored_x[off] == screentexpos_top_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_top_anchored_y[off] == screentexpos_top_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_top_flag[off] == screentexpos_top_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_anchor_tile(x2, y2);
-						}
-					}
-				}
-			off = 0;
-			screenp = (Uint64*)screen;
-			oldp = (Uint64*)screen_old;
-			screenp_top = (Uint64*)screen_top;
-			oldp_top = (Uint64*)screen_top_old;
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp, ++screenp_top, ++oldp_top)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						*screenp_top == *oldp_top &&
-						screentexpos[off] == screentexpos_old[off] &&
-						screentexpos_top[off] == screentexpos_top_old[off] &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_top_lower[off] == screentexpos_top_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_top_anchored[off] == screentexpos_top_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_top_anchored_x[off] == screentexpos_top_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_top_anchored_y[off] == screentexpos_top_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_top_flag[off] == screentexpos_top_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_top_tile(x2, y2);
-						}
-					}
-				}
-			off = 0;
-			screenp = (Uint64*)screen;
-			oldp = (Uint64*)screen_old;
-			screenp_top = (Uint64*)screen_top;
-			oldp_top = (Uint64*)screen_top_old;
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp, ++screenp_top, ++oldp_top)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						*screenp_top == *oldp_top &&
-						screentexpos[off] == screentexpos_old[off] &&
-						screentexpos_top[off] == screentexpos_top_old[off] &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_top_lower[off] == screentexpos_top_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_top_anchored[off] == screentexpos_top_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_top_anchored_x[off] == screentexpos_top_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_top_anchored_y[off] == screentexpos_top_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_top_flag[off] == screentexpos_top_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_top_anchor_tile(x2, y2);
-						}
-					}
-				}
-			}
-		else
-			{
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						screentexpos[off] == screentexpos_old[off] &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_tile(x2, y2);
-						}
-					}
-				}
-			off = 0;
-			screenp = (Uint64*)screen;
-			oldp = (Uint64*)screen_old;
-			for (x2=0; x2 < dimx; x2++)
-				{
-				for (y2=0; y2 < dimy; y2++, ++off, ++screenp, ++oldp)
-					{
-					// We don't use pointers for the non-screen arrays because we mostly fail at the
-					// *first* comparison, and having pointers for the others would exceed register
-					// count.
-					// Partial printing (and color-conversion): Big-ass if.
-					if (*screenp == *oldp &&
-						screentexpos_lower[off] == screentexpos_lower_old[off] &&
-						screentexpos_anchored[off] == screentexpos_anchored_old[off] &&
-						screentexpos_anchored_x[off] == screentexpos_anchored_x_old[off] &&
-						screentexpos_anchored_y[off] == screentexpos_anchored_y_old[off] &&
-						screentexpos_flag[off] == screentexpos_flag_old[off] &&
-						screentexpos_refresh_buffer[off] < gps.refresh_buffer_val-1)//-1 in case screen flipping messes it up
-						{
-						// Nothing's changed, this clause deliberately empty
-						}
-					else
-						{
-						update_anchor_tile(x2, y2);
-						}
-					}
-				}
-			}
-		}
-	else {
-      for (int x2=0; x2 < dimx; ++x2) {
-        for (int y2=0; y2 < dimy; ++y2, ++screenp, ++oldp) {
-          if (*screenp != *oldp) {
-            update_tile(x2, y2);
-          }
-        }
-      }
-    }
-  }
-
-  if (gps.force_full_display_count > 0) gps.force_full_display_count--;
+	update_all();
 }
 
 void renderer::cleanup_arrays() {
@@ -765,6 +525,8 @@ void renderer::swap_arrays() {
   screentexpos_top_anchored_x = screentexpos_top_anchored_x_old; screentexpos_top_anchored_x_old = gps.screentexpos_top_anchored_x; gps.screentexpos_top_anchored_x = screentexpos_top_anchored_x;
   screentexpos_top_anchored_y = screentexpos_top_anchored_y_old; screentexpos_top_anchored_y_old = gps.screentexpos_top_anchored_y; gps.screentexpos_top_anchored_y = screentexpos_top_anchored_y;
   screentexpos_top_flag = screentexpos_top_flag_old; screentexpos_top_flag_old = gps.screentexpos_top_flag; gps.screentexpos_top_flag = screentexpos_top_flag;
+
+  gps.texblits.clear();
 
   gps.screen_limit = gps.screen + gps.dimx * gps.dimy * 8;
   gps.screen_top_limit = gps.screen_top + gps.dimx * gps.dimy * 8;
@@ -938,27 +700,22 @@ void enablerst::async_wait() {
       loopvar = 0;
       return;
     case async_msg::complete:
-      if (reset_textures) {
-        puts("Resetting textures");
-        textures.remove_uploaded_textures();
-        textures.upload_textures();
-      }
       return;
     case async_msg::set_fps:
       set_fps(r.fps);
-      async_fromcomplete.write();
+      async_fromcomplete.release();
       break;
     case async_msg::set_gfps:
       set_gfps(r.fps);
-      async_fromcomplete.write();
+      async_fromcomplete.release();
       break;
     case async_msg::push_resize:
       override_grid_size(r.x, r.y);
-      async_fromcomplete.write();
+      async_fromcomplete.release();
       break;
     case async_msg::pop_resize:
       release_grid_size();
-      async_fromcomplete.write();
+      async_fromcomplete.release();
       break;
     case async_msg::reset_textures:
       reset_textures = true;
@@ -974,7 +731,7 @@ void enablerst::async_loop() {
   async_paused = false;
   async_frames = 0;
   //int total_frames = 0;
-  int fps = 100; // Just a thread-local copy
+  int fps = 100; // Just a thread-local copy // what?
   for (;;) {
     // cout << "FRAMES: " << frames << endl;
     // Check for commands
@@ -1029,12 +786,11 @@ void enablerst::async_loop() {
         async_frombox.write(async_msg(async_msg::quit));
         return; // We're done.
       }
-      simticks.lock();
-      simticks.val++;
-      simticks.unlock();
+      simticks++;
       async_frames--;
       if (async_frames < 0) async_frames = 0;
       update_fps();
+	  clear_text_input();
     }
 	SDL_NumJoysticks();
 	hooks_update();
@@ -1068,8 +824,7 @@ void enablerst::do_frame() {
   enabler.clock = SDL_GetTicks();
 
   // If it's time to render..
-  if (outstanding_gframes >= 1 &&
-      (!sync || glClientWaitSync(sync, 0, 0) == GL_ALREADY_SIGNALED)) {
+  if (outstanding_gframes >= 1) {
     // Get the async-loop to render_things
     async_cmd cmd(async_cmd::render);
     async_tobox.write(cmd);
@@ -1101,18 +856,16 @@ void enablerst::do_frame() {
 
 			gps.do_clean_tile_cache=false;
 			}
-
+		renderer->tidy_tile_cache();
 		renderer->display();
 		renderer->render();
 		}
-    gputicks.lock();
-    gputicks.val++;
-    gputicks.unlock();
+    gputicks++;
     outstanding_gframes--;
   }
-
   // Sleep until the next gframe
   if (outstanding_gframes < 1) {
+    emit_logs(); // flush game/error logs whenever we have to sleep
     float fragment = 1 - outstanding_gframes;
     float milliseconds = fragment / gfps * 1000;
     // cout << milliseconds << endl;
@@ -1124,15 +877,16 @@ void enablerst::eventLoop_SDL()
 {
   
   SDL_Event event;
-  const SDL_Surface *screen = SDL_GetVideoSurface();
   Uint32 mouse_lastused = 0;
   SDL_ShowCursor(SDL_DISABLE);
- 
+  int window_w, window_h;
+  SDL_GetWindowSize(renderer->get_window(), &window_w, &window_h);
   // Initialize the grid
-  renderer->resize(screen->w, screen->h);
+  renderer->resize(window_w, window_h);
 
   while (loopvar) {
     Uint32 now = SDL_GetTicks();
+	bool already_wheeled = false;
     bool paused_loop = false;
 
     // Check for zoom commands
@@ -1150,6 +904,8 @@ void enablerst::eventLoop_SDL()
         renderer->zoom(zoom);
     }
 
+	bool any_text_event=false;
+
     // Check for SDL events
     while (SDL_PollEvent(&event)) {
       // Make sure mainloop isn't running while we're processing input
@@ -1160,7 +916,14 @@ void enablerst::eventLoop_SDL()
 	  if (hooks_sdl_event(&event)) continue;
       // Handle SDL events
       switch (event.type) {
-      case SDL_KEYDOWN:
+	  case SDL_MOUSEWHEEL:
+		  if (!already_wheeled) {
+			  already_wheeled = true;
+			  enabler.add_input(event, now);
+		  }
+		  break;
+	  case SDL_KEYDOWN:
+		if (event.key.repeat) break;
         // Disable mouse if it's been long enough
         if (mouse_lastused + 5000 < now) {
           if(init.input.flag.has_flag(INIT_INPUT_FLAG_MOUSE_PICTURE)) {
@@ -1170,9 +933,13 @@ void enablerst::eventLoop_SDL()
           SDL_ShowCursor(SDL_DISABLE);
         }
       case SDL_KEYUP:
-      case SDL_QUIT:
+	  case SDL_QUIT:
         enabler.add_input(event, now);
         break;
+	  case SDL_TEXTINPUT:
+		enabler.set_text_input(event);
+		any_text_event=true;
+		break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:
         if (!init.input.flag.has_flag(INIT_INPUT_FLAG_MOUSE_OFF)) {
@@ -1215,27 +982,33 @@ void enablerst::eventLoop_SDL()
 #endif
         }
         break;
-      case SDL_ACTIVEEVENT:
+      case SDL_WINDOWEVENT:
         enabler.clear_input();
-        if (event.active.state & SDL_APPACTIVE) {
-          if (event.active.gain) {
-            enabler.flag|=ENABLERFLAG_RENDER;
-            gps.force_full_display_count++;
-          }
-        }
-        break;
-      case SDL_VIDEOEXPOSE:
-        gps.force_full_display_count++;
-        enabler.flag|=ENABLERFLAG_RENDER;
-        break;
-      case SDL_VIDEORESIZE:
-        if (is_fullscreen());
-          //errorlog << "Caught resize event in fullscreen??\n";
-        else {
-          //gamelog << "Resizing window to " << event.resize.w << "x" << event.resize.h << endl << flush;
-          renderer->resize(event.resize.w, event.resize.h);
-        }
-        break;
+		switch (event.window.event) {
+			case SDL_WINDOWEVENT_SHOWN:
+				enabler.flag |= ENABLERFLAG_RENDER;
+				gps.force_full_display_count++;
+				break;
+			case SDL_WINDOWEVENT_EXPOSED:
+				gps.force_full_display_count++;
+				enabler.flag |= ENABLERFLAG_RENDER;
+				break;
+			case SDL_WINDOWEVENT_RESIZED:
+				if (is_fullscreen());
+				//errorlog << "Caught resize event in fullscreen??\n";
+				else {
+					//gamelog << "Resizing window to " << event.resize.w << "x" << event.resize.h << endl << flush;
+					renderer->resize(event.window.data1, event.window.data2);
+				}
+				break;
+			case SDL_WINDOWEVENT_ENTER:
+				mouse_focus = true;
+				break;
+			case SDL_WINDOWEVENT_LEAVE:
+				mouse_focus = false;
+				break;
+		}
+		break;
       } // switch (event.type)
     } //while have event
 
@@ -1245,7 +1018,7 @@ void enablerst::eventLoop_SDL()
 		int mouse_x = -1, mouse_y = -1, mouse_state;
 		int precise_mouse_x=-1,precise_mouse_y=-1;
 		// Check whether the renderer considers this valid input or not, and write it to gps
-		if((SDL_GetAppState() & SDL_APPMOUSEFOCUS)&&
+		if(mouse_focus &&
 			renderer->get_precise_mouse_coords(precise_mouse_x, precise_mouse_y,mouse_x,mouse_y))
 			{
 			mouse_state=1;
@@ -1284,8 +1057,8 @@ int enablerst::loop(string cmdline) {
   command_line = cmdline;
 
   // Initialize the tick counters
-  simticks.write(0);
-  gputicks.write(0);
+  simticks.store(0);
+  gputicks.store(0);
   
   // Call DF's initialization routine
   if (!beginroutine())
@@ -1299,7 +1072,7 @@ int enablerst::loop(string cmdline) {
     report_error("PRINT_MODE", "TEXT not supported on windows");
     exit(EXIT_FAILURE);
 #endif
-  } else if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_2D)) {
+  } else {
     renderer = new renderer_2d();
   }
   //*************************** ALLOW OTHER RENDER TYPES THAN 2D?
@@ -1327,7 +1100,6 @@ int enablerst::loop(string cmdline) {
     eventLoop_ncurses();
 #endif
   } else {
-    SDL_EnableUNICODE(1);
     eventLoop_SDL();
   }
 
@@ -1346,7 +1118,7 @@ void enablerst::override_grid_size(int x, int y) {
     async_msg m(async_msg::push_resize);
     m.x = x; m.y = y;
     async_frombox.write(m);
-    async_fromcomplete.read();
+    async_fromcomplete.acquire();
   } else {
     // We are the renderer; do it.
     overridden_grid_sizes.push(make_pair(init.display.grid_x,init.display.grid_y));
@@ -1357,7 +1129,7 @@ void enablerst::override_grid_size(int x, int y) {
 void enablerst::release_grid_size() {
   if (SDL_ThreadID() != renderer_threadid) {
     async_frombox.write(async_msg(async_msg::pop_resize));
-    async_fromcomplete.read();
+    async_fromcomplete.acquire();
   } else {
     if (!overridden_grid_sizes.size()) return;
     // FIXME: Find out whatever is causing release to be called too rarely; right now
@@ -1424,7 +1196,7 @@ void enablerst::set_fps(int fps) {
     m.fps = fps;
     async_paused = true;
     async_frombox.write(m);
-    async_fromcomplete.read();
+    async_fromcomplete.acquire();
   } else {
     if (fps == 0)
       fps = 1048576;
@@ -1443,13 +1215,26 @@ void enablerst::set_gfps(int gfps) {
     async_msg m(async_msg::set_gfps);
     m.fps = gfps;
     async_frombox.write(m);
-    async_fromcomplete.read();
+    async_fromcomplete.acquire();
   } else {
     if (gfps == 0)
       gfps = 50;
     this->gfps = gfps;
     fps_per_gfps = fps / gfps;
   }
+}
+
+void enablerst::set_listen_to_text(bool listen) 
+{
+	listening_to_text=listen;
+}
+
+void enablerst::set_text_input(SDL_Event ev) {
+	std::memcpy(last_text_input.data(), ev.text.text, 32);
+}
+
+void enablerst::clear_text_input() {
+	std::fill(last_text_input.begin(), last_text_input.end(), '\0');
 }
 
 int call_loop(void *dummy) {
@@ -1460,11 +1245,6 @@ int call_loop(void *dummy) {
 int main (int argc, char* argv[]) {
 #ifdef unix
   setlocale(LC_ALL, "");
-#endif
-#if !defined(__APPLE__) && defined(unix)
-  bool gtk_ok = false;
-  if (getenv("DISPLAY"))
-    gtk_ok = gtk_init_check(&argc, &argv);
 #endif
 
   // Initialise minimal SDL subsystems.
@@ -1477,15 +1257,11 @@ int main (int argc, char* argv[]) {
   enabler.renderer_threadid = SDL_ThreadID();
 
   // Spawn simulation thread
-  SDL_CreateThread(call_loop, NULL);
+  SDL_CreateThread(call_loop, NULL, NULL);
 
   init.begin(); // Load init.txt settings
   
 #if !defined(__APPLE__) && defined(unix)
-  if (!gtk_ok && !init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT)) {
-    puts("Display not found and PRINT_MODE not set to TEXT, aborting.");
-    exit(EXIT_FAILURE);
-  }
   if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT) &&
       init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS)) {
     puts("Graphical tiles are not compatible with text output, sorry");
@@ -1499,16 +1275,6 @@ int main (int argc, char* argv[]) {
     report_error("SDL initialization failure", SDL_GetError());
     return false;
   }
-  
-#ifdef linux
-  if (!init.media.flag.has_flag(INIT_MEDIA_FLAG_SOUND_OFF)) {
-    // Initialize OpenAL
-    if (!musicsound.initsound()) {
-      puts("Initializing OpenAL failed, no sound will be played");
-      init.media.flag.add_flag(INIT_MEDIA_FLAG_SOUND_OFF);
-    }
-  }
-#endif
 
 #ifdef WIN32
   // Attempt to get as good a timer as possible

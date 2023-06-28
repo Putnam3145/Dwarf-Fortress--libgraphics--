@@ -1,9 +1,3 @@
-#ifdef __APPLE__
-# include "osx_messagebox.h"
-#elif defined(unix)
-# include <gtk/gtk.h>
-#endif
-
 #include "GL/glew.h"
 
 #ifndef INTEGER_TYPES
@@ -385,11 +379,14 @@ void MacroScreenLoad::render() {
   // gps.renewscreen();
 }
 
-MacroScreenSave::MacroScreenSave() {
+MacroScreenSave::MacroScreenSave() : id(init.display.grid_x - 7, 0) {
   enabler.flag |= ENABLERFLAG_RENDER;
+  id.input=true;
 }
 
 void MacroScreenSave::logic() {
+    if (parent) parent->logic();
+    id.logic();
 }
 
 void MacroScreenSave::feed(set<InterfaceKey> &input) {
@@ -409,12 +406,13 @@ void MacroScreenSave::feed(set<InterfaceKey> &input) {
 
 void MacroScreenSave::render() {
   if (parent) parent->render();
-  const int x1 = 3,
+  const int x1 = 5,
     x2 = init.display.grid_x-4,
     y1 = init.display.grid_y/2-1,
-    y2 = init.display.grid_y/2+1;
-  gps.changecolor(0,3,1);
-  gps.draw_border(x1, x2, y1, y2);
-  id.render(x1+1,x2-1,y1+1,y2-1);
+    y2 = init.display.grid_y/2+2;
+  id.set_extents(y1, y2, x1, x2);
+  id.maxlen = 48;
+  id.arrange();
+  id.render();
   // gps.renewscreen();
 }

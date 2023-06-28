@@ -12,6 +12,14 @@ struct bimap {
     left.insert(std::pair<A,B>(a,b));
     right.insert(std::pair<B,A>(b,a));
   }
+  bimap() {};
+  bimap(std::initializer_list < std::pair<const A, B> > l) : left(l)
+  {
+      for (auto& p : left)
+      {
+          right[p.second] = p.first;
+      }
+  }
 };
 
 #endif

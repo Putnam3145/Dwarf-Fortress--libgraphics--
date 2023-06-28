@@ -5,6 +5,7 @@
 #include <iostream>
 #include <ios>
 #include <streambuf>
+#include <syncstream>
 #include <istream>
 #include <ostream>
 #include <iomanip>
@@ -47,7 +48,18 @@ typedef int32_t Ordinal;
 
 //#define FAST_ERRORLOG
 
-extern string errorlog_prefix;
+extern thread_local string errorlog_prefix;
+
+// opening/closing these too often seems to cause crashes on linux--std::osyncstream makes sure they can be used between threads, too
+static std::ofstream error_file("errorlog.txt",std::ios::out|std::ios::app);
+
+static std::ofstream gamelog_file("gamelog.txt",std::ios::out|std::ios::app);
+
+void emit_logs()
+	{
+	error_file.close();
+	gamelog_file.close();
+	}
 
 #ifdef FAST_ERRORLOG
 std::ofstream error_feed;
@@ -75,22 +87,19 @@ void errorlog_string(const string &str)
 	//fseed.close();
 }
 #else
+
 void errorlog_string(const string &str)
 {
 	if(str.empty())return;
-
+	if (!error_file.is_open()) error_file.open("errorlog.txt",std::ios::out|std::ios::app);
 	//SAVE AN ERROR TO THE LOG FILE
-	std::ofstream fseed("errorlog.txt", std::ios::out | std::ios::app);
-	if(fseed.is_open())
+	std::osyncstream fseed(error_file);
+	if(!errorlog_prefix.empty())
 		{
-		if(!errorlog_prefix.empty())
-			{
-			fseed<<errorlog_prefix.c_str()<<std::endl;
-			errorlog_prefix.clear();
-			}
-		fseed<<str.c_str()<<std::endl;
+		fseed<<errorlog_prefix.c_str()<<std::endl;
+		errorlog_prefix.clear();
 		}
-	fseed.close();
+	fseed<<str.c_str()<<std::endl;
 }
 #endif
 
@@ -98,13 +107,11 @@ void gamelog_string(const string &str)
 {
 	if(str.empty())return;
 
-	//SAVE AN ERROR TO THE LOG FILE
-	std::ofstream fseed("gamelog.txt",std::ios::out | std::ios::app);
-	if(fseed.is_open())
-		{
-		fseed<<str.c_str()<<std::endl;
-		}
-	fseed.close();
+	if(!gamelog_file.is_open()) gamelog_file.open("gamelog.txt",std::ios::out|std::ios::app);
+
+	std::osyncstream fseed(gamelog_file);
+
+	fseed<<str.c_str()<<std::endl;
 }
 
 void errorlog_string(const char *ptr)
@@ -112,30 +119,26 @@ void errorlog_string(const char *ptr)
 	if(ptr==NULL)return;
 
 	//SAVE AN ERROR TO THE LOG FILE
-	std::ofstream fseed("errorlog.txt", std::ios::out | std::ios::app);
-	if(fseed.is_open())
+	std::osyncstream fseed(error_file);
+	if(!errorlog_prefix.empty())
 		{
-		if(!errorlog_prefix.empty())
-			{
-			fseed<<errorlog_prefix.c_str()<<std::endl;
-			errorlog_prefix.clear();
-			}
-		fseed<<ptr<<std::endl;
+		fseed<<errorlog_prefix.c_str()<<std::endl;
+		errorlog_prefix.clear();
 		}
-	fseed.close();
+	fseed<<ptr<<std::endl;
 }
 
-int32_t convert_string_to_long(string &str)
+int32_t convert_string_to_long(const string &str)
 {
 	return atoi(str.c_str());
 }
 
-uint32_t convert_string_to_ulong(string &str)
+uint32_t convert_string_to_ulong(const string &str)
 {
 	return strtoul(str.c_str(),NULL,0);
 }
 
-uint64_t convert_string_to_ulong64(string &str)
+uint64_t convert_string_to_ulong64(const string &str)
 {
 	return strtoull(str.c_str(),NULL,0);
 }

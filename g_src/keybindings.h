@@ -2,6 +2,7 @@
 #define KEYBINDINGS_H
 
 #include <map>
+#include <set>
 #include <string>
 
 #include "bimap.h"
@@ -1788,11 +1789,13 @@ enum InterfaceKeyType
 	INTERFACEKEYNUM,
 };
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 extern bimap<InterfaceKey,std::string> bindingNames;
 extern bimap<InterfaceKey,std::string> displayNames;
-extern bimap<SDLKey,std::string> sdlNames;
+extern bimap<SDL_Keycode,std::string> sdlNames;
+extern bimap<SDL_Keycode, int> sdlUnicode;
+extern std::set<int> unicodeCapitals;
 
 void keybinding_init();
 

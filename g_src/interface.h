@@ -148,6 +148,7 @@ char secondaryscrolling(std::set<InterfaceKey> &events,int32_t &scroll,int32_t m
 #define STRINGENTRY_SYMBOLS BIT5
 #define STRINGENTRY_FILENAME BIT6
 char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);
+char standardstringentry(string& str, int maxlen, unsigned int flag, std::set<InterfaceKey>& events, const char* text_entry);
 char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);
 
 void drawborder(const char *str,char style=0,const char *colorstr=NULL);

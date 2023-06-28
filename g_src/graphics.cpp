@@ -70,9 +70,9 @@ typedef int32_t Ordinal;
 #ifdef __APPLE__
 #define _XOPEN_SOURCE_EXTENDED
 #endif
-
+#ifdef CURSES
 #include "curses.h"
-
+#endif
 using namespace std;
 
 
@@ -84,7 +84,7 @@ extern texture_handlerst texture;
 graphicst gps;
 extern interfacest gview;
 
-extern string errorlog_prefix;
+extern thread_local string errorlog_prefix;
 
 #ifndef FULL_RELEASE_VERSION
 extern bool cinematic_mode;
@@ -103,7 +103,41 @@ void process_object_lines(textlinesst &lines,const string &chktype,const string 
 // Add, then increment to the (possible) PBO alignment requirement
 static void align(size_t &sz, off_t inc) {
   sz += inc;
-  while (sz%64) sz++; // So.. tired.. FIXME.
+  sz += (64-(sz % 64));
+}
+
+cached_texturest::cached_texturest() {
+	w = -1;
+	h = -1;
+	tex = (SDL_Surface*)NULL;
+}
+
+cached_texturest::cached_texturest(SDL_Surface* surf) {
+	w = surf->w;
+	h = surf->h;
+	if (enabler.main_renderer()) {
+		tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), surf);
+	}
+	else {
+		tex = surf;
+	}
+}
+
+cached_texturest::~cached_texturest() {
+	if(auto actual_tex = std::get_if<SDL_Texture*>(&tex))
+		SDL_DestroyTexture(*actual_tex);
+}
+
+SDL_Texture* cached_texturest::get_texture() {
+	if (std::holds_alternative<SDL_Surface*>(tex)) {
+		if (enabler.main_renderer()) {
+			tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), std::get<SDL_Surface*>(tex));
+		}
+		else {
+			return NULL;
+		}
+	}
+	return std::get<SDL_Texture*>(tex);
 }
 
 void graphicst::resize(int x, int y)
@@ -919,6 +953,10 @@ void graphicst::add_top_anchored_tile(long texp,long offset_x,long offset_y,long
 		}
 }
 
+void graphicst::add_texture_blit(int32_t which) {
+	texblits.emplace_back(texblitst{ screenx, screeny, (int8_t)which });
+}
+
 void graphicst::add_tile(long texp,char addcolor)
 {
 	if(screenx>=clipx[0]&&screenx<=clipx[1]&&
@@ -1051,7 +1089,9 @@ void render_things()
 	enabler.must_do_render_things_before_display=false;
 	return;
 	}
-  
+
+  hooks_prerender();
+
   if(currentscreen->breakdownlevel==INTERFACE_BREAKDOWN_NONE)
 	{
 	currentscreen->render();
@@ -1501,33 +1541,22 @@ int32_t graphicst::create_alpha_texture(int32_t texpos,Uint8 alpha_level)
 	SDL_Surface *src=enabler.textures.get_texture_data(texpos);
 	if(src!=NULL)
 		{
-		SDL_LockSurface(src);
 
 		new_tex=enabler.textures.create_texture(src->w,src->h);
 		SDL_Surface *dst=enabler.textures.get_texture_data(new_tex);
 		if(dst!=NULL)
 			{
-			SDL_LockSurface(dst);
-
-			Uint8 *pixel_src,*pixel_dst;
-			int x,y;
-			for(y=0;y<src->h;y++)
-				{
-				pixel_src=((Uint8*)src->pixels)+(y*src->pitch);
-				pixel_dst=((Uint8*)dst->pixels)+(y*dst->pitch);
-				for(x=0;x<src->w;++x,pixel_src+=4,pixel_dst+=4)
-					{
-					pixel_dst[0]=pixel_src[0];
-					pixel_dst[1]=pixel_src[1];
-					pixel_dst[2]=pixel_src[2];
-					pixel_dst[3]=(Uint8)((int32_t)pixel_src[3]*(int32_t)alpha_level/255);
-					}
-				}
-
-			SDL_UnlockSurface(dst);
+			Uint8 orig_alpha;
+			SDL_BlendMode orig_mode;
+			SDL_GetSurfaceAlphaMod(src,&orig_alpha);
+			SDL_GetSurfaceBlendMode(src,&orig_mode);
+			SDL_SetSurfaceAlphaMod(src,alpha_level);
+			SDL_SetSurfaceBlendMode(src,SDL_BLENDMODE_NONE);
+			SDL_BlitSurface(src,NULL,dst,NULL);
+			SDL_SetSurfaceAlphaMod(src,orig_alpha);
+			SDL_SetSurfaceBlendMode(src,orig_mode);
 			}
 
-		SDL_UnlockSurface(src);
 		}
 
 	return new_tex;
