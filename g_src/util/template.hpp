@@ -1,3 +1,6 @@
+#ifndef DF_GSRC_UTIL_TEMPLATE_HPP
+#define DF_GSRC_UTIL_TEMPLATE_HPP
+
 template <class T> int32_t get_vector_sum(svector<T> &vec)
 {
   T total=0;
@@ -1352,3 +1355,5 @@ template<class T> int64_t get_index_from_local_id_64_vector(int64_t id,svector<T
 
   return -1;
 }
+
+#endif // DF_GSRC_UTIL_TEMPLATE_HPP

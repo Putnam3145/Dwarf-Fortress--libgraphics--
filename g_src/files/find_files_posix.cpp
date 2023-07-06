@@ -24,7 +24,6 @@ extern "C" {
 using std::string;
 
 #include "../util/basics.hpp"
-#include "../util/endian.hpp"
 #include "../files/files.hpp"
 #include "../render/enabler.hpp"
 #include "../files/find_files.hpp"

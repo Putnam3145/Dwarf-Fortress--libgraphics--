@@ -1,5 +1,5 @@
-#ifndef _PLATFORM_H_
-#define _PLATFORM_H_
+#ifndef DF_GSRC_PLATFORM_HPP
+#define DF_GSRC_PLATFORM_HPP
 
 #ifdef WIN32
 #undef WINDOWS_LEAN_AND_MEAN
@@ -98,5 +98,4 @@ SHORT Enabler_GetKeyState(int virtKey);
 int Enabler_ShowCursor(BOOL show);
 */
 
-#endif // _PLATFORM_H_
-
+#endif // DF_GSRC_PLATFORM_HPP

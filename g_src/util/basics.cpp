@@ -20,8 +20,6 @@ using std::string;
 using std::endl;
 using std::ofstream;
 
-#include "../util/endian.hpp"
-
 #ifndef INTEGER_TYPES
 
 #define INTEGER_TYPES

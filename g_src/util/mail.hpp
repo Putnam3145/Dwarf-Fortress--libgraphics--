@@ -1,5 +1,6 @@
-#ifndef MAIL_H
-#define MAIL_H
+#ifndef DF_GSRC_UTIL_MAIL_HPP
+#define DF_GSRC_UTIL_MAIL_HPP
+
 #include <mutex>
 #include <condition_variable>
 #include <semaphore>
@@ -62,4 +63,4 @@ struct Either {
   }
 };
 
-#endif
+#endif // DF_GSRC_UTIL_MAIL_HPP

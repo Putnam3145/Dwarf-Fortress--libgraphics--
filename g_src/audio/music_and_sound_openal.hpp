@@ -14,7 +14,6 @@ using std::string;
 #include <fstream>
 
 #include "../util/svector.hpp"
-#include "../util/endian.hpp"
 #include "../files/files.hpp"
 #include "../util/basics.hpp"
 

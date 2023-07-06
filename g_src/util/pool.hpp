@@ -1,14 +1,13 @@
-#pragma once
+#ifndef DF_GSRC_UTIL_POOL_HPP
+#define DF_GSRC_UTIL_POOL_HPP
 
 #include <array>
 #include <vector>
-#include <memory>
 #include <set>
-#include <unordered_set>
 
 template<class T, size_t N>
-class object_pool
-{
+class object_pool {
+
   using pool_array=std::array<T,N>;
   std::vector<std::unique_ptr<pool_array>> pool;
   std::set<size_t> unused_slots;
@@ -86,8 +85,8 @@ public:
 };
 
 template<class T,size_t N>
-void garbage_collect(object_pool<T,N> &pool,std::vector<T *> &glob)
-{
+void garbage_collect(object_pool<T,N> &pool,std::vector<T *> &glob){
+
   std::set<size_t> still_extant;
   for (auto &obj:glob)
   {
@@ -100,4 +99,7 @@ void garbage_collect(object_pool<T,N> &pool,std::vector<T *> &glob)
     if (!still_extant.contains(i))
       pool.erase(i);
   }
+
 }
+
+#endif

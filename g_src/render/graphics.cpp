@@ -43,8 +43,6 @@ typedef int32_t Ordinal;
 
 #include "../util/random.hpp"
 
-#include "../util/endian.hpp"
-
 #include "../files/files.hpp"
 
 #include "../render/enabler.hpp"

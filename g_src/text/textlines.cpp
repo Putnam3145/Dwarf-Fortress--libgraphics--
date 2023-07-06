@@ -1,30 +1,6 @@
-#include "../platform/platform.hpp"
-#include <string.h>
-#include <math.h>
-#include <iosfwd>
-#include <iostream>
-#include <ios>
-#include <streambuf>
-#include <istream>
-#include <ostream>
-#include <iomanip>
-#include <sstream>
-#include <cstdlib>
-#include <fstream>
-#include <zlib.h>
-#include "../_external/zlib/contrib/minizip/unzip.h"
-
-#include "../util/svector.hpp"
-#include "../util/endian.hpp"
-#include "../files/files.hpp"
-#include "../render/enabler.hpp"
 #include "../text/textlines.hpp"
-#include "../util/basics.hpp"
 
-extern char filecomp_buffer[20000];
-extern char filecomp_buffer2[80000];
-extern char filecomp_buffer_aux[20000];
-extern char filecomp_buffer2_aux[80000];
+#include <fstream>
 
 void textlinesst::load_raw_to_lines(const char *filename){
 

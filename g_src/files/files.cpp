@@ -6,6 +6,11 @@
 #include <SDL2/SDL.h>
 #include <fstream>
 
+extern char filecomp_buffer[20000];
+extern char filecomp_buffer2[80000];
+extern char filecomp_buffer_aux[20000];
+extern char filecomp_buffer2_aux[80000];
+
 std::string_view get_base_path_str(){
   static char *base_folder;
   if(!base_folder){

@@ -20,8 +20,6 @@
 #include "../util/svector.hpp"
 using std::string;
 
-#include "../util/endian.hpp"
-
 #include "../files/files.hpp"
 
 #include "../render/enabler.hpp"

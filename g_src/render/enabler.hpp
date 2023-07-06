@@ -44,7 +44,6 @@ using std::queue;
 
 #include "../util/basics.hpp"
 #include "../util/svector.hpp"
-#include "../util/endian.hpp"
 #include "../files/files.hpp"
 #include "../render/enabler_input.hpp"
 #include "../util/mail.hpp"

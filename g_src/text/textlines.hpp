@@ -1,6 +1,8 @@
 #ifndef DF_GSRC_TEXT_TEXTLINES_HPP
 #define DF_GSRC_TEXT_TEXTLINES_HPP
 
+#include "stringvec.hpp"
+
 struct textlinesst {
 
   stringvectst text;
