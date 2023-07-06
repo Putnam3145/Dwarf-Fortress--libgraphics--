@@ -1,17 +1,6 @@
-#include "audio.hpp"
+#ifdef WIN32
 
-#include <string.h>
-#include <math.h>
-#include <iosfwd>
-#include <iostream>
-#include <ios>
-#include <streambuf>
-#include <istream>
-#include <ostream>
-#include <iomanip>
-#include <sstream>
-#include <cstdlib>
-#include <fstream>
+#include "audio.hpp"
 
 #include "../../fmod/inc/fmod.hpp"
 #include "../../fmod/inc/fmod_common.h"
@@ -297,3 +286,5 @@ void update()
   fmod_system->update();
 }
 }
+
+#endif

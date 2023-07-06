@@ -1,15 +1,15 @@
 #ifndef DF_GSRC_GRAPHICS_VIEWBASE_HPP
 #define DF_GSRC_GRAPHICS_VIEWBASE_HPP
 
+#include "../util/svector.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../graphics/graphics.hpp"
+
 #include <set>
 #include <map>
 #include <string>
 #include <functional>
 #include <algorithm>
-
-#include "../util/svector.hpp"
-#include "../graphics/keybindings.hpp"
-#include "../graphics/graphics.hpp"
 
 struct world_gen_param_valuest;
 

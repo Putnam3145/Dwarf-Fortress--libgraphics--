@@ -37,6 +37,8 @@ all:
     g_src/files/find_files_posix.cpp \
     g_src/files/find_files_windows.cpp \
     g_src/audio/audio.cpp \
+    g_src/audio/audio_fmod.cpp \
+    g_src/audio/audio_sdl.cpp \
     g_src/graphics/enabler.cpp \
     g_src/graphics/enabler_input.cpp \
     g_src/graphics/graphics.cpp \

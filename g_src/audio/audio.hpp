@@ -5,6 +5,8 @@
 //yeah sorry i just like the ergonomics
 
 #include "../platform/platform.hpp"
+#include "../platform/types.hpp"
+
 #include "../util/definitions.hpp"
 #include "../util/svector.hpp"
 

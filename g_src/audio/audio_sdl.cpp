@@ -1,10 +1,10 @@
+#ifndef WIN32
+
 #include "audio.hpp"
 
-#include <cstdint>
-
-#include "../util/definitions.hpp"
-
 #include <SDL2/SDL_mixer.h>
+
+//#include <cstdint>
 
 static int volume_ambience = 128;
 
@@ -125,7 +125,7 @@ extern "C"
       }
     }
   }
-  bool set_song(const string& filename, int slot,bool loops)
+  bool set_song(const std::string& filename, int slot,bool loops)
   {
     if (stream[slot] != NULL)
     {
@@ -135,7 +135,7 @@ extern "C"
     stream[slot] = Mix_LoadMUS(filename.c_str());
     return stream[slot] != NULL;
   }
-  bool set_sound(const string& filename, int slot)
+  bool set_sound(const std::string& filename, int slot)
   {
     if (samp[slot] != NULL)
     {
@@ -188,5 +188,8 @@ extern "C"
   void update()
   {
     // sorry, nothing
+    // no need to apologize!
   }
 };
+
+#endif

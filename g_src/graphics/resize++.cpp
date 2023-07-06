@@ -1,8 +1,8 @@
+#include "resize++.hpp"
+
 #include <cmath>
 #include <algorithm>
 #include <vector>
-
-#include "../graphics/resize++.hpp"
 
 #include <SDL2/SDL.h>
 
