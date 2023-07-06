@@ -1,7 +1,7 @@
 #include <string>
 #include <unistd.h>
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 #include "../platform/platform.hpp"
 #ifndef WIN32
 # include <sys/types.h>

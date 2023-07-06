@@ -1,11 +1,11 @@
 #include <cassert>
 
 #include "../platform/platform.hpp"
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 #include "../util/random.hpp"
 #include "../util/logger.hpp"
 
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 #include "../audio/audio.hpp"
 
 #include "../hooks/dfhooks.hpp"

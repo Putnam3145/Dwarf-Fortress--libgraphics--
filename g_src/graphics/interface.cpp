@@ -21,7 +21,7 @@ using std::string;
 
 #include "../files/files.hpp"
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 
 #include "../text/textlines.hpp"
 
@@ -29,17 +29,17 @@ using std::string;
 
 #include "../util/definitions.hpp"
 
-#include "../util/g_basics.hpp"
 
 #include "../audio/audio.hpp"
 
-#include "../render/graphics.hpp"
+#include "../graphics/definitions.hpp"
+#include "../graphics/graphics.hpp"
 
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 
-#include "../render/keybindings.hpp"
-#include "../render/interface.hpp"
-#include "../render/KeyBindingScreen.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../graphics/interface.hpp"
+#include "../graphics/KeyBindingScreen.hpp"
 //#include "ttf_manager.hpp"
 
 #include <list>

@@ -1,5 +1,5 @@
-#ifndef BASICS_H
-#define BASICS_H
+#ifndef DF_GSRC_UTIL_DEFINITIONS_HPP
+#define DF_GSRC_UTIL_DEFINITIONS_HPP
 
 #include "../platform/types.hpp"
 

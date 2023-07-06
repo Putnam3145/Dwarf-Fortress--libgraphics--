@@ -7,9 +7,9 @@
 using std::string;
 #include <set>
 #include "../util/svector.hpp"
-#include "../render/ViewBase.hpp"
-#include "../render/keybindings.hpp"
-#include "../render/enabler.hpp"
+#include "../graphics/ViewBase.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../graphics/enabler.hpp"
 #include "../audio/audio.hpp"
 
 #ifdef CURSES_MOVIES

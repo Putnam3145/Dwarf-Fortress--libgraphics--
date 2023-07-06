@@ -8,8 +8,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "../render/enabler_input.hpp"
-#include "../render/init.hpp"
+#include "../graphics/enabler_input.hpp"
+#include "../graphics/init.hpp"
 extern initst init;
 #include "../platform/platform.hpp"
 #include "../files/files.hpp"

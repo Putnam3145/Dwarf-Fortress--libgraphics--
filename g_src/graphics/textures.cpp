@@ -1,5 +1,5 @@
 #include "textures.hpp"
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 
 cached_texturest::cached_texturest() {
   w = -1;

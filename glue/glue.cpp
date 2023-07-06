@@ -31,7 +31,7 @@ void endroutine(){
 
 // interface.cpp glue
 
-#include "../g_src/render/interface.hpp"
+#include "../g_src/graphics/interface.hpp"
 interfacest gview;
 
 void dwarf_end_announcements(){}
@@ -44,7 +44,7 @@ thread_local string errorlog_prefix;
 
 // initst init glue
 
-#include "../g_src/render/init.hpp"
+#include "../g_src/graphics/init.hpp"
 initst init;
 
 // graphics.cpp glue
@@ -62,7 +62,7 @@ int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b
 
 // ViewBase.cpp glue
 
-#include "../g_src/render/KeybindingScreen.hpp"
+#include "../g_src/graphics/KeybindingScreen.hpp"
 viewscreenst::viewscreenst(){}
 void viewscreenst::set_port_flags() {
 }

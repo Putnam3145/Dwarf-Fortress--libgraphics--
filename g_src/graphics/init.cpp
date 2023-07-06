@@ -22,19 +22,19 @@ using std::string;
 
 #include "../files/files.hpp"
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 
 #include "../text/textlines.hpp"
 
 #include "../text/transform.hpp"
 
-#include "../util/g_basics.hpp"
+#include "../graphics/definitions.hpp"
 
 #include "../graphics/texture_handler.hpp"
 
-#include "../render/graphics.hpp"
+#include "../graphics/graphics.hpp"
 
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 
 #ifdef DEBUGOPT
 //#define ULTRAWIDE_HACK

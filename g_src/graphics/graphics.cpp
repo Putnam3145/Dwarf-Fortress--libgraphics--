@@ -45,7 +45,7 @@ typedef int32_t Ordinal;
 
 #include "../files/files.hpp"
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 
 #include "../text/textlines.hpp"
 
@@ -53,17 +53,17 @@ typedef int32_t Ordinal;
 
 #include "../util/definitions.hpp"
 
-#include "../util/g_basics.hpp"
+#include "../graphics/definitions.hpp"
 
 #include "../graphics/texture_handler.hpp"
 
-#include "../render/graphics.hpp"
+#include "../graphics/graphics.hpp"
 
 #include "../audio/audio.hpp"
 
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 
-#include "../render/interface.hpp"
+#include "../graphics/interface.hpp"
 
 #ifdef __APPLE__
 #define _XOPEN_SOURCE_EXTENDED

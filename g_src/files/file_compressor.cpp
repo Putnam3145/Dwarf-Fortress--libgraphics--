@@ -3,7 +3,7 @@
 #include "../platform/platform.hpp"
 #include "../platform/types.hpp"
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 
 inline void CHECK_ERR(int err, const char* msg){
   if (err != Z_OK){

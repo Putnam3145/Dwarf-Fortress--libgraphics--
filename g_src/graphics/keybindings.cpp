@@ -1,4 +1,4 @@
-#include "../render/keybindings.hpp"
+#include "../graphics/keybindings.hpp"
 
 using namespace std;
 

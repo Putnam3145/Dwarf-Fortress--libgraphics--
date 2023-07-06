@@ -2,8 +2,8 @@
 #ifndef TTF_MANAGER_HPP
 #define TTF_MANAGER_HPP
 
-#include "../render/init.hpp"
-#include "../render/enabler.hpp"
+#include "../graphics/init.hpp"
+#include "../graphics/enabler.hpp"
 #ifdef __APPLE__
 #include <SDL_ttf/SDL_ttf.h>
 #else

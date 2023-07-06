@@ -8,8 +8,8 @@
 #include <algorithm>
 
 #include "../util/svector.hpp"
-#include "../render/keybindings.hpp"
-#include "../render/graphics.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../graphics/graphics.hpp"
 
 struct world_gen_param_valuest;
 

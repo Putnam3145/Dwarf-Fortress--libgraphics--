@@ -43,7 +43,7 @@ using std::queue;
 #include "../util/definitions.hpp"
 #include "../util/svector.hpp"
 #include "../files/files.hpp"
-#include "../render/enabler_input.hpp"
+#include "../graphics/enabler_input.hpp"
 #include "../util/mail.hpp"
 
 #include "../graphics/textures.hpp"

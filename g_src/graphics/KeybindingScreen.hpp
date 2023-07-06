@@ -1,9 +1,9 @@
 #ifndef KEYBINDINGSCREEN_H
 #define KEYBINDINGSCREEN_H
 
-#include "../render/interface.hpp"
-#include "../render/ViewBase.hpp"
-#include "../render/enabler.hpp"
+#include "../graphics/interface.hpp"
+#include "../graphics/ViewBase.hpp"
+#include "../graphics/enabler.hpp"
 
 #include <set>
 #include <string>

@@ -24,15 +24,17 @@ typedef int32_t Ordinal;
 //#include "ttf_manager.hpp"
 #include "../util/random.hpp"
 #include "../files/files.hpp"
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 #include "../text/textlines.hpp"
 #include "../util/definitions.hpp"
-#include "../util/g_basics.hpp"
+
+#include "../graphics/definitions.hpp"
 #include "../graphics/texture_handler.hpp"
-#include "../render/graphics.hpp"
-#include "../render/init.hpp"
-#include "../render/keybindings.hpp"
-#include "../render/KeyBindingScreen.hpp"
+
+#include "../graphics/graphics.hpp"
+#include "../graphics/init.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../graphics/KeyBindingScreen.hpp"
 
 #include <list>
 #include <map>

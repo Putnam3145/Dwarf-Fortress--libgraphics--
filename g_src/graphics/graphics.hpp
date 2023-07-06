@@ -1,9 +1,12 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "../graphics/textures.hpp"
-#include "../util/g_basics.hpp"
 #include "../platform/platform.hpp"
+#include "../platform/types.hpp"
+
+#include "../graphics/textures.hpp"
+#include "../graphics/definitions.hpp"
+
 #include "../util/definitions.hpp"
 
 #include "GL/glew.h"

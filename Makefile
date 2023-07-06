@@ -24,31 +24,31 @@ endif
 all:
 	@echo "Compiling Dwarf-Fortress libgraphics (main)...";
 	@$(CC) $(CF) $(INCPATH) $(LIBPATH) \
+    g_src/platform/win32_compat.cpp \
     g_src/util/definitions.cpp \
     g_src/util/command_line.cpp \
     g_src/util/random.cpp \
     g_src/util/logger.cpp \
-    g_src/hooks/dfhooks.cpp \
-    g_src/render/enabler.cpp \
-    g_src/render/enabler_input.cpp \
+    g_src/text/stringvec.cpp \
+    g_src/text/textlines.cpp \
+    g_src/text/transform.cpp \
     g_src/files/files.cpp \
     g_src/files/file_compressor.cpp \
     g_src/files/find_files_posix.cpp \
     g_src/files/find_files_windows.cpp \
-    g_src/render/graphics.cpp \
     g_src/audio/audio.cpp \
-    g_src/render/init.cpp \
-    g_src/render/interface.cpp \
-    g_src/render/keybindings.cpp \
-    g_src/render/KeybindingScreen.cpp \
-    g_src/render/renderer_offscreen.cpp \
-    g_src/render/resize++.cpp \
-    g_src/text/stringvec.cpp \
-    g_src/text/textlines.cpp \
-    g_src/text/transform.cpp \
+    g_src/graphics/enabler.cpp \
+    g_src/graphics/enabler_input.cpp \
+    g_src/graphics/graphics.cpp \
+    g_src/graphics/init.cpp \
+    g_src/graphics/interface.cpp \
+    g_src/graphics/keybindings.cpp \
+    g_src/graphics/KeybindingScreen.cpp \
+    g_src/graphics/renderer_offscreen.cpp \
+    g_src/graphics/resize++.cpp \
     g_src/graphics/textures.cpp \
-    g_src/render/ViewBase.cpp \
-    g_src/platform/win32_compat.cpp \
+    g_src/graphics/ViewBase.cpp \
+    g_src/hooks/dfhooks.cpp \
     glue/glue.cpp \
 	$(LINKOS) -o main
 	@echo "Done";

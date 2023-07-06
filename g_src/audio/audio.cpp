@@ -4,7 +4,7 @@
 #include "../platform/types.hpp"
 #include "../text/transform.hpp"
 
-#include "../render/init.hpp"
+#include "../graphics/init.hpp"
 
 extern initst init;
 musicsoundst musicsound;

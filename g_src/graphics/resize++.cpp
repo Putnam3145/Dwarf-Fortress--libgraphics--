@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "../render/resize++.hpp"
+#include "../graphics/resize++.hpp"
 
 #include <SDL2/SDL.h>
 

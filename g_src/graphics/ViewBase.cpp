@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <iostream>
-#include "../render/interface.hpp"
-#include "../render/init.hpp"
+#include "../graphics/interface.hpp"
+#include "../graphics/init.hpp"
 
 using namespace std;
 using namespace widgets;

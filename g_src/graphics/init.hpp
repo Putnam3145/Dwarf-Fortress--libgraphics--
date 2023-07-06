@@ -1,7 +1,7 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "../render/enabler.hpp"
+#include "../graphics/enabler.hpp"
 
 class init_fontst
 {
@@ -32,7 +32,6 @@ public:
   long small_font_dispy;
   long large_font_dispx;
   long large_font_dispy;
-
 
   void create_derived_font_textures();
 };

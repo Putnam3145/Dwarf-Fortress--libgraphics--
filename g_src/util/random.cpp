@@ -1,5 +1,5 @@
-#include "../util/random.hpp"
-#include "../util/logger.hpp"
+#include "random.hpp"
+#include "logger.hpp"
 
 #define MT_IA           397
 #define MT_IB           (MT_LEN - MT_IA)

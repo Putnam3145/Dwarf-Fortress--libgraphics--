@@ -1,5 +1,5 @@
-#ifndef G_BASICS_H
-#define G_BASICS_H
+#ifndef DF_GSRC_GRAPHICS_DEFINITIONS
+#define DF_GSRC_GRAPHICS_DEFINITIONS
 
 //************************** WIDE SCREENS
 #define MAX_GRID_X 768

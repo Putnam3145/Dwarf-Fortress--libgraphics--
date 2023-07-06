@@ -9,8 +9,8 @@
 #include <set>
 #include <list>
 
-#include "../render/ViewBase.hpp"
-#include "../render/keybindings.hpp"
+#include "../graphics/ViewBase.hpp"
+#include "../graphics/keybindings.hpp"
 #ifdef CURSES
 #include "curses.h"
 #endif

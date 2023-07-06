@@ -1,6 +1,6 @@
-#include "../render/enabler.hpp"
-#include "../render/init.hpp"
-#include "../render/resize++.hpp"
+#include "../graphics/enabler.hpp"
+#include "../graphics/init.hpp"
+#include "../graphics/resize++.hpp"
 //#include "ttf_manager.hpp"
 
 #include <iostream>
