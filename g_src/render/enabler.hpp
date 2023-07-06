@@ -8,7 +8,6 @@
 #include "../platform/platform.hpp"
 
 #include <map>
-#include <vector>
 #include <algorithm>
 #include <utility>
 #include <list>
@@ -22,7 +21,6 @@
 #include <atomic>
 #include <semaphore>
 
-using std::vector;
 using std::pair;
 using std::map;
 using std::set;
@@ -47,6 +45,8 @@ using std::queue;
 #include "../files/files.hpp"
 #include "../render/enabler_input.hpp"
 #include "../util/mail.hpp"
+
+#include "../texture/textures.hpp"
 
 #define ENABLER
 
@@ -420,70 +420,6 @@ namespace std {
   };
 };
 
-// Being a texture catalog interface, with opengl, sdl and truetype capability
-class textures
-{
-  friend class enablerst;
-  friend class renderer_opengl;
- private:
-  vector<SDL_Surface *> raws;
-  vector<int32_t> free_spaces;
-  int32_t init_texture_size;
-  bool uploaded;
-  long add_texture(SDL_Surface*);
- protected:
-  GLuint gl_catalog; // texture catalog gennum
-  struct gl_texpos *gl_texpos; // Texture positions in the GL catalog, if any
- public:
-  // Initialize state variables
-  textures() {
-    uploaded = false;
-    gl_texpos = NULL;
-  }
-  ~textures() {
-  	for (auto it = raws.cbegin(); it != raws.cend(); ++it)
-		SDL_FreeSurface(*it);
-}
-  int textureCount() {
-    return (int)raws.size();
-  }
-  // opengl textures were here--they're in the git history, circa february 1 2023
-  // Returns the most recent texture data
-  SDL_Surface *get_texture_data(long pos);
-
-  //create a texture
-  long create_texture(long dimx,long dimy);
-
-  void set_init_texture_size()
-	{
-	init_texture_size=(int32_t)raws.size();
-	}
-  // Clone a texture
-  long clone_texture(long src);
-  // Remove all color, but not transparency
-  void grayscale_texture(long pos);
-  // Loads dimx*dimy textures from a file, assuming all tiles
-  // are equally large and arranged in a grid
-  // Texture positions are saved in row-major order to tex_pos
-  // If convert_magenta is true and the file does not have built-in transparency,
-  // any magenta (255,0,255 RGB) is converted to full transparency
-  // The calculated size of individual tiles is saved to disp_x, disp_y
-  void load_multi_pdim(const string &filename,svector<long> &tex_pos,long dimx,long dimy,
-		       bool convert_magenta,
-		       long *disp_x, long *disp_y);
-  void load_multi_pdim(const string &filename,long *tex_pos,long dimx,long dimy,
-		       bool convert_magenta,
-		       long *disp_x, long *disp_y);
-  void refresh_multi_pdim(const string &filename,svector<long> &tex_pos,long dimx,long dimy,
-		       bool convert_magenta);
-  // Loads a single texture from a file, returning the handle
-  cached_texturest load(const string &filename, bool convert_magenta);
-  // To delete a texture..
-  void delete_texture(int32_t pos);
-  void delete_texture(SDL_Surface *srf);
-
-  void delete_all_post_init_textures();
-};
 
 struct tile {
   int x, y;

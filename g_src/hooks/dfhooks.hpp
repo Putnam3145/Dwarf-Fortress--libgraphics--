@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DF_GSRC_HOOKS_DFHOOKS_HPP
+#define DF_GSRC_HOOKS_DFHOOKS_HPP
 
 namespace SDL {
     // so we don't need to actually include SDL_events.h
@@ -26,3 +27,5 @@ bool hooks_sdl_event(void* event);
 // If true is returned then the key has been consumed and further
 // processing shouldn't happen
 bool hooks_ncurses_key(int key);
+
+#endif // DF_GSRC_HOOKS_DFHOOKS_HPP

@@ -104,40 +104,6 @@ static void align(size_t &sz, off_t inc) {
   sz += (64-(sz % 64));
 }
 
-cached_texturest::cached_texturest() {
-  w = -1;
-  h = -1;
-  tex = (SDL_Surface*)NULL;
-}
-
-cached_texturest::cached_texturest(SDL_Surface* surf) {
-  w = surf->w;
-  h = surf->h;
-  if (enabler.main_renderer()) {
-    tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), surf);
-  }
-  else {
-    tex = surf;
-  }
-}
-
-cached_texturest::~cached_texturest() {
-  if(auto actual_tex = std::get_if<SDL_Texture*>(&tex))
-    SDL_DestroyTexture(*actual_tex);
-}
-
-SDL_Texture* cached_texturest::get_texture() {
-  if (std::holds_alternative<SDL_Surface*>(tex)) {
-    if (enabler.main_renderer()) {
-      tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), std::get<SDL_Surface*>(tex));
-    }
-    else {
-      return NULL;
-    }
-  }
-  return std::get<SDL_Texture*>(tex);
-}
-
 void graphicst::resize(int x, int y)
 {
   dimx = x; dimy = y;

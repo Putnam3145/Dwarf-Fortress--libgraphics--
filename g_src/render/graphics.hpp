@@ -1,17 +1,18 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "../texture/textures.hpp"
+#include "../util/g_basics.hpp"
+#include "../platform/platform.hpp"
+#include "../util/basics.hpp"
+
+#include "GL/glew.h"
 #include <string>
 #include <map>
 #include <cassert>
 #include <variant>
 #include <cstring>
 using std::string;
-
-#include "GL/glew.h"
-#include "../util/g_basics.hpp"
-#include "../platform/platform.hpp"
-#include "../util/basics.hpp"
 
 #define PALETTE_COLORNUM 18
 
@@ -2978,20 +2979,6 @@ struct interface_setst
   }
   void copy_from_main();
   void swap_with_main();
-};
-
-class cached_texturest {
-  int w, h;
-  std::variant<SDL_Texture*, SDL_Surface*> tex;
-public:
-  cached_texturest();
-  cached_texturest(SDL_Surface* s);
-  ~cached_texturest();
-  SDL_Texture* get_texture();
-  void get_size(int& out_w, int& out_h) {
-    out_w = w;
-    out_h = h;
-  }
 };
 
 struct texblitst {

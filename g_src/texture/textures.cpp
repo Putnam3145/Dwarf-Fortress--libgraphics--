@@ -1,20 +1,39 @@
-#include "../render/enabler.hpp"
+#include "textures.hpp"
 #include "../render/init.hpp"
 
-// Used to sort textures
-struct vsize_pos {
-  int h, w;
-  SDL_Surface *s;
-  long pos;
-  // Assigned texture-catalog coordinates
-  int x, y;
+cached_texturest::cached_texturest() {
+  w = -1;
+  h = -1;
+  tex = (SDL_Surface*)NULL;
+}
 
-  bool operator< (struct vsize_pos y) const {
-    // sort produces an ascending order. We want descending. Don't argue.
-    if (h > y.h) return true;
-    return false;
+cached_texturest::cached_texturest(SDL_Surface* surf) {
+  w = surf->w;
+  h = surf->h;
+  if (enabler.main_renderer()) {
+    tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), surf);
   }
-};
+  else {
+    tex = surf;
+  }
+}
+
+cached_texturest::~cached_texturest() {
+  if(auto actual_tex = std::get_if<SDL_Texture*>(&tex))
+    SDL_DestroyTexture(*actual_tex);
+}
+
+SDL_Texture* cached_texturest::get_texture() {
+  if (std::holds_alternative<SDL_Surface*>(tex)) {
+    if (enabler.main_renderer()) {
+      tex = SDL_CreateTextureFromSurface(enabler.main_renderer(), std::get<SDL_Surface*>(tex));
+    }
+    else {
+      return NULL;
+    }
+  }
+  return std::get<SDL_Texture*>(tex);
+}
 
 SDL_Surface *textures::get_texture_data(long pos) {
   if (raws.size() > pos) {

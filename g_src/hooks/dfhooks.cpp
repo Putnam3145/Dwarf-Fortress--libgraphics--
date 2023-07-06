@@ -1,4 +1,4 @@
-#include "../hooks/dfhooks.hpp"
+#include "dfhooks.hpp"
 
 #include <string>
 
