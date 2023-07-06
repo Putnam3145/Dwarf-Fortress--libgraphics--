@@ -1098,6 +1098,8 @@ void render_things()
 	}
   else gps.erasescreen();
 
+  hooks_prerender();
+
   // Render REC when recording macros. Definitely want this screen-specific. Or do we?
   const Time now = SDL_GetTicks();
   if (enabler.is_recording() && now % 1000 > 500) {
