@@ -57,11 +57,11 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_to_texid(int x,
     ch   = s[0];
   }
   
-	//removed static here because it literally doesn't recognize that this flag has changed otherwise
-		//that is, use_graphics and init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS) return different values
+  //removed static here because it literally doesn't recognize that this flag has changed otherwise
+    //that is, use_graphics and init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS) return different values
   bool use_graphics = init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
   
-	const uint32_t stp_flag	      = screentexpos_flag[tile];
+  const uint32_t stp_flag       = screentexpos_flag[tile];
 
   if (use_graphics) {
     const long texpos             = screentexpos[tile];
@@ -85,21 +85,21 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_to_texid(int x,
     }
   }
   
-	if(enabler.flag & ENABLERFLAG_BASIC_TEXT)
-		{
-		if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)ret.texpos=init.font.basic_font_texpos_top[ch];
-		else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)ret.texpos=init.font.basic_font_texpos_bot[ch];
-		else ret.texpos=init.font.basic_font_texpos[ch];
-		}
-	else if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)
-		{
-		ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_top[ch]:init.font.small_font_texpos_top[ch];
-		}
-	else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)
-		{
-		ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_bot[ch]:init.font.small_font_texpos_bot[ch];
-		}
-	else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
+  if(enabler.flag & ENABLERFLAG_BASIC_TEXT)
+    {
+    if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)ret.texpos=init.font.basic_font_texpos_top[ch];
+    else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)ret.texpos=init.font.basic_font_texpos_bot[ch];
+    else ret.texpos=init.font.basic_font_texpos[ch];
+    }
+  else if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)
+    {
+    ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_top[ch]:init.font.small_font_texpos_top[ch];
+    }
+  else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)
+    {
+    ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_bot[ch]:init.font.small_font_texpos_bot[ch];
+    }
+  else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
 
  use_ch:
     ret.r = (float)s[1]/255.0f;
@@ -134,11 +134,11 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_top_to_texid(in
     ch   = s[0];
   }
   
-	//removed static here because it literally doesn't recognize that this flag has changed otherwise
-		//that is, use_graphics and init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS) return different values
+  //removed static here because it literally doesn't recognize that this flag has changed otherwise
+    //that is, use_graphics and init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS) return different values
   bool use_graphics = init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
   
-	const uint32_t stp_flag	      = screentexpos_top_flag[tile];
+  const uint32_t stp_flag       = screentexpos_top_flag[tile];
 
   if (use_graphics) {
     const long texpos             = screentexpos_top[tile];
@@ -162,19 +162,19 @@ Either<texture_fullid,int32_t/*texture_ttfid*/> renderer::screen_top_to_texid(in
     }
   }
   
-	if(enabler.flag & ENABLERFLAG_BASIC_TEXT)
-		{
-		ret.texpos=init.font.basic_font_texpos[ch];
-		}
-	else if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)
-		{
-		ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_top[ch]:init.font.small_font_texpos_top[ch];
-		}
-	else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)
-		{
-		ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_bot[ch]:init.font.small_font_texpos_bot[ch];
-		}
-	else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
+  if(enabler.flag & ENABLERFLAG_BASIC_TEXT)
+    {
+    ret.texpos=init.font.basic_font_texpos[ch];
+    }
+  else if(stp_flag & SCREENTEXPOS_FLAG_TOP_OF_TEXT)
+    {
+    ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_top[ch]:init.font.small_font_texpos_top[ch];
+    }
+  else if(stp_flag & SCREENTEXPOS_FLAG_BOTTOM_OF_TEXT)
+    {
+    ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos_bot[ch]:init.font.small_font_texpos_bot[ch];
+    }
+  else ret.texpos=enabler.is_fullscreen()?init.font.large_font_texpos[ch]:init.font.small_font_texpos[ch];
 
  use_ch:
     ret.r = (float)s[1]/255.0f;
@@ -219,183 +219,183 @@ enablerst::enablerst() : async_fromcomplete(false) {
 
 void renderer::display()
 {
-	++gps.refresh_buffer_val;
-	if (gps.refresh_buffer_val>100000000)
-		{
-		gps.refresh_buffer_val=0;
-		if (gps.screentexpos_refresh_buffer!=NULL)memset(gps.screentexpos_refresh_buffer,0,sizeof(int32_t)*gps.dimx*gps.dimy);
-		}
+  ++gps.refresh_buffer_val;
+  if (gps.refresh_buffer_val>100000000)
+    {
+    gps.refresh_buffer_val=0;
+    if (gps.screentexpos_refresh_buffer!=NULL)memset(gps.screentexpos_refresh_buffer,0,sizeof(int32_t)*gps.dimx*gps.dimy);
+    }
 
 #ifndef FULL_RELEASE_VERSION
-	if (cinematic_mode)gps.force_full_display_count=2;
+  if (cinematic_mode)gps.force_full_display_count=2;
 #endif
 
-	if (gps.force_full_display_count)
-		{
-		do_blank_screen_fill();
+  if (gps.force_full_display_count)
+    {
+    do_blank_screen_fill();
 
-		int32_t lvp=LOWER_VIEWPORT_MAX-1;
-		while (lvp>=0)
-			{
-			if (gps.lower_viewport[lvp]!=NULL)
-				{
-				if (gps.lower_viewport[lvp]->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE)
-					{
-					update_full_viewport(gps.lower_viewport[lvp]);
-					}
-				}
-			--lvp;
-			}
-		if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
-			{
-			update_full_viewport(gps.main_viewport);
-			}
+    int32_t lvp=LOWER_VIEWPORT_MAX-1;
+    while (lvp>=0)
+      {
+      if (gps.lower_viewport[lvp]!=NULL)
+        {
+        if (gps.lower_viewport[lvp]->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE)
+          {
+          update_full_viewport(gps.lower_viewport[lvp]);
+          }
+        }
+      --lvp;
+      }
+    if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
+      {
+      update_full_viewport(gps.main_viewport);
+      }
 
-		if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
-			{
-			update_full_map_port(gps.main_map_port);
-			}
-		}
-	else
-		{
-		if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
-			{
-			const int32_t dimx=gps.main_viewport->dim_x;
-			const int32_t dimy=gps.main_viewport->dim_y;
-			int32_t off=0,lvp;
-			for (int32_t x2=0; x2<dimx; ++x2)
-				{
-				for (int32_t y2=0; y2<dimy; ++y2,++off)
-					{
-					bool refresh=false;
+    if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
+      {
+      update_full_map_port(gps.main_map_port);
+      }
+    }
+  else
+    {
+    if ((gps.main_viewport!=NULL)?(gps.main_viewport->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE):false)
+      {
+      const int32_t dimx=gps.main_viewport->dim_x;
+      const int32_t dimy=gps.main_viewport->dim_y;
+      int32_t off=0,lvp;
+      for (int32_t x2=0; x2<dimx; ++x2)
+        {
+        for (int32_t y2=0; y2<dimy; ++y2,++off)
+          {
+          bool refresh=false;
 
-					if (gps.main_viewport->screentexpos[off]!=gps.main_viewport->screentexpos_old[off]||
-						gps.main_viewport->screentexpos_background[off]!=gps.main_viewport->screentexpos_background_old[off]||
-						gps.main_viewport->screentexpos_background_two[off]!=gps.main_viewport->screentexpos_background_two_old[off]||
-						gps.main_viewport->screentexpos_floor_flag[off]!=gps.main_viewport->screentexpos_floor_flag_old[off]||
-						gps.main_viewport->screentexpos_spatter_flag[off]!=gps.main_viewport->screentexpos_spatter_flag_old[off]||
-						gps.main_viewport->screentexpos_spatter[off]!=gps.main_viewport->screentexpos_spatter_old[off]||
-						gps.main_viewport->screentexpos_liquid_flag[off]!=gps.main_viewport->screentexpos_liquid_flag_old[off]||
-						gps.main_viewport->screentexpos_ramp_flag[off]!=gps.main_viewport->screentexpos_ramp_flag_old[off]||
-						gps.main_viewport->screentexpos_shadow_flag[off]!=gps.main_viewport->screentexpos_shadow_flag_old[off]||
-						gps.main_viewport->screentexpos_building_one[off]!=gps.main_viewport->screentexpos_building_one_old[off]||
-						gps.main_viewport->screentexpos_building_two[off]!=gps.main_viewport->screentexpos_building_two_old[off]||
-						gps.main_viewport->screentexpos_top_shadow[off]!=gps.main_viewport->screentexpos_top_shadow_old[off]||
-						gps.main_viewport->screentexpos_item[off]!=gps.main_viewport->screentexpos_item_old[off]||
-						gps.main_viewport->screentexpos_vehicle[off]!=gps.main_viewport->screentexpos_vehicle_old[off]||
-						gps.main_viewport->screentexpos_projectile[off]!=gps.main_viewport->screentexpos_projectile_old[off]||
-						gps.main_viewport->screentexpos_high_flow[off]!=gps.main_viewport->screentexpos_high_flow_old[off]||
-						gps.main_viewport->screentexpos_vermin[off]!=gps.main_viewport->screentexpos_vermin_old[off]||
-						gps.main_viewport->screentexpos_signpost[off]!=gps.main_viewport->screentexpos_signpost_old[off]||
-						gps.main_viewport->screentexpos_left_creature[off]!=gps.main_viewport->screentexpos_left_creature_old[off]||
-						gps.main_viewport->screentexpos_right_creature[off]!=gps.main_viewport->screentexpos_right_creature_old[off]||
-						gps.main_viewport->screentexpos_upleft_creature[off]!=gps.main_viewport->screentexpos_upleft_creature_old[off]||
-						gps.main_viewport->screentexpos_up_creature[off]!=gps.main_viewport->screentexpos_up_creature_old[off]||
-						gps.main_viewport->screentexpos_upright_creature[off]!=gps.main_viewport->screentexpos_upright_creature_old[off]||
-						gps.main_viewport->screentexpos_designation[off]!=gps.main_viewport->screentexpos_designation_old[off]||
-						gps.main_viewport->screentexpos_interface[off]!=gps.main_viewport->screentexpos_interface_old[off])refresh=true;
-					if (!refresh)
-						{
-						lvp=0;
-						while (lvp<LOWER_VIEWPORT_MAX)
-							{
-							graphic_viewportst *vp=gps.lower_viewport[lvp];
-							if (vp==NULL)break;
-							if (!(vp->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE))
-								{
-								++lvp;
-								continue;
-								}
-							if (vp->screentexpos[off]!=vp->screentexpos_old[off]||
-								vp->screentexpos_background[off]!=vp->screentexpos_background_old[off]||
-								vp->screentexpos_background_two[off]!=vp->screentexpos_background_two_old[off]||
-								vp->screentexpos_floor_flag[off]!=vp->screentexpos_floor_flag_old[off]||
-								vp->screentexpos_spatter_flag[off]!=vp->screentexpos_spatter_flag_old[off]||
-								vp->screentexpos_spatter[off]!=vp->screentexpos_spatter_old[off]||
-								vp->screentexpos_liquid_flag[off]!=vp->screentexpos_liquid_flag_old[off]||
-								vp->screentexpos_ramp_flag[off]!=vp->screentexpos_ramp_flag_old[off]||
-								vp->screentexpos_shadow_flag[off]!=vp->screentexpos_shadow_flag_old[off]||
-								vp->screentexpos_building_one[off]!=vp->screentexpos_building_one_old[off]||
-								vp->screentexpos_building_two[off]!=vp->screentexpos_building_two_old[off]||
-								vp->screentexpos_top_shadow[off]!=vp->screentexpos_top_shadow_old[off]||
-								vp->screentexpos_item[off]!=vp->screentexpos_item_old[off]||
-								vp->screentexpos_vehicle[off]!=vp->screentexpos_vehicle_old[off]||
-								vp->screentexpos_projectile[off]!=vp->screentexpos_projectile_old[off]||
-								vp->screentexpos_high_flow[off]!=vp->screentexpos_high_flow_old[off]||
-								vp->screentexpos_vermin[off]!=vp->screentexpos_vermin_old[off]||
-								vp->screentexpos_signpost[off]!=vp->screentexpos_signpost_old[off]||
-								vp->screentexpos_left_creature[off]!=vp->screentexpos_left_creature_old[off]||
-								vp->screentexpos_right_creature[off]!=vp->screentexpos_right_creature_old[off]||
-								vp->screentexpos_upleft_creature[off]!=vp->screentexpos_upleft_creature_old[off]||
-								vp->screentexpos_up_creature[off]!=vp->screentexpos_up_creature_old[off]||
-								vp->screentexpos_upright_creature[off]!=vp->screentexpos_upright_creature_old[off]||
-								vp->screentexpos_designation[off]!=vp->screentexpos_designation_old[off]||
-								vp->screentexpos_interface[off]!=vp->screentexpos_interface_old[off])refresh=true;
-							++lvp;
-							if (refresh)break;
-							}
-						}
+          if (gps.main_viewport->screentexpos[off]!=gps.main_viewport->screentexpos_old[off]||
+            gps.main_viewport->screentexpos_background[off]!=gps.main_viewport->screentexpos_background_old[off]||
+            gps.main_viewport->screentexpos_background_two[off]!=gps.main_viewport->screentexpos_background_two_old[off]||
+            gps.main_viewport->screentexpos_floor_flag[off]!=gps.main_viewport->screentexpos_floor_flag_old[off]||
+            gps.main_viewport->screentexpos_spatter_flag[off]!=gps.main_viewport->screentexpos_spatter_flag_old[off]||
+            gps.main_viewport->screentexpos_spatter[off]!=gps.main_viewport->screentexpos_spatter_old[off]||
+            gps.main_viewport->screentexpos_liquid_flag[off]!=gps.main_viewport->screentexpos_liquid_flag_old[off]||
+            gps.main_viewport->screentexpos_ramp_flag[off]!=gps.main_viewport->screentexpos_ramp_flag_old[off]||
+            gps.main_viewport->screentexpos_shadow_flag[off]!=gps.main_viewport->screentexpos_shadow_flag_old[off]||
+            gps.main_viewport->screentexpos_building_one[off]!=gps.main_viewport->screentexpos_building_one_old[off]||
+            gps.main_viewport->screentexpos_building_two[off]!=gps.main_viewport->screentexpos_building_two_old[off]||
+            gps.main_viewport->screentexpos_top_shadow[off]!=gps.main_viewport->screentexpos_top_shadow_old[off]||
+            gps.main_viewport->screentexpos_item[off]!=gps.main_viewport->screentexpos_item_old[off]||
+            gps.main_viewport->screentexpos_vehicle[off]!=gps.main_viewport->screentexpos_vehicle_old[off]||
+            gps.main_viewport->screentexpos_projectile[off]!=gps.main_viewport->screentexpos_projectile_old[off]||
+            gps.main_viewport->screentexpos_high_flow[off]!=gps.main_viewport->screentexpos_high_flow_old[off]||
+            gps.main_viewport->screentexpos_vermin[off]!=gps.main_viewport->screentexpos_vermin_old[off]||
+            gps.main_viewport->screentexpos_signpost[off]!=gps.main_viewport->screentexpos_signpost_old[off]||
+            gps.main_viewport->screentexpos_left_creature[off]!=gps.main_viewport->screentexpos_left_creature_old[off]||
+            gps.main_viewport->screentexpos_right_creature[off]!=gps.main_viewport->screentexpos_right_creature_old[off]||
+            gps.main_viewport->screentexpos_upleft_creature[off]!=gps.main_viewport->screentexpos_upleft_creature_old[off]||
+            gps.main_viewport->screentexpos_up_creature[off]!=gps.main_viewport->screentexpos_up_creature_old[off]||
+            gps.main_viewport->screentexpos_upright_creature[off]!=gps.main_viewport->screentexpos_upright_creature_old[off]||
+            gps.main_viewport->screentexpos_designation[off]!=gps.main_viewport->screentexpos_designation_old[off]||
+            gps.main_viewport->screentexpos_interface[off]!=gps.main_viewport->screentexpos_interface_old[off])refresh=true;
+          if (!refresh)
+            {
+            lvp=0;
+            while (lvp<LOWER_VIEWPORT_MAX)
+              {
+              graphic_viewportst *vp=gps.lower_viewport[lvp];
+              if (vp==NULL)break;
+              if (!(vp->flag&GRAPHIC_VIEWPORT_FLAG_ACTIVE))
+                {
+                ++lvp;
+                continue;
+                }
+              if (vp->screentexpos[off]!=vp->screentexpos_old[off]||
+                vp->screentexpos_background[off]!=vp->screentexpos_background_old[off]||
+                vp->screentexpos_background_two[off]!=vp->screentexpos_background_two_old[off]||
+                vp->screentexpos_floor_flag[off]!=vp->screentexpos_floor_flag_old[off]||
+                vp->screentexpos_spatter_flag[off]!=vp->screentexpos_spatter_flag_old[off]||
+                vp->screentexpos_spatter[off]!=vp->screentexpos_spatter_old[off]||
+                vp->screentexpos_liquid_flag[off]!=vp->screentexpos_liquid_flag_old[off]||
+                vp->screentexpos_ramp_flag[off]!=vp->screentexpos_ramp_flag_old[off]||
+                vp->screentexpos_shadow_flag[off]!=vp->screentexpos_shadow_flag_old[off]||
+                vp->screentexpos_building_one[off]!=vp->screentexpos_building_one_old[off]||
+                vp->screentexpos_building_two[off]!=vp->screentexpos_building_two_old[off]||
+                vp->screentexpos_top_shadow[off]!=vp->screentexpos_top_shadow_old[off]||
+                vp->screentexpos_item[off]!=vp->screentexpos_item_old[off]||
+                vp->screentexpos_vehicle[off]!=vp->screentexpos_vehicle_old[off]||
+                vp->screentexpos_projectile[off]!=vp->screentexpos_projectile_old[off]||
+                vp->screentexpos_high_flow[off]!=vp->screentexpos_high_flow_old[off]||
+                vp->screentexpos_vermin[off]!=vp->screentexpos_vermin_old[off]||
+                vp->screentexpos_signpost[off]!=vp->screentexpos_signpost_old[off]||
+                vp->screentexpos_left_creature[off]!=vp->screentexpos_left_creature_old[off]||
+                vp->screentexpos_right_creature[off]!=vp->screentexpos_right_creature_old[off]||
+                vp->screentexpos_upleft_creature[off]!=vp->screentexpos_upleft_creature_old[off]||
+                vp->screentexpos_up_creature[off]!=vp->screentexpos_up_creature_old[off]||
+                vp->screentexpos_upright_creature[off]!=vp->screentexpos_upright_creature_old[off]||
+                vp->screentexpos_designation[off]!=vp->screentexpos_designation_old[off]||
+                vp->screentexpos_interface[off]!=vp->screentexpos_interface_old[off])refresh=true;
+              ++lvp;
+              if (refresh)break;
+              }
+            }
 
-					if (!refresh)continue;
+          if (!refresh)continue;
 
-					lvp=LOWER_VIEWPORT_MAX-1;
-					while (lvp>=0)
-						{
-						if (gps.lower_viewport[lvp]!=NULL)update_viewport_tile(gps.lower_viewport[lvp],x2,y2);
-						--lvp;
-						}
-					update_viewport_tile(gps.main_viewport,x2,y2);
-					}
-				}
-			}
+          lvp=LOWER_VIEWPORT_MAX-1;
+          while (lvp>=0)
+            {
+            if (gps.lower_viewport[lvp]!=NULL)update_viewport_tile(gps.lower_viewport[lvp],x2,y2);
+            --lvp;
+            }
+          update_viewport_tile(gps.main_viewport,x2,y2);
+          }
+        }
+      }
 
-		if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
-			{
-			const int32_t dimx=gps.main_map_port->dim_x;
-			const int32_t dimy=gps.main_map_port->dim_y;
-			int32_t off=0;
-			for (int32_t y2=0; y2<dimy; ++y2)
-				{
-				for (int32_t x2=0; x2<dimx; ++x2,++off)
-					{
-					bool refresh=false;
-					if (gps.main_map_port->screentexpos_base[off]!=gps.main_map_port->screentexpos_base_old[off]||
-						gps.main_map_port->screentexpos_edge[0][off]!=gps.main_map_port->screentexpos_edge_old[0][off]||
-						gps.main_map_port->screentexpos_edge[1][off]!=gps.main_map_port->screentexpos_edge_old[1][off]||
-						gps.main_map_port->screentexpos_edge[2][off]!=gps.main_map_port->screentexpos_edge_old[2][off]||
-						gps.main_map_port->screentexpos_edge[3][off]!=gps.main_map_port->screentexpos_edge_old[3][off]||
-						gps.main_map_port->screentexpos_edge[4][off]!=gps.main_map_port->screentexpos_edge_old[4][off]||
-						gps.main_map_port->screentexpos_edge[5][off]!=gps.main_map_port->screentexpos_edge_old[5][off]||
-						gps.main_map_port->screentexpos_edge[6][off]!=gps.main_map_port->screentexpos_edge_old[6][off]||
-						gps.main_map_port->screentexpos_edge[7][off]!=gps.main_map_port->screentexpos_edge_old[7][off]||
-						gps.main_map_port->screentexpos_edge2[0][off]!=gps.main_map_port->screentexpos_edge2_old[0][off]||
-						gps.main_map_port->screentexpos_edge2[1][off]!=gps.main_map_port->screentexpos_edge2_old[1][off]||
-						gps.main_map_port->screentexpos_edge2[2][off]!=gps.main_map_port->screentexpos_edge2_old[2][off]||
-						gps.main_map_port->screentexpos_edge2[3][off]!=gps.main_map_port->screentexpos_edge2_old[3][off]||
-						gps.main_map_port->screentexpos_edge2[4][off]!=gps.main_map_port->screentexpos_edge2_old[4][off]||
-						gps.main_map_port->screentexpos_edge2[5][off]!=gps.main_map_port->screentexpos_edge2_old[5][off]||
-						gps.main_map_port->screentexpos_edge2[6][off]!=gps.main_map_port->screentexpos_edge2_old[6][off]||
-						gps.main_map_port->screentexpos_edge2[7][off]!=gps.main_map_port->screentexpos_edge2_old[7][off]||
-						gps.main_map_port->screentexpos_detail[off]!=gps.main_map_port->screentexpos_detail_old[off]||
-						gps.main_map_port->screentexpos_tunnel[off]!=gps.main_map_port->screentexpos_tunnel_old[off]||
-						gps.main_map_port->screentexpos_river[off]!=gps.main_map_port->screentexpos_river_old[off]||
-						gps.main_map_port->screentexpos_road[off]!=gps.main_map_port->screentexpos_road_old[off]||
-						gps.main_map_port->screentexpos_site[off]!=gps.main_map_port->screentexpos_site_old[off]||
-						gps.main_map_port->screentexpos_interface[off]!=gps.main_map_port->screentexpos_interface_old[off]||
-						gps.main_map_port->screentexpos_detail_to_n[off]!=gps.main_map_port->screentexpos_detail_to_n_old[off]||
-						gps.main_map_port->screentexpos_detail_to_s[off]!=gps.main_map_port->screentexpos_detail_to_s_old[off]||
-						gps.main_map_port->screentexpos_detail_to_w[off]!=gps.main_map_port->screentexpos_detail_to_w_old[off]||
-						gps.main_map_port->screentexpos_detail_to_e[off]!=gps.main_map_port->screentexpos_detail_to_e_old[off]||
-						gps.main_map_port->screentexpos_detail_to_nw[off]!=gps.main_map_port->screentexpos_detail_to_nw_old[off]||
-						gps.main_map_port->screentexpos_detail_to_ne[off]!=gps.main_map_port->screentexpos_detail_to_ne_old[off]||
-						gps.main_map_port->screentexpos_detail_to_sw[off]!=gps.main_map_port->screentexpos_detail_to_sw_old[off]||
-						gps.main_map_port->screentexpos_detail_to_se[off]!=gps.main_map_port->screentexpos_detail_to_se_old[off])refresh=true;
-					if (refresh)update_map_port_tile(gps.main_map_port,x2,y2);
-					}
-				}
-			}
-		}
-	update_all();
+    if ((gps.main_map_port!=NULL)?(gps.main_map_port->flag&GRAPHIC_MAP_PORT_FLAG_ACTIVE):false)
+      {
+      const int32_t dimx=gps.main_map_port->dim_x;
+      const int32_t dimy=gps.main_map_port->dim_y;
+      int32_t off=0;
+      for (int32_t y2=0; y2<dimy; ++y2)
+        {
+        for (int32_t x2=0; x2<dimx; ++x2,++off)
+          {
+          bool refresh=false;
+          if (gps.main_map_port->screentexpos_base[off]!=gps.main_map_port->screentexpos_base_old[off]||
+            gps.main_map_port->screentexpos_edge[0][off]!=gps.main_map_port->screentexpos_edge_old[0][off]||
+            gps.main_map_port->screentexpos_edge[1][off]!=gps.main_map_port->screentexpos_edge_old[1][off]||
+            gps.main_map_port->screentexpos_edge[2][off]!=gps.main_map_port->screentexpos_edge_old[2][off]||
+            gps.main_map_port->screentexpos_edge[3][off]!=gps.main_map_port->screentexpos_edge_old[3][off]||
+            gps.main_map_port->screentexpos_edge[4][off]!=gps.main_map_port->screentexpos_edge_old[4][off]||
+            gps.main_map_port->screentexpos_edge[5][off]!=gps.main_map_port->screentexpos_edge_old[5][off]||
+            gps.main_map_port->screentexpos_edge[6][off]!=gps.main_map_port->screentexpos_edge_old[6][off]||
+            gps.main_map_port->screentexpos_edge[7][off]!=gps.main_map_port->screentexpos_edge_old[7][off]||
+            gps.main_map_port->screentexpos_edge2[0][off]!=gps.main_map_port->screentexpos_edge2_old[0][off]||
+            gps.main_map_port->screentexpos_edge2[1][off]!=gps.main_map_port->screentexpos_edge2_old[1][off]||
+            gps.main_map_port->screentexpos_edge2[2][off]!=gps.main_map_port->screentexpos_edge2_old[2][off]||
+            gps.main_map_port->screentexpos_edge2[3][off]!=gps.main_map_port->screentexpos_edge2_old[3][off]||
+            gps.main_map_port->screentexpos_edge2[4][off]!=gps.main_map_port->screentexpos_edge2_old[4][off]||
+            gps.main_map_port->screentexpos_edge2[5][off]!=gps.main_map_port->screentexpos_edge2_old[5][off]||
+            gps.main_map_port->screentexpos_edge2[6][off]!=gps.main_map_port->screentexpos_edge2_old[6][off]||
+            gps.main_map_port->screentexpos_edge2[7][off]!=gps.main_map_port->screentexpos_edge2_old[7][off]||
+            gps.main_map_port->screentexpos_detail[off]!=gps.main_map_port->screentexpos_detail_old[off]||
+            gps.main_map_port->screentexpos_tunnel[off]!=gps.main_map_port->screentexpos_tunnel_old[off]||
+            gps.main_map_port->screentexpos_river[off]!=gps.main_map_port->screentexpos_river_old[off]||
+            gps.main_map_port->screentexpos_road[off]!=gps.main_map_port->screentexpos_road_old[off]||
+            gps.main_map_port->screentexpos_site[off]!=gps.main_map_port->screentexpos_site_old[off]||
+            gps.main_map_port->screentexpos_interface[off]!=gps.main_map_port->screentexpos_interface_old[off]||
+            gps.main_map_port->screentexpos_detail_to_n[off]!=gps.main_map_port->screentexpos_detail_to_n_old[off]||
+            gps.main_map_port->screentexpos_detail_to_s[off]!=gps.main_map_port->screentexpos_detail_to_s_old[off]||
+            gps.main_map_port->screentexpos_detail_to_w[off]!=gps.main_map_port->screentexpos_detail_to_w_old[off]||
+            gps.main_map_port->screentexpos_detail_to_e[off]!=gps.main_map_port->screentexpos_detail_to_e_old[off]||
+            gps.main_map_port->screentexpos_detail_to_nw[off]!=gps.main_map_port->screentexpos_detail_to_nw_old[off]||
+            gps.main_map_port->screentexpos_detail_to_ne[off]!=gps.main_map_port->screentexpos_detail_to_ne_old[off]||
+            gps.main_map_port->screentexpos_detail_to_sw[off]!=gps.main_map_port->screentexpos_detail_to_sw_old[off]||
+            gps.main_map_port->screentexpos_detail_to_se[off]!=gps.main_map_port->screentexpos_detail_to_se_old[off])refresh=true;
+          if (refresh)update_map_port_tile(gps.main_map_port,x2,y2);
+          }
+        }
+      }
+    }
+  update_all();
 }
 
 void renderer::cleanup_arrays() {
@@ -506,7 +506,7 @@ void renderer::gps_allocate(int x, int y,int screen_x,int screen_y,int tile_dim_
 
   int32_t zf=gps.viewport_zoom_factor;
   set_viewport_zoom_factor(zf);
-	gps.reshape_viewports(zf);
+  gps.reshape_viewports(zf);
 }
 
 void renderer::swap_arrays() {
@@ -537,146 +537,146 @@ void renderer::swap_arrays() {
   auto vp_s=gps.viewport.begin();
   auto vp_e=gps.viewport.end();
   for(;vp_s<vp_e;++vp_s)
-	{
-	graphic_viewportst *vp=*vp_s;
-		sw_i32=vp->screentexpos_background;
-			vp->screentexpos_background=vp->screentexpos_background_old;
-			vp->screentexpos_background_old=sw_i32;
-		sw_i32=vp->screentexpos_background_two;
-			vp->screentexpos_background_two=vp->screentexpos_background_two_old;
-			vp->screentexpos_background_two_old=sw_i32;
-		sw_ui64=vp->screentexpos_floor_flag;
-			vp->screentexpos_floor_flag=vp->screentexpos_floor_flag_old;
-			vp->screentexpos_floor_flag_old=sw_ui64;
-		sw_ui32=vp->screentexpos_spatter_flag;
-			vp->screentexpos_spatter_flag=vp->screentexpos_spatter_flag_old;
-			vp->screentexpos_spatter_flag_old=sw_ui32;
-		sw_i32=vp->screentexpos_spatter;
-			vp->screentexpos_spatter=vp->screentexpos_spatter_old;
-			vp->screentexpos_spatter_old=sw_i32;
-		sw_ui32=vp->screentexpos_liquid_flag;
-			vp->screentexpos_liquid_flag=vp->screentexpos_liquid_flag_old;
-			vp->screentexpos_liquid_flag_old=sw_ui32;
-		sw_ui64=vp->screentexpos_ramp_flag;
-			vp->screentexpos_ramp_flag=vp->screentexpos_ramp_flag_old;
-			vp->screentexpos_ramp_flag_old=sw_ui64;
-		sw_ui32=vp->screentexpos_shadow_flag;
-			vp->screentexpos_shadow_flag=vp->screentexpos_shadow_flag_old;
-			vp->screentexpos_shadow_flag_old=sw_ui32;
-		sw_i32=vp->screentexpos_building_one;
-			vp->screentexpos_building_one=vp->screentexpos_building_one_old;
-			vp->screentexpos_building_one_old=sw_i32;
-		sw_i32=vp->screentexpos_building_two;
-			vp->screentexpos_building_two=vp->screentexpos_building_two_old;
-			vp->screentexpos_building_two_old=sw_i32;
-		sw_i32=vp->screentexpos_top_shadow;
-			vp->screentexpos_top_shadow=vp->screentexpos_top_shadow_old;
-			vp->screentexpos_top_shadow_old=sw_i32;
-		sw_i32=vp->screentexpos_item;
-			vp->screentexpos_item=vp->screentexpos_item_old;
-			vp->screentexpos_item_old=sw_i32;
-		sw_i32=vp->screentexpos_vehicle;
-			vp->screentexpos_vehicle=vp->screentexpos_vehicle_old;
-			vp->screentexpos_vehicle_old=sw_i32;
-		sw_i32=vp->screentexpos_projectile;
-			vp->screentexpos_projectile=vp->screentexpos_projectile_old;
-			vp->screentexpos_projectile_old=sw_i32;
-		sw_i32=vp->screentexpos_high_flow;
-			vp->screentexpos_high_flow=vp->screentexpos_high_flow_old;
-			vp->screentexpos_high_flow_old=sw_i32;
-		sw_i32=vp->screentexpos_vermin;
-			vp->screentexpos_vermin=vp->screentexpos_vermin_old;
-			vp->screentexpos_vermin_old=sw_i32;
-		sw_i32=vp->screentexpos_left_creature;
-			vp->screentexpos_left_creature=vp->screentexpos_left_creature_old;
-			vp->screentexpos_left_creature_old=sw_i32;
-		sw_i32=vp->screentexpos;
-			vp->screentexpos=vp->screentexpos_old;
-			vp->screentexpos_old=sw_i32;
-		sw_i32=vp->screentexpos_right_creature;
-			vp->screentexpos_right_creature=vp->screentexpos_right_creature_old;
-			vp->screentexpos_right_creature_old=sw_i32;
-		sw_i32=vp->screentexpos_signpost;
-			vp->screentexpos_signpost=vp->screentexpos_signpost_old;
-			vp->screentexpos_signpost_old=sw_i32;
-		sw_i32=vp->screentexpos_upleft_creature;
-			vp->screentexpos_upleft_creature=vp->screentexpos_upleft_creature_old;
-			vp->screentexpos_upleft_creature_old=sw_i32;
-		sw_i32=vp->screentexpos_up_creature;
-			vp->screentexpos_up_creature=vp->screentexpos_up_creature_old;
-			vp->screentexpos_up_creature_old=sw_i32;
-		sw_i32=vp->screentexpos_upright_creature;
-			vp->screentexpos_upright_creature=vp->screentexpos_upright_creature_old;
-			vp->screentexpos_upright_creature_old=sw_i32;
-		sw_i32=vp->screentexpos_designation;
-			vp->screentexpos_designation=vp->screentexpos_designation_old;
-			vp->screentexpos_designation_old=sw_i32;
-		sw_i32=vp->screentexpos_interface;
-			vp->screentexpos_interface=vp->screentexpos_interface_old;
-			vp->screentexpos_interface_old=sw_i32;
-	}
+  {
+  graphic_viewportst *vp=*vp_s;
+    sw_i32=vp->screentexpos_background;
+      vp->screentexpos_background=vp->screentexpos_background_old;
+      vp->screentexpos_background_old=sw_i32;
+    sw_i32=vp->screentexpos_background_two;
+      vp->screentexpos_background_two=vp->screentexpos_background_two_old;
+      vp->screentexpos_background_two_old=sw_i32;
+    sw_ui64=vp->screentexpos_floor_flag;
+      vp->screentexpos_floor_flag=vp->screentexpos_floor_flag_old;
+      vp->screentexpos_floor_flag_old=sw_ui64;
+    sw_ui32=vp->screentexpos_spatter_flag;
+      vp->screentexpos_spatter_flag=vp->screentexpos_spatter_flag_old;
+      vp->screentexpos_spatter_flag_old=sw_ui32;
+    sw_i32=vp->screentexpos_spatter;
+      vp->screentexpos_spatter=vp->screentexpos_spatter_old;
+      vp->screentexpos_spatter_old=sw_i32;
+    sw_ui32=vp->screentexpos_liquid_flag;
+      vp->screentexpos_liquid_flag=vp->screentexpos_liquid_flag_old;
+      vp->screentexpos_liquid_flag_old=sw_ui32;
+    sw_ui64=vp->screentexpos_ramp_flag;
+      vp->screentexpos_ramp_flag=vp->screentexpos_ramp_flag_old;
+      vp->screentexpos_ramp_flag_old=sw_ui64;
+    sw_ui32=vp->screentexpos_shadow_flag;
+      vp->screentexpos_shadow_flag=vp->screentexpos_shadow_flag_old;
+      vp->screentexpos_shadow_flag_old=sw_ui32;
+    sw_i32=vp->screentexpos_building_one;
+      vp->screentexpos_building_one=vp->screentexpos_building_one_old;
+      vp->screentexpos_building_one_old=sw_i32;
+    sw_i32=vp->screentexpos_building_two;
+      vp->screentexpos_building_two=vp->screentexpos_building_two_old;
+      vp->screentexpos_building_two_old=sw_i32;
+    sw_i32=vp->screentexpos_top_shadow;
+      vp->screentexpos_top_shadow=vp->screentexpos_top_shadow_old;
+      vp->screentexpos_top_shadow_old=sw_i32;
+    sw_i32=vp->screentexpos_item;
+      vp->screentexpos_item=vp->screentexpos_item_old;
+      vp->screentexpos_item_old=sw_i32;
+    sw_i32=vp->screentexpos_vehicle;
+      vp->screentexpos_vehicle=vp->screentexpos_vehicle_old;
+      vp->screentexpos_vehicle_old=sw_i32;
+    sw_i32=vp->screentexpos_projectile;
+      vp->screentexpos_projectile=vp->screentexpos_projectile_old;
+      vp->screentexpos_projectile_old=sw_i32;
+    sw_i32=vp->screentexpos_high_flow;
+      vp->screentexpos_high_flow=vp->screentexpos_high_flow_old;
+      vp->screentexpos_high_flow_old=sw_i32;
+    sw_i32=vp->screentexpos_vermin;
+      vp->screentexpos_vermin=vp->screentexpos_vermin_old;
+      vp->screentexpos_vermin_old=sw_i32;
+    sw_i32=vp->screentexpos_left_creature;
+      vp->screentexpos_left_creature=vp->screentexpos_left_creature_old;
+      vp->screentexpos_left_creature_old=sw_i32;
+    sw_i32=vp->screentexpos;
+      vp->screentexpos=vp->screentexpos_old;
+      vp->screentexpos_old=sw_i32;
+    sw_i32=vp->screentexpos_right_creature;
+      vp->screentexpos_right_creature=vp->screentexpos_right_creature_old;
+      vp->screentexpos_right_creature_old=sw_i32;
+    sw_i32=vp->screentexpos_signpost;
+      vp->screentexpos_signpost=vp->screentexpos_signpost_old;
+      vp->screentexpos_signpost_old=sw_i32;
+    sw_i32=vp->screentexpos_upleft_creature;
+      vp->screentexpos_upleft_creature=vp->screentexpos_upleft_creature_old;
+      vp->screentexpos_upleft_creature_old=sw_i32;
+    sw_i32=vp->screentexpos_up_creature;
+      vp->screentexpos_up_creature=vp->screentexpos_up_creature_old;
+      vp->screentexpos_up_creature_old=sw_i32;
+    sw_i32=vp->screentexpos_upright_creature;
+      vp->screentexpos_upright_creature=vp->screentexpos_upright_creature_old;
+      vp->screentexpos_upright_creature_old=sw_i32;
+    sw_i32=vp->screentexpos_designation;
+      vp->screentexpos_designation=vp->screentexpos_designation_old;
+      vp->screentexpos_designation_old=sw_i32;
+    sw_i32=vp->screentexpos_interface;
+      vp->screentexpos_interface=vp->screentexpos_interface_old;
+      vp->screentexpos_interface_old=sw_i32;
+  }
 
   auto mp_s=gps.map_port.begin();
   auto mp_e=gps.map_port.end();
   for(;mp_s<mp_e;++mp_s)
-	{
-	graphic_map_portst *vp=*mp_s;
-		sw_i32=vp->screentexpos_base;
-			vp->screentexpos_base=vp->screentexpos_base_old;
-			vp->screentexpos_base_old=sw_i32;
-		int32_t ei;
-		for(ei=0;ei<8;++ei)
-			{
-			sw_i32=vp->screentexpos_edge[ei];
-				vp->screentexpos_edge[ei]=vp->screentexpos_edge_old[ei];
-				vp->screentexpos_edge_old[ei]=sw_i32;
-			sw_i32=vp->screentexpos_edge2[ei];
-				vp->screentexpos_edge2[ei]=vp->screentexpos_edge2_old[ei];
-				vp->screentexpos_edge2_old[ei]=sw_i32;
-			}
-		sw_i32=vp->screentexpos_detail;
-			vp->screentexpos_detail=vp->screentexpos_detail_old;
-			vp->screentexpos_detail_old=sw_i32;
-		sw_i32=vp->screentexpos_tunnel;
-			vp->screentexpos_tunnel=vp->screentexpos_tunnel_old;
-			vp->screentexpos_tunnel_old=sw_i32;
-		sw_i32=vp->screentexpos_river;
-			vp->screentexpos_river=vp->screentexpos_river_old;
-			vp->screentexpos_river_old=sw_i32;
-		sw_i32=vp->screentexpos_road;
-			vp->screentexpos_road=vp->screentexpos_road_old;
-			vp->screentexpos_road_old=sw_i32;
-		sw_i32=vp->screentexpos_site;
-			vp->screentexpos_site=vp->screentexpos_site_old;
-			vp->screentexpos_site_old=sw_i32;
-		sw_i32=vp->screentexpos_interface;
-			vp->screentexpos_interface=vp->screentexpos_interface_old;
-			vp->screentexpos_interface_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_n;
-			vp->screentexpos_detail_to_n=vp->screentexpos_detail_to_n_old;
-			vp->screentexpos_detail_to_n_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_s;
-			vp->screentexpos_detail_to_s=vp->screentexpos_detail_to_s_old;
-			vp->screentexpos_detail_to_s_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_w;
-			vp->screentexpos_detail_to_w=vp->screentexpos_detail_to_w_old;
-			vp->screentexpos_detail_to_w_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_e;
-			vp->screentexpos_detail_to_e=vp->screentexpos_detail_to_e_old;
-			vp->screentexpos_detail_to_e_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_nw;
-			vp->screentexpos_detail_to_nw=vp->screentexpos_detail_to_nw_old;
-			vp->screentexpos_detail_to_nw_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_ne;
-			vp->screentexpos_detail_to_ne=vp->screentexpos_detail_to_ne_old;
-			vp->screentexpos_detail_to_ne_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_sw;
-			vp->screentexpos_detail_to_sw=vp->screentexpos_detail_to_sw_old;
-			vp->screentexpos_detail_to_sw_old=sw_i32;
-		sw_i32=vp->screentexpos_detail_to_se;
-			vp->screentexpos_detail_to_se=vp->screentexpos_detail_to_se_old;
-			vp->screentexpos_detail_to_se_old=sw_i32;
-	}
+  {
+  graphic_map_portst *vp=*mp_s;
+    sw_i32=vp->screentexpos_base;
+      vp->screentexpos_base=vp->screentexpos_base_old;
+      vp->screentexpos_base_old=sw_i32;
+    int32_t ei;
+    for(ei=0;ei<8;++ei)
+      {
+      sw_i32=vp->screentexpos_edge[ei];
+        vp->screentexpos_edge[ei]=vp->screentexpos_edge_old[ei];
+        vp->screentexpos_edge_old[ei]=sw_i32;
+      sw_i32=vp->screentexpos_edge2[ei];
+        vp->screentexpos_edge2[ei]=vp->screentexpos_edge2_old[ei];
+        vp->screentexpos_edge2_old[ei]=sw_i32;
+      }
+    sw_i32=vp->screentexpos_detail;
+      vp->screentexpos_detail=vp->screentexpos_detail_old;
+      vp->screentexpos_detail_old=sw_i32;
+    sw_i32=vp->screentexpos_tunnel;
+      vp->screentexpos_tunnel=vp->screentexpos_tunnel_old;
+      vp->screentexpos_tunnel_old=sw_i32;
+    sw_i32=vp->screentexpos_river;
+      vp->screentexpos_river=vp->screentexpos_river_old;
+      vp->screentexpos_river_old=sw_i32;
+    sw_i32=vp->screentexpos_road;
+      vp->screentexpos_road=vp->screentexpos_road_old;
+      vp->screentexpos_road_old=sw_i32;
+    sw_i32=vp->screentexpos_site;
+      vp->screentexpos_site=vp->screentexpos_site_old;
+      vp->screentexpos_site_old=sw_i32;
+    sw_i32=vp->screentexpos_interface;
+      vp->screentexpos_interface=vp->screentexpos_interface_old;
+      vp->screentexpos_interface_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_n;
+      vp->screentexpos_detail_to_n=vp->screentexpos_detail_to_n_old;
+      vp->screentexpos_detail_to_n_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_s;
+      vp->screentexpos_detail_to_s=vp->screentexpos_detail_to_s_old;
+      vp->screentexpos_detail_to_s_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_w;
+      vp->screentexpos_detail_to_w=vp->screentexpos_detail_to_w_old;
+      vp->screentexpos_detail_to_w_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_e;
+      vp->screentexpos_detail_to_e=vp->screentexpos_detail_to_e_old;
+      vp->screentexpos_detail_to_e_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_nw;
+      vp->screentexpos_detail_to_nw=vp->screentexpos_detail_to_nw_old;
+      vp->screentexpos_detail_to_nw_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_ne;
+      vp->screentexpos_detail_to_ne=vp->screentexpos_detail_to_ne_old;
+      vp->screentexpos_detail_to_ne_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_sw;
+      vp->screentexpos_detail_to_sw=vp->screentexpos_detail_to_sw_old;
+      vp->screentexpos_detail_to_sw_old=sw_i32;
+    sw_i32=vp->screentexpos_detail_to_se;
+      vp->screentexpos_detail_to_se=vp->screentexpos_detail_to_se_old;
+      vp->screentexpos_detail_to_se_old=sw_i32;
+  }
 }
 
 void enablerst::pause_async_loop()  {
@@ -760,10 +760,10 @@ void enablerst::async_loop() {
 
             //total_frames++;
             renderer->swap_arrays();
-			/*
+      /*
             if (total_frames % 1800 == 0)
               ttf_manager.gc();
-			  */
+        */
             render_things();
             flag &= ~ENABLERFLAG_RENDER;
             update_gfps();
@@ -790,10 +790,10 @@ void enablerst::async_loop() {
       async_frames--;
       if (async_frames < 0) async_frames = 0;
       update_fps();
-	  clear_text_input();
+    clear_text_input();
     }
-	SDL_NumJoysticks();
-	hooks_update();
+  SDL_NumJoysticks();
+  hooks_update();
   }
 }
 
@@ -830,36 +830,36 @@ void enablerst::do_frame() {
     async_tobox.write(cmd);
     async_wait();
     // Then finish here
-	if(gps.main_thread_requesting_reshape)
-		{
-		int32_t zf=gps.viewport_zoom_factor;
+  if(gps.main_thread_requesting_reshape)
+    {
+    int32_t zf=gps.viewport_zoom_factor;
 
-		renderer->set_viewport_zoom_factor(zf);
+    renderer->set_viewport_zoom_factor(zf);
 
-		gps.reshape_viewports(zf);
+    gps.reshape_viewports(zf);
 
-		gps.main_thread_requesting_reshape=false;
-		}
+    gps.main_thread_requesting_reshape=false;
+    }
 
-	if(!must_do_render_things_before_display)
-		{
-		if(gps.do_post_init_texture_clear)//needs to be after clean tile cache
-			{
-			enabler.textures.delete_all_post_init_textures();
+  if(!must_do_render_things_before_display)
+    {
+    if(gps.do_post_init_texture_clear)//needs to be after clean tile cache
+      {
+      enabler.textures.delete_all_post_init_textures();
 
-			gps.do_post_init_texture_clear=false;
-			}
+      gps.do_post_init_texture_clear=false;
+      }
 
-		if(gps.do_clean_tile_cache)
-			{
-			renderer->clean_tile_cache();
+    if(gps.do_clean_tile_cache)
+      {
+      renderer->clean_tile_cache();
 
-			gps.do_clean_tile_cache=false;
-			}
-		renderer->tidy_tile_cache();
-		renderer->display();
-		renderer->render();
-		}
+      gps.do_clean_tile_cache=false;
+      }
+    renderer->tidy_tile_cache();
+    renderer->display();
+    renderer->render();
+    }
     gputicks++;
     outstanding_gframes--;
   }
@@ -886,7 +886,7 @@ void enablerst::eventLoop_SDL()
 
   while (loopvar) {
     Uint32 now = SDL_GetTicks();
-	bool already_wheeled = false;
+  bool already_wheeled = false;
     bool paused_loop = false;
 
     // Check for zoom commands
@@ -904,7 +904,7 @@ void enablerst::eventLoop_SDL()
         renderer->zoom(zoom);
     }
 
-	bool any_text_event=false;
+  bool any_text_event=false;
 
     // Check for SDL events
     while (SDL_PollEvent(&event)) {
@@ -913,17 +913,17 @@ void enablerst::eventLoop_SDL()
         pause_async_loop();
         paused_loop = true;
       }
-	  if (hooks_sdl_event(&event)) continue;
+    if (hooks_sdl_event(&event)) continue;
       // Handle SDL events
       switch (event.type) {
-	  case SDL_MOUSEWHEEL:
-		  if (!already_wheeled) {
-			  already_wheeled = true;
-			  enabler.add_input(event, now);
-		  }
-		  break;
-	  case SDL_KEYDOWN:
-		if (event.key.repeat) break;
+    case SDL_MOUSEWHEEL:
+      if (!already_wheeled) {
+        already_wheeled = true;
+        enabler.add_input(event, now);
+      }
+      break;
+    case SDL_KEYDOWN:
+    if (event.key.repeat) break;
         // Disable mouse if it's been long enough
         if (mouse_lastused + 5000 < now) {
           if(init.input.flag.has_flag(INIT_INPUT_FLAG_MOUSE_PICTURE)) {
@@ -933,13 +933,13 @@ void enablerst::eventLoop_SDL()
           SDL_ShowCursor(SDL_DISABLE);
         }
       case SDL_KEYUP:
-	  case SDL_QUIT:
+    case SDL_QUIT:
         enabler.add_input(event, now);
         break;
-	  case SDL_TEXTINPUT:
-		enabler.set_text_input(event);
-		any_text_event=true;
-		break;
+    case SDL_TEXTINPUT:
+    enabler.set_text_input(event);
+    any_text_event=true;
+    break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:
         if (!init.input.flag.has_flag(INIT_INPUT_FLAG_MOUSE_OFF)) {
@@ -972,10 +972,10 @@ void enablerst::eventLoop_SDL()
           // enabler.set_tile(gps.tex_pos[TEXTURE_MOUSE], TEXTURE_MOUSE,enabler.mouse_x, enabler.mouse_y);
         } else {
 #ifndef FULL_RELEASE_VERSION
-			if(cinematic_mode&&(cinematic_shift_velx!=0||cinematic_shift_vely!=0))
-				{
-				SDL_ShowCursor(SDL_DISABLE);
-				}
+      if(cinematic_mode&&(cinematic_shift_velx!=0||cinematic_shift_vely!=0))
+        {
+        SDL_ShowCursor(SDL_DISABLE);
+        }
           else SDL_ShowCursor(SDL_ENABLE);
 #else
           SDL_ShowCursor(SDL_ENABLE);
@@ -984,63 +984,63 @@ void enablerst::eventLoop_SDL()
         break;
       case SDL_WINDOWEVENT:
         enabler.clear_input();
-		switch (event.window.event) {
-			case SDL_WINDOWEVENT_SHOWN:
-				enabler.flag |= ENABLERFLAG_RENDER;
-				gps.force_full_display_count++;
-				break;
-			case SDL_WINDOWEVENT_EXPOSED:
-				gps.force_full_display_count++;
-				enabler.flag |= ENABLERFLAG_RENDER;
-				break;
-			case SDL_WINDOWEVENT_RESIZED:
-				if (is_fullscreen());
-				//errorlog << "Caught resize event in fullscreen??\n";
-				else {
-					//gamelog << "Resizing window to " << event.resize.w << "x" << event.resize.h << endl << flush;
-					renderer->resize(event.window.data1, event.window.data2);
-				}
-				break;
-			case SDL_WINDOWEVENT_ENTER:
-				mouse_focus = true;
-				break;
-			case SDL_WINDOWEVENT_LEAVE:
-				mouse_focus = false;
-				break;
-		}
-		break;
+    switch (event.window.event) {
+      case SDL_WINDOWEVENT_SHOWN:
+        enabler.flag |= ENABLERFLAG_RENDER;
+        gps.force_full_display_count++;
+        break;
+      case SDL_WINDOWEVENT_EXPOSED:
+        gps.force_full_display_count++;
+        enabler.flag |= ENABLERFLAG_RENDER;
+        break;
+      case SDL_WINDOWEVENT_RESIZED:
+        if (is_fullscreen());
+        //errorlog << "Caught resize event in fullscreen??\n";
+        else {
+          //gamelog << "Resizing window to " << event.resize.w << "x" << event.resize.h << endl << flush;
+          renderer->resize(event.window.data1, event.window.data2);
+        }
+        break;
+      case SDL_WINDOWEVENT_ENTER:
+        mouse_focus = true;
+        break;
+      case SDL_WINDOWEVENT_LEAVE:
+        mouse_focus = false;
+        break;
+    }
+    break;
       } // switch (event.type)
     } //while have event
 
     // Update mouse state
     if(!init.input.flag.has_flag(INIT_INPUT_FLAG_MOUSE_OFF))
-		{
-		int mouse_x = -1, mouse_y = -1, mouse_state;
-		int precise_mouse_x=-1,precise_mouse_y=-1;
-		// Check whether the renderer considers this valid input or not, and write it to gps
-		if(mouse_focus &&
-			renderer->get_precise_mouse_coords(precise_mouse_x, precise_mouse_y,mouse_x,mouse_y))
-			{
-			mouse_state=1;
-			}
-		else mouse_state=0;
+    {
+    int mouse_x = -1, mouse_y = -1, mouse_state;
+    int precise_mouse_x=-1,precise_mouse_y=-1;
+    // Check whether the renderer considers this valid input or not, and write it to gps
+    if(mouse_focus &&
+      renderer->get_precise_mouse_coords(precise_mouse_x, precise_mouse_y,mouse_x,mouse_y))
+      {
+      mouse_state=1;
+      }
+    else mouse_state=0;
 
-		if(precise_mouse_x!=gps.precise_mouse_x||
-			precise_mouse_y!=gps.precise_mouse_y||
-			mouse_state!=enabler.tracking_on)
-			{
-			// Pause rendering loop and update values
-			if (!paused_loop) {
-			  pause_async_loop();
-			  paused_loop = true;}
+    if(precise_mouse_x!=gps.precise_mouse_x||
+      precise_mouse_y!=gps.precise_mouse_y||
+      mouse_state!=enabler.tracking_on)
+      {
+      // Pause rendering loop and update values
+      if (!paused_loop) {
+        pause_async_loop();
+        paused_loop = true;}
 
-			enabler.tracking_on=mouse_state;
-			gps.mouse_x=mouse_x;
-			gps.mouse_y=mouse_y;
-			gps.precise_mouse_x=precise_mouse_x;
-			gps.precise_mouse_y=precise_mouse_y;
-			}
-		}
+      enabler.tracking_on=mouse_state;
+      gps.mouse_x=mouse_x;
+      gps.mouse_y=mouse_y;
+      gps.precise_mouse_x=precise_mouse_x;
+      gps.precise_mouse_y=precise_mouse_y;
+      }
+    }
 
     if (paused_loop)
       unpause_async_loop();
@@ -1048,7 +1048,7 @@ void enablerst::eventLoop_SDL()
     do_frame();
 
 #ifndef NO_FMOD
-	musicsound.update();
+  musicsound.update();
 #endif
   }
 }
@@ -1226,15 +1226,15 @@ void enablerst::set_gfps(int gfps) {
 
 void enablerst::set_listen_to_text(bool listen) 
 {
-	listening_to_text=listen;
+  listening_to_text=listen;
 }
 
 void enablerst::set_text_input(SDL_Event ev) {
-	std::memcpy(last_text_input.data(), ev.text.text, 32);
+  std::memcpy(last_text_input.data(), ev.text.text, 32);
 }
 
 void enablerst::clear_text_input() {
-	std::fill(last_text_input.begin(), last_text_input.end(), '\0');
+  std::fill(last_text_input.begin(), last_text_input.end(), '\0');
 }
 
 int call_loop(void *dummy) {
@@ -1291,23 +1291,23 @@ int main (int argc, char* argv[]) {
   string cmdLine;
   for (int i = 1; i < argc; ++i) { 
     char *option = argv[i];
-	string opt=option;
-	if(opt.length()>=1)
-		{
-		//main removes quotes, unlike the winmain version, so it has to be rebuilt
-		if(opt[0]=='-')
-			{
-			cmdLine += opt;
-			cmdLine += " ";
-			}
-		else
-			{
-			cmdLine += "\"";
-			cmdLine += opt;
-			cmdLine += "\"";
-			cmdLine += " ";
-			}
-		}
+  string opt=option;
+  if(opt.length()>=1)
+    {
+    //main removes quotes, unlike the winmain version, so it has to be rebuilt
+    if(opt[0]=='-')
+      {
+      cmdLine += opt;
+      cmdLine += " ";
+      }
+    else
+      {
+      cmdLine += "\"";
+      cmdLine += opt;
+      cmdLine += "\"";
+      cmdLine += " ";
+      }
+    }
   }
   int result = enabler.loop(cmdLine);
 
@@ -1322,65 +1322,65 @@ int main (int argc, char* argv[]) {
 
 void curses_text_boxst::add_paragraph(const string &src,int32_t para_width)
 {
-	if(para_width<=0)return;
+  if(para_width<=0)return;
 
-	stringvectst sp;
-	sp.add_string(src);
-	add_paragraph(sp,para_width);
+  stringvectst sp;
+  sp.add_string(src);
+  add_paragraph(sp,para_width);
 }
 
 void curses_text_boxst::add_paragraph(stringvectst &src,int32_t para_width)
 {
-	if(para_width<=0)return;
+  if(para_width<=0)return;
 
-	bool skip_leading_spaces=false;
+  bool skip_leading_spaces=false;
 
-	//ADD EACH OF THE STRINGS ON IN TURN
-	string curstr;
-	long strlength=0;
-	long s,pos;
-	for(s=0;s<src.str.size();s++)
-		{
-		//GRAB EACH WORD, AND SEE IF IT FITS, IF NOT START A NEW LINE
-		for(pos=0;pos<src.str[s]->dat.size();pos++)
-			{
-			if(skip_leading_spaces)
-				{
-				if(src.str[s]->dat[pos]==' ')continue;
-				else skip_leading_spaces=false;
-				}
+  //ADD EACH OF THE STRINGS ON IN TURN
+  string curstr;
+  long strlength=0;
+  long s,pos;
+  for(s=0;s<src.str.size();s++)
+    {
+    //GRAB EACH WORD, AND SEE IF IT FITS, IF NOT START A NEW LINE
+    for(pos=0;pos<src.str[s]->dat.size();pos++)
+      {
+      if(skip_leading_spaces)
+        {
+        if(src.str[s]->dat[pos]==' ')continue;
+        else skip_leading_spaces=false;
+        }
 
-			//ADD TO WORD
-			curstr+=src.str[s]->dat[pos];
+      //ADD TO WORD
+      curstr+=src.str[s]->dat[pos];
 
-			//IF TOO LONG, CUT BACK TO FIRST SPACE
-			if(curstr.length()>para_width)
-				{
-				long opos=pos;
+      //IF TOO LONG, CUT BACK TO FIRST SPACE
+      if(curstr.length()>para_width)
+        {
+        long opos=pos;
 
-				long minus=0;
-				do
-					{
-					pos--;
-					minus++;
-					}while(src.str[s]->dat[pos]!=' '&&pos>0);
+        long minus=0;
+        do
+          {
+          pos--;
+          minus++;
+          }while(src.str[s]->dat[pos]!=' '&&pos>0);
 
-				//IF WENT ALL THE WAY BACK, INTRODUCE A SPACE
-				if(minus==curstr.size())
-					{
-					src.str[s]->dat.insert(opos-1," ");
-					}
-				else
-					{
-					curstr.resize(curstr.size()-minus);
-					text.add_string(curstr);
-					skip_leading_spaces=true;
-					}
-				curstr.erase();
-				}
-			}
-		}
+        //IF WENT ALL THE WAY BACK, INTRODUCE A SPACE
+        if(minus==curstr.size())
+          {
+          src.str[s]->dat.insert(opos-1," ");
+          }
+        else
+          {
+          curstr.resize(curstr.size()-minus);
+          text.add_string(curstr);
+          skip_leading_spaces=true;
+          }
+        curstr.erase();
+        }
+      }
+    }
 
-	//FLUSH FINAL BIT
-	if(!curstr.empty())text.add_string(curstr);
+  //FLUSH FINAL BIT
+  if(!curstr.empty())text.add_string(curstr);
 }

@@ -69,7 +69,7 @@ static int last_serial = 0; // Input serial number, to differentiate distinct ph
 static set<Event> timeline; // A timeline of pending key events (for next get_input)
 static set<EventMatch> pressed_keys; // Keys we consider "pressed"
 static int modState; // Modifier state
-  
+
 // These do not change as part of the normal dynamics of DF, only at startup/when editing.
 static multimap<EventMatch,InterfaceKey> keymap;
 static map<InterfaceKey,Repeat> repeatmap;
@@ -191,41 +191,41 @@ string translate_mod(Uint8 mod) {
 
 
 static string display(const EventMatch &match) {
-    static const std::map<SDL_Keycode,string> capitals={ {SDLK_a, "A"},
-        {SDLK_b, "B"},{SDLK_c, "C"},{SDLK_d, "D"},{SDLK_e, "E"},{SDLK_f, "F"},
-        {SDLK_g, "G"},{SDLK_h, "H"},{SDLK_i, "I"},{SDLK_h, "J"},{SDLK_j, "K"},
-        {SDLK_k, "L"},{SDLK_l, "M"},{SDLK_m, "N"},{SDLK_n, "O"},{SDLK_o, "P"},
-        {SDLK_p, "Q"},{SDLK_q, "R"},{SDLK_r, "S"},{SDLK_t, "T"},{SDLK_u, "U"},
-        {SDLK_v, "V"},{SDLK_w, "W"},{SDLK_x, "X"},{SDLK_y, "Y"},{SDLK_z, "Z"},
-        };
-  ostringstream ret;
-  bool is_letter=false;
-  if (match.type==type_key&&(match.mod&1)&&capitals.contains(match.key))
-      {
-      is_letter=true;
-      if (match.mod==1)
-          {
-          return capitals.find(match.key)->second;
-          }
-      }
-  ret << translate_mod(is_letter?(match.mod&~1):match.mod);
-  switch (match.type) {
-  case type_key: {
-    map<SDL_Keycode,string>::iterator it = sdlNames.left.find(match.key);
-    if (it != sdlNames.left.end())
-      ret << it->second;
-    else
-      ret << "SDL+" << (int)match.key;
-    break;
+  static const std::map<SDL_Keycode,string> capitals={ {SDLK_a, "A"},
+  {SDLK_b, "B"},{SDLK_c, "C"},{SDLK_d, "D"},{SDLK_e, "E"},{SDLK_f, "F"},
+  {SDLK_g, "G"},{SDLK_h, "H"},{SDLK_i, "I"},{SDLK_h, "J"},{SDLK_j, "K"},
+  {SDLK_k, "L"},{SDLK_l, "M"},{SDLK_m, "N"},{SDLK_n, "O"},{SDLK_o, "P"},
+  {SDLK_p, "Q"},{SDLK_q, "R"},{SDLK_r, "S"},{SDLK_t, "T"},{SDLK_u, "U"},
+  {SDLK_v, "V"},{SDLK_w, "W"},{SDLK_x, "X"},{SDLK_y, "Y"},{SDLK_z, "Z"},
+};
+ostringstream ret;
+bool is_letter=false;
+if (match.type==type_key&&(match.mod&1)&&capitals.contains(match.key))
+{
+  is_letter=true;
+  if (match.mod==1)
+  {
+    return capitals.find(match.key)->second;
   }
-  case type_button:
-    ret << "Button " << (int)match.button;
-    break;
-  case type_mwheel:
-      ret << "Mousewheel " << (match.y > 0 ? "up" : "down");
-      break;
-  }
-  return ret.str();
+}
+ret << translate_mod(is_letter?(match.mod&~1):match.mod);
+switch (match.type) {
+case type_key: {
+  map<SDL_Keycode,string>::iterator it = sdlNames.left.find(match.key);
+  if (it != sdlNames.left.end())
+    ret << it->second;
+  else
+    ret << "SDL+" << (int)match.key;
+  break;
+}
+case type_button:
+  ret << "Button " << (int)match.button;
+  break;
+case type_mwheel:
+  ret << "Mousewheel " << (match.y > 0 ? "up" : "down");
+  break;
+}
+return ret.str();
 }
 
 static string translate_repeat(Repeat r) {
@@ -304,7 +304,7 @@ static bool parse_line(const string &line, const string &regex, vector<string> &
 
 void enabler_inputst::clear_keybindings()
 {
-    keymap.clear();
+  keymap.clear();
 }
 
 bool enabler_inputst::load_keybindings(const string &file) {
@@ -333,9 +333,9 @@ bool enabler_inputst::load_keybindings(const string &file) {
 
   while (line != lines.end()) {
     if (parse_line(*line,control_version,match))
-        {
-        version=std::stoi(match[1]);
-        }
+    {
+      version=std::stoi(match[1]);
+    }
     if (parse_line(*line, bind, match)) {
       map<string,InterfaceKey>::iterator it = bindingNames.right.find(match[1]);
       if (it != bindingNames.right.end()) {
@@ -345,18 +345,18 @@ bool enabler_inputst::load_keybindings(const string &file) {
         //bail if these key is already accounted for - prefs is loaded first, default second
         bool already_have_key=false;
         for(auto it=keymap.begin();it!=keymap.end();++it)
-            {
-            if(it->second==binding)
-                {
-                already_have_key=true;
-                break;
-                }
-            }
+        {
+          if(it->second==binding)
+          {
+            already_have_key=true;
+            break;
+          }
+        }
         if(already_have_key)
-            {
-            ++line;
-            continue;
-            }
+        {
+          ++line;
+          continue;
+        }
 
         // Parse repeat data
         if (match[2] == "REPEAT_FAST")
@@ -388,66 +388,66 @@ bool enabler_inputst::load_keybindings(const string &file) {
             ++line;           
           } // Legacy unicode
           else if (parse_line(*line, key, match)) {
-              auto unicode = decode_utf8(match[1]);
-              bool capital = unicodeCapitals.count(unicode) > 0;
-              if (capital) {
-                  matcher.mod = 1;
-                  unicode += 32;
-              }
-              else {
-                  matcher.mod = 0;
-              }
-              map<int, SDL_Keycode>::iterator it = sdlUnicode.right.find(unicode);
-              if (it != sdlUnicode.right.end()) {
-                  matcher.type = type_key;
-                  matcher.key = it->second;
-                  keymap.insert(make_pair(matcher, (InterfaceKey)binding));
-                  update_keydisplay(binding, display(matcher));
-              } else {
-                  cout << "Broken unicode: " << *line << endl;
-              }
-              ++line;
+            auto unicode = decode_utf8(match[1]);
+            bool capital = unicodeCapitals.count(unicode) > 0;
+            if (capital) {
+              matcher.mod = 1;
+              unicode += 32;
+            }
+            else {
+              matcher.mod = 0;
+            }
+            map<int, SDL_Keycode>::iterator it = sdlUnicode.right.find(unicode);
+            if (it != sdlUnicode.right.end()) {
+              matcher.type = type_key;
+              matcher.key = it->second;
+              keymap.insert(make_pair(matcher, (InterfaceKey)binding));
+              update_keydisplay(binding, display(matcher));
+            } else {
+              cout << "Broken unicode: " << *line << endl;
+            }
+            ++line;
           } // Mouse buttons
           else if (parse_line(*line, button, match)) {
             matcher.type = type_button;
             string str = match[2];
             matcher.button = atoi(str.c_str());
             if (matcher.button) {
-                if (version<1 && (matcher.button == 4 || matcher.button == 5)) {
-                    matcher.type = type_mwheel;
-                    bool up = matcher.button == 4;
-                    matcher.y = up ? 1 : -1;
-                }
-                matcher.mod = atoi(string(match[1]).c_str());
-                keymap.insert(pair<EventMatch, InterfaceKey>(matcher, (InterfaceKey)binding));
-                update_keydisplay(binding, display(matcher));
+              if (version<1 && (matcher.button == 4 || matcher.button == 5)) {
+                matcher.type = type_mwheel;
+                bool up = matcher.button == 4;
+                matcher.y = up ? 1 : -1;
+              }
+              matcher.mod = atoi(string(match[1]).c_str());
+              keymap.insert(pair<EventMatch, InterfaceKey>(matcher, (InterfaceKey)binding));
+              update_keydisplay(binding, display(matcher));
             }
             else {
-                cout << "Broken button (should be [BUTTON:#:#]): " << *line << endl;
+              cout << "Broken button (should be [BUTTON:#:#]): " << *line << endl;
             }
             ++line;
           }
           // Mousewheel
           else if (parse_line(*line, wheel, match)) {
-              matcher.type = type_mwheel;
-              string str = match[2];
-              if (str == "UP" || str == "DOWN") {
-                  matcher.y = str == "UP" ? 1 : -1;
-                  matcher.mod = atoi(string(match[1]).c_str());
-                  keymap.insert(pair<EventMatch, InterfaceKey>(matcher, (InterfaceKey)binding));
-                  update_keydisplay(binding, display(matcher));
-              }
-              else {
-                  cout << "Broken mousewheel (should be [MOUSEWHEEL:#:UP|DOWN]: " << *line << endl;
-              }
-              ++line;
+            matcher.type = type_mwheel;
+            string str = match[2];
+            if (str == "UP" || str == "DOWN") {
+              matcher.y = str == "UP" ? 1 : -1;
+              matcher.mod = atoi(string(match[1]).c_str());
+              keymap.insert(pair<EventMatch, InterfaceKey>(matcher, (InterfaceKey)binding));
+              update_keydisplay(binding, display(matcher));
+            }
+            else {
+              cout << "Broken mousewheel (should be [MOUSEWHEEL:#:UP|DOWN]: " << *line << endl;
+            }
+            ++line;
           } else {
             break;
           }
         }
       } else {
         cout << "Unknown binding: " << match[1] << endl;
-		++line;
+        ++line;
       }
     } else {
       // Retry with next line
@@ -476,7 +476,7 @@ void enabler_inputst::save_keybindings(const string &file) {
     map.insert(pair<InterfaceKey,EventMatch>(it->second,it->first));
   // Insert an empty line for the benefit of note/wordpad
   s << endl;
-    
+  
   // INPUT KEYBINDINGS VERSION--UPDATE THIS IF ANYTHING NEEDS MIGRATED
   s<<"[VERSION:1]"<<endl;
   // And write.
@@ -489,7 +489,7 @@ void enabler_inputst::save_keybindings(const string &file) {
     if (it->first != last_key) {
       last_key = it->first;
       s << "[BIND:" << bindingNames.left[it->first] << ":"
-        << translate_repeat(repeatmap[it->first]) << "]" << endl;
+      << translate_repeat(repeatmap[it->first]) << "]" << endl;
     }
     switch (it->second.type) {
     case type_key:
@@ -499,17 +499,17 @@ void enabler_inputst::save_keybindings(const string &file) {
       s << "[BUTTON:" << (int)it->second.mod << ":" << (int)it->second.button << "]" << endl;
       break;
     case type_mwheel:
-        s << "[MOUSEWHEEL:" << (int)it->second.mod << (it->second.y > 0 ? ":UP]" : ":DOWN]") << endl;
+      s << "[MOUSEWHEEL:" << (int)it->second.mod << (it->second.y > 0 ? ":UP]" : ":DOWN]") << endl;
       break;
     }
-      
+    
   }
   s.close();
   replace_file(temporary, file);
 }
 
 void enabler_inputst::save_keybindings() {
-    string file="prefs/interface.txt";
+  string file="prefs/interface.txt";
   save_keybindings(file);
 }
 
@@ -531,12 +531,12 @@ void enabler_inputst::add_input(SDL_Event &e, Uint32 now) {
   
   // Convert modifier state changes
   if ((e.type == SDL_KEYUP || e.type == SDL_KEYDOWN) &&
-      (e.key.keysym.sym == SDLK_RSHIFT ||
-       e.key.keysym.sym == SDLK_LSHIFT ||
-       e.key.keysym.sym == SDLK_RCTRL  ||
-       e.key.keysym.sym == SDLK_LCTRL  ||
-       e.key.keysym.sym == SDLK_RALT   ||
-       e.key.keysym.sym == SDLK_LALT   )) {
+    (e.key.keysym.sym == SDLK_RSHIFT ||
+     e.key.keysym.sym == SDLK_LSHIFT ||
+     e.key.keysym.sym == SDLK_RCTRL  ||
+     e.key.keysym.sym == SDLK_LCTRL  ||
+     e.key.keysym.sym == SDLK_RALT   ||
+     e.key.keysym.sym == SDLK_LALT   )) {
     for (pkit = pressed_keys.begin(); pkit != pressed_keys.end(); ++pkit) {
       // Release currently pressed keys
       KeyEvent synth;
@@ -544,59 +544,59 @@ void enabler_inputst::add_input(SDL_Event &e, Uint32 now) {
       synth.match = *pkit;
       synthetics.push_back(make_pair(synth, next_serial()));
       // Re-press them, with new modifiers, if they aren't unicode. We can't re-translate unicode.
-    synth.release = false;
-    synth.match.mod = getModState();
+      synth.release = false;
+      synth.match.mod = getModState();
     if (!key_registering) // We don't want extras when registering keys
-        synthetics.push_back(make_pair(synth, next_serial()));
-    }
-  } else {
-    
+      synthetics.push_back(make_pair(synth, next_serial()));
+  }
+} else {
+  
     // Since it's not a modifier, we also pass on symbolic/button
     // (always) and unicode (if defined) events
     //
     // However, since SDL ignores(?) ctrl and alt when translating to
     // unicode, we want to ignore unicode events if those are set.
-    const int serial = next_serial();
+  const int serial = next_serial();
 
-    KeyEvent real;
-    real.release = (e.type == SDL_KEYUP || e.type == SDL_MOUSEBUTTONUP) ? true : false;
-    real.match.mod = getModState();
-    switch (e.type) {
-        case SDL_MOUSEWHEEL:
-            real.match.type = type_mwheel;
-            real.match.scancode = 0;
-            real.match.y = e.wheel.y * ((e.wheel.direction == SDL_MOUSEWHEEL_NORMAL) ? 1 : -1);
-            synthetics.push_back(make_pair(real, serial));
-            break;
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEBUTTONDOWN:
-            real.match.type = type_button;
-            real.match.scancode = 0;
-            real.match.button = e.button.button;
-            synthetics.push_back(make_pair(real, serial));
-            break;
-        case SDL_KEYUP:
-        case SDL_KEYDOWN:
-            real.match.type = type_key;
-            real.match.scancode = e.key.keysym.scancode;
-            real.match.key = e.key.keysym.sym;
-            synthetics.push_back(make_pair(real, serial));
-            break;
-        case SDL_QUIT:
+  KeyEvent real;
+  real.release = (e.type == SDL_KEYUP || e.type == SDL_MOUSEBUTTONUP) ? true : false;
+  real.match.mod = getModState();
+  switch (e.type) {
+  case SDL_MOUSEWHEEL:
+    real.match.type = type_mwheel;
+    real.match.scancode = 0;
+    real.match.y = e.wheel.y * ((e.wheel.direction == SDL_MOUSEWHEEL_NORMAL) ? 1 : -1);
+    synthetics.push_back(make_pair(real, serial));
+    break;
+  case SDL_MOUSEBUTTONUP:
+  case SDL_MOUSEBUTTONDOWN:
+    real.match.type = type_button;
+    real.match.scancode = 0;
+    real.match.button = e.button.button;
+    synthetics.push_back(make_pair(real, serial));
+    break;
+  case SDL_KEYUP:
+  case SDL_KEYDOWN:
+    real.match.type = type_key;
+    real.match.scancode = e.key.keysym.scancode;
+    real.match.key = e.key.keysym.sym;
+    synthetics.push_back(make_pair(real, serial));
+    break;
+  case SDL_QUIT:
             // This one, we insert directly into the timeline.
-            Event e = { REPEAT_NOT, (InterfaceKey)INTERFACEKEY_OPTIONS, 0, (int)next_serial(), (int)now, 0 };
-            timeline.insert(e);
-    }
+    Event e = { REPEAT_NOT, (InterfaceKey)INTERFACEKEY_OPTIONS, 0, (int)next_serial(), (int)now, 0 };
+    timeline.insert(e);
   }
+}
 
-  list<pair<KeyEvent, int> >::iterator lit;
-  for (lit = synthetics.begin(); lit != synthetics.end(); ++lit) {
+list<pair<KeyEvent, int> >::iterator lit;
+for (lit = synthetics.begin(); lit != synthetics.end(); ++lit) {
     // Add or remove the key from pressed_keys, keeping that up to date
-    if (lit->first.release) pressed_keys.erase(lit->first.match);
-    else pressed_keys.insert(lit->first.match);
+  if (lit->first.release) pressed_keys.erase(lit->first.match);
+  else pressed_keys.insert(lit->first.match);
     // And pass the event on deeper.
-    add_input_refined(lit->first, now, lit->second);
-  }
+  add_input_refined(lit->first, now, lit->second);
+}
 }
 
 // Input encoding:
@@ -793,136 +793,136 @@ set<InterfaceKey> enabler_inputst::get_input(Time now) {
         break;
       }
     case REPEAT_FAST:
-    {
+      {
         next.repeats++;
         double accel = 1;
         if (ev->repeats >= init.input.repeat_accel_start) {
             // Compute acceleration
-            accel = MIN(init.input.repeat_accel_limit,
-                sqrt(double(next.repeats - init.input.repeat_accel_start) + 16) - 3);
+          accel = MIN(init.input.repeat_accel_limit,
+            sqrt(double(next.repeats - init.input.repeat_accel_start) + 16) - 3);
         }
         next.time = now + double(init.input.repeat_time) / accel;
         timeline.insert(next);
         break;
-    }
+      }
     case REPEAT_MWHEEL:
-        --next.repeats;
-        if (ev->repeats > 0) {
-            next.time = now + 1;
-            timeline.insert(next);
-            }
+      --next.repeats;
+      if (ev->repeats > 0) {
+        next.time = now + 1;
+        timeline.insert(next);
+      }
         else // gotta remove mouse wheel events now
-            {
-            std::erase_if(pressed_keys,[](const auto &k) -> bool
-                {
-                return k.type==type_mwheel;
-                });
-            }
+        {
+          std::erase_if(pressed_keys,[](const auto &k) -> bool
+          {
+            return k.type==type_mwheel;
+          });
+        }
         break;
-    }
+      }
     // Delete the event from the timeline and iterate
-    timeline.erase(ev++);
-  }
+      timeline.erase(ev++);
+    }
 #ifdef DEBUG
-  if (input.size() && !init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT)) {
-    cout << "Returning input:\n";
-    set<InterfaceKey>::iterator it;
-    for (it = input.begin(); it != input.end(); ++it)
+    if (input.size() && !init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT)) {
+      cout << "Returning input:\n";
+      set<InterfaceKey>::iterator it;
+      for (it = input.begin(); it != input.end(); ++it)
         cout << "    " << GetKeyDisplay(*it) << ": " << GetBindingDisplay(*it) << endl;
-  }
+    }
 #endif
   // It could be argued that the "record event" step of recording
   // belongs in add_input, not here.  I don't hold with this
   // argument. The whole point is to record events as the user seems
   // them happen.
-  if (macro_recording && !event_from_macro) {
-    set<InterfaceKey> macro_input = input;
-    macro_input.erase(INTERFACEKEY_RECORD_MACRO);
-    macro_input.erase(INTERFACEKEY_PLAY_MACRO);
-    macro_input.erase(INTERFACEKEY_SAVE_MACRO);
-    macro_input.erase(INTERFACEKEY_LOAD_MACRO);
-    if (macro_input.size())
-      active_macro.push_back(macro_input);
+    if (macro_recording && !event_from_macro) {
+      set<InterfaceKey> macro_input = input;
+      macro_input.erase(INTERFACEKEY_RECORD_MACRO);
+      macro_input.erase(INTERFACEKEY_PLAY_MACRO);
+      macro_input.erase(INTERFACEKEY_SAVE_MACRO);
+      macro_input.erase(INTERFACEKEY_LOAD_MACRO);
+      if (macro_input.size())
+        active_macro.push_back(macro_input);
+    }
+    return input;
   }
-  return input;
-}
 
-set<InterfaceKey> enabler_inputst::key_translation(EventMatch &match) {
-  set<InterfaceKey> bindings;
-  pair<multimap<EventMatch,InterfaceKey>::iterator,multimap<EventMatch,InterfaceKey>::iterator> its;
-  if (match.type == type_mwheel) {
+  set<InterfaceKey> enabler_inputst::key_translation(EventMatch &match) {
+    set<InterfaceKey> bindings;
+    pair<multimap<EventMatch,InterfaceKey>::iterator,multimap<EventMatch,InterfaceKey>::iterator> its;
+    if (match.type == type_mwheel) {
       int orig_y = match.y;
       match.y = orig_y < 0 ? -1 : 1;
       for (its = keymap.equal_range(match); its.first != its.second; ++its.first)
-          bindings.insert((its.first)->second);
+        bindings.insert((its.first)->second);
       match.y = orig_y;
-  }
-  else {
+    }
+    else {
       for (its = keymap.equal_range(match); its.first != its.second; ++its.first)
-          bindings.insert((its.first)->second);
+        bindings.insert((its.first)->second);
+    }
+
+    return bindings;
   }
 
-  return bindings;
-}
-
-string enabler_inputst::GetKeyDisplay(int binding) {
-  map<InterfaceKey,set<string,less_sz> >::iterator it = keydisplay.find(binding);
-  if (it != keydisplay.end() && it->second.size())
-    return *it->second.begin();
-  else {
-    cout << "Missing binding displayed: " + bindingNames.left[binding] << endl;
-    return "?";
+  string enabler_inputst::GetKeyDisplay(int binding) {
+    map<InterfaceKey,set<string,less_sz> >::iterator it = keydisplay.find(binding);
+    if (it != keydisplay.end() && it->second.size())
+      return *it->second.begin();
+    else {
+      cout << "Missing binding displayed: " + bindingNames.left[binding] << endl;
+      return "?";
+    }
   }
-}
 
-string enabler_inputst::GetBindingDisplay(int binding) {
-  map<InterfaceKey,string>::iterator it = bindingNames.left.find(binding);
-  if (it != bindingNames.left.end())
-    return it->second;
-  else
-    return "NO BINDING";
-}
+  string enabler_inputst::GetBindingDisplay(int binding) {
+    map<InterfaceKey,string>::iterator it = bindingNames.left.find(binding);
+    if (it != bindingNames.left.end())
+      return it->second;
+    else
+      return "NO BINDING";
+  }
 
-string enabler_inputst::GetBindingTextDisplay(int binding) {
-  map<InterfaceKey,string>::iterator it = displayNames.left.find(binding);
-  if (it !=displayNames.left.end())
-    return it->second;
-  else
-    return "NO BINDING";
-}
+  string enabler_inputst::GetBindingTextDisplay(int binding) {
+    map<InterfaceKey,string>::iterator it = displayNames.left.find(binding);
+    if (it !=displayNames.left.end())
+      return it->second;
+    else
+      return "NO BINDING";
+  }
 
-Repeat enabler_inputst::key_repeat(InterfaceKey binding) {
-  map<InterfaceKey,Repeat>::iterator it = repeatmap.find(binding);
-  if (it != repeatmap.end())
-    return it->second;
-  else
-    return REPEAT_NOT;
-}
+  Repeat enabler_inputst::key_repeat(InterfaceKey binding) {
+    map<InterfaceKey,Repeat>::iterator it = repeatmap.find(binding);
+    if (it != repeatmap.end())
+      return it->second;
+    else
+      return REPEAT_NOT;
+  }
 
-void enabler_inputst::key_repeat(InterfaceKey binding, Repeat repeat) {
-  repeatmap[binding] = repeat;
-}
+  void enabler_inputst::key_repeat(InterfaceKey binding, Repeat repeat) {
+    repeatmap[binding] = repeat;
+  }
 
-void enabler_inputst::record_input() {
-  active_macro.clear();
-  macro_recording = true;
-} 
+  void enabler_inputst::record_input() {
+    active_macro.clear();
+    macro_recording = true;
+  } 
 
-void enabler_inputst::record_stop() {
-  macro_recording = false;
-}
+  void enabler_inputst::record_stop() {
+    macro_recording = false;
+  }
 
-bool enabler_inputst::is_recording() {
-  return macro_recording;
-}
+  bool enabler_inputst::is_recording() {
+    return macro_recording;
+  }
 
-void enabler_inputst::play_macro() {
-  Time now = SDL_GetTicks();
-  for_each(timeline.begin(), timeline.end(), [&](Event e){
+  void enabler_inputst::play_macro() {
+    Time now = SDL_GetTicks();
+    for_each(timeline.begin(), timeline.end(), [&](Event e){
       now = MAX(now, e.time);
     });
-  for (macro::iterator sim = active_macro.begin(); sim != active_macro.end(); ++sim) {
-    Event e; e.r = REPEAT_NOT; e.repeats = 0; e.serial = next_serial(); e.time = now;
+    for (macro::iterator sim = active_macro.begin(); sim != active_macro.end(); ++sim) {
+      Event e; e.r = REPEAT_NOT; e.repeats = 0; e.serial = next_serial(); e.time = now;
     e.macro = true;  // Avoid exponential macro blowup.
     for (set<InterfaceKey>::iterator k = sim->begin(); k != sim->end(); ++k) {
       e.k = *k;
@@ -1111,7 +1111,7 @@ std::list<RegisteredKey> enabler_inputst::getRegisteredKey() {
 void enabler_inputst::bindRegisteredKey(MatchType type, InterfaceKey key) {
 
     //2022-08-29: this loop fails if there's no type match, so we add something as needed
-    bool added=false;
+  bool added=false;
   for (list<EventMatch>::iterator it = stored_keys.begin(); it != stored_keys.end(); ++it) {
     if (it->type == type) {
       keymap.insert(pair<EventMatch,InterfaceKey>(*it, key));
@@ -1120,10 +1120,10 @@ void enabler_inputst::bindRegisteredKey(MatchType type, InterfaceKey key) {
     }
   }
   if(!added&&stored_keys.size()>0)
-    {
-      keymap.insert(pair<EventMatch,InterfaceKey>(*stored_keys.begin(), key));
-      update_keydisplay(key, display(*stored_keys.begin()));
-    }
+  {
+    keymap.insert(pair<EventMatch,InterfaceKey>(*stored_keys.begin(), key));
+    update_keydisplay(key, display(*stored_keys.begin()));
+  }
 }
 
 bool enabler_inputst::is_registering() {
@@ -1141,14 +1141,14 @@ list<EventMatch> enabler_inputst::list_keys(InterfaceKey key) {
 
 void enabler_inputst::remove_key(InterfaceKey key, EventMatch ev) {
   for (multimap<EventMatch,InterfaceKey>::iterator it = keymap.find(ev);
-       it != keymap.end() && it->first == ev;
-       ++it) {
+   it != keymap.end() && it->first == ev;
+   ++it) {
     if (it->second == key) keymap.erase(it++);
-  }
+}
   // Also remove the key from key displaying, assuming we can find it
-  map<InterfaceKey,set<string,less_sz> >::iterator it = keydisplay.find(key);
-  if (it != keydisplay.end())
-    it->second.erase(display(ev));
+map<InterfaceKey,set<string,less_sz> >::iterator it = keydisplay.find(key);
+if (it != keydisplay.end())
+  it->second.erase(display(ev));
 }
 
 bool enabler_inputst::prefix_building() {

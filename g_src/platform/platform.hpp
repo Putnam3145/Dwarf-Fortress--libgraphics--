@@ -11,15 +11,15 @@
 #define strnicmp strncasecmp
 
 enum {
-	// NOTE: These probably don't match Windows values.
-	MB_OK    = 0x01,
-	MB_YESNO = 0x02,
-	MB_ICONQUESTION    = 0x10,
-	MB_ICONEXCLAMATION = 0x20,
+  // NOTE: These probably don't match Windows values.
+  MB_OK    = 0x01,
+  MB_YESNO = 0x02,
+  MB_ICONQUESTION    = 0x10,
+  MB_ICONEXCLAMATION = 0x20,
 
-	IDOK = 1,
-	IDNO,
-	IDYES,
+  IDOK = 1,
+  IDNO,
+  IDYES,
 };
 
 
@@ -56,33 +56,33 @@ typedef DWORD LPARAM;
 
 
 typedef struct {
-	LONG x;
-	LONG y;
+  LONG x;
+  LONG y;
 } POINT;
 
 typedef union {
-	struct {
-		DWORD LowPart;
-		LONG HighPart;
-	};
-	struct {
-		DWORD LowPart;
-		LONG HighPart;
-	} u;
-	LONGLONG QuadPart;
+  struct {
+    DWORD LowPart;
+    LONG HighPart;
+  };
+  struct {
+    DWORD LowPart;
+    LONG HighPart;
+  } u;
+  LONGLONG QuadPart;
 } LARGE_INTEGER;
 
 typedef struct {
-	HWND hwnd;
-	UINT message;
-	WPARAM wParam;
-	LPARAM lParam;
-	DWORD time;
-	POINT pt;
+  HWND hwnd;
+  UINT message;
+  WPARAM wParam;
+  LPARAM lParam;
+  DWORD time;
+  POINT pt;
 } MSG;
 
 
-DWORD GetTickCount();	// returns ms since system startup
+DWORD GetTickCount(); // returns ms since system startup
 BOOL CreateDirectory(const char* pathname, void*);
 BOOL DeleteFile(const char* filename);
 void ZeroMemory(void* dest, int len);

@@ -87,22 +87,22 @@ class renderer_curses : public renderer {
   }
 
   void update_at(int x,int y, int ch, int fg, int bg, int bold, int pair) {
-      if(ch==219&&!bold) {
+    if(ch==219&&!bold) {
           // It's █, which is used for borders and digging designations.
           // A_REVERSE space looks better if it isn't completely tall.
           // Which is most of the time, for me at least.
           // █ <-- Do you see gaps?
           // █
           // The color can't be bold.
-          wattrset(*stdscr_p,COLOR_PAIR(pair)|A_REVERSE);
-          mvwaddstr(*stdscr_p,y,x," ");
-          }
-      else {
-          wattrset(*stdscr_p,COLOR_PAIR(pair)|(bold?A_BOLD:0));
-          wchar_t chs[2]={charmap[ch],0};
-          mvwaddwstr(*stdscr_p,y,x,chs);
-          }
-      }
+      wattrset(*stdscr_p,COLOR_PAIR(pair)|A_REVERSE);
+      mvwaddstr(*stdscr_p,y,x," ");
+    }
+    else {
+      wattrset(*stdscr_p,COLOR_PAIR(pair)|(bold?A_BOLD:0));
+      wchar_t chs[2]={charmap[ch],0};
+      mvwaddwstr(*stdscr_p,y,x,chs);
+    }
+  }
 
 public:
 
@@ -121,14 +121,14 @@ public:
   }
 
   void update_top_tile(int x,int y) {
-      const int ch=gps.screen_top[x*gps.dimy*4+y*4+0];
-      const int fg=gps.screen_top[x*gps.dimy*4+y*4+1];
-      const int bg=gps.screen_top[x*gps.dimy*4+y*4+2];
-      const int bold=gps.screen_top[x*gps.dimy*4+y*4+3];
+    const int ch=gps.screen_top[x*gps.dimy*4+y*4+0];
+    const int fg=gps.screen_top[x*gps.dimy*4+y*4+1];
+    const int bg=gps.screen_top[x*gps.dimy*4+y*4+2];
+    const int bold=gps.screen_top[x*gps.dimy*4+y*4+3];
 
-      const int pair=lookup_pair(make_pair(fg,bg));
+    const int pair=lookup_pair(make_pair(fg,bg));
 
-      update_at(x,y,ch,fg,bg,bold,pair);
+    update_at(x,y,ch,fg,bg,bold,pair);
   }
 
   void update_top_anchor_tile(int x,int y) {
@@ -139,49 +139,49 @@ public:
     for (int x = 0; x < init.display.grid_x; x++)
       for (int y = 0; y < init.display.grid_y; y++)
         update_tile(x, y);
-    for(int x=0; x<init.display.grid_x; x++)
+      for(int x=0; x<init.display.grid_x; x++)
         for(int y=0; y<init.display.grid_y; y++)
-            update_top_tile(x,y);
-     }
+          update_top_tile(x,y);
+      }
 
-  void render() {
-    refresh();
-  }
+      void render() {
+        refresh();
+      }
 
-  void resize(int w, int h) {
-    if (enabler.overridden_grid_sizes.size() == 0)
-      gps_allocate(w, h,w, h,8,12);
-    erase();
+      void resize(int w, int h) {
+        if (enabler.overridden_grid_sizes.size() == 0)
+          gps_allocate(w, h,w, h,8,12);
+        erase();
     // Force a full display cycle
-    gps.force_full_display_count = 1;
-    enabler.flag |= ENABLERFLAG_RENDER;
-  }
+        gps.force_full_display_count = 1;
+        enabler.flag |= ENABLERFLAG_RENDER;
+      }
 
-  void grid_resize(int w, int h) {
-      gps_allocate(w,h,w,h,8,12);
-  }
+      void grid_resize(int w, int h) {
+        gps_allocate(w,h,w,h,8,12);
+      }
 
-  renderer_curses() {
-    init_curses();
-  }
+      renderer_curses() {
+        init_curses();
+      }
 
-  bool get_mouse_coords(int &x, int &y) {
+      bool get_mouse_coords(int &x, int &y) {
     return false; // haha, oh no, that won't do at all
   }
   bool get_precise_mouse_coords(int &x,int &y,int &pixel_x,int &pixel_y) {
-      return false;
+    return false;
   }
   SDL_Renderer *get_renderer(){
-      return NULL;
-      }
+    return NULL;
+  }
   SDL_Window *get_window(){
-      return NULL;
-      }
+    return NULL;
+  }
   void clean_tile_cache(){}
   void do_blank_screen_fill(){}
   void get_current_interface_tile_dims(int32_t &x,int32_t &y) {
-      getmaxyx(*stdscr_p,y,x);
-      }
+    getmaxyx(*stdscr_p,y,x);
+  }
   void set_viewport_zoom_factor(int32_t n){}
   // The following four are, I *think*, actually required for text mode to work, at least in a way that squares with the main game,
   // and thus I'm commenting them out for now so trying to compile with them just crashes. One day. One day. Hopefully soon!
@@ -204,7 +204,7 @@ static int getch_utf8() {
   if (!len) return 0;
   string input(len,0); input[0] = byte;
   for (int i = 1; i < len; i++) input[i] = wgetch(*stdscr_p);
-  return -decode_utf8(input);
+    return -decode_utf8(input);
 }
 
 void enablerst::eventLoop_ncurses() {
@@ -261,160 +261,160 @@ void enablerst::eventLoop_ncurses() {
 //// libncursesw stub ////
 
 extern "C" {
-  static void *handle;
-  WINDOW **stdscr_p;
+static void *handle;
+WINDOW **stdscr_p;
 
-  int COLOR_PAIRS;
-  static int (*_erase)(void);
-  static int (*_wmove)(WINDOW *w, int y, int x);
-  static int (*_waddnstr)(WINDOW *w, const char *s, int n);
-  static int (*_nodelay)(WINDOW *w, bool b);
-  static int (*_refresh)(void);
-  static int (*_wgetch)(WINDOW *w);
-  static int (*_endwin)(void);
-  static WINDOW *(*_initscr)(void);
-  static int (*_raw)(void);
-  static int (*_keypad)(WINDOW *w, bool b);
-  static int (*_noecho)(void);
-  static int (*_set_escdelay)(int delay);
-  static int (*_curs_set)(int s);
-  static int (*_start_color)(void);
-  static int (*_init_pair)(short p, short fg, short bg);
-  static int (*_getmouse)(MEVENT *m);
-  static int (*_waddnwstr)(WINDOW *w, const wchar_t *s, int i);
+int COLOR_PAIRS;
+static int (*_erase)(void);
+static int (*_wmove)(WINDOW *w, int y, int x);
+static int (*_waddnstr)(WINDOW *w, const char *s, int n);
+static int (*_nodelay)(WINDOW *w, bool b);
+static int (*_refresh)(void);
+static int (*_wgetch)(WINDOW *w);
+static int (*_endwin)(void);
+static WINDOW *(*_initscr)(void);
+static int (*_raw)(void);
+static int (*_keypad)(WINDOW *w, bool b);
+static int (*_noecho)(void);
+static int (*_set_escdelay)(int delay);
+static int (*_curs_set)(int s);
+static int (*_start_color)(void);
+static int (*_init_pair)(short p, short fg, short bg);
+static int (*_getmouse)(MEVENT *m);
+static int (*_waddnwstr)(WINDOW *w, const wchar_t *s, int i);
 
-  static void *dlsym_orexit(const char *symbol, bool actually_exit = true) {
-    void *sym = dlsym(handle, symbol);
-    if (!sym) {
-      printf("Symbol not found: %s\n", symbol);
-      if (actually_exit)
-        exit(EXIT_FAILURE);
-    }
-    return sym;
+static void *dlsym_orexit(const char *symbol, bool actually_exit = true) {
+  void *sym = dlsym(handle, symbol);
+  if (!sym) {
+    printf("Symbol not found: %s\n", symbol);
+    if (actually_exit)
+      exit(EXIT_FAILURE);
   }
+  return sym;
+}
 
-  int erase(void) {
-    return _erase();
-  }
-  int wmove(WINDOW *w, int y, int x) {
-    return _wmove(w, y, x);
-  }
-  int waddnstr(WINDOW *w, const char *s, int n) {
-    return _waddnstr(w, s, n);
-  }
-  int nodelay(WINDOW *w, bool b) {
-    return _nodelay(w, b);
-  }
-  int refresh(void) {
-    return _refresh();
-  }
-  int wgetch(WINDOW *w) {
-    return _wgetch(w);
-  }
-  int endwin(void) {
-    return _endwin();
-  }
-  WINDOW *initscr(void) {
-    return _initscr();
-  }
-  int raw(void) {
-    return _raw();
-  }
-  int keypad(WINDOW *w, bool b) {
-    return _keypad(w, b);
-  }
-  int noecho(void) {
-    return _noecho();
-  }
-  int set_escdelay(int delay) {
-    if (_set_escdelay)
-      return _set_escdelay(delay);
-    else
-      return 0;
-  }
-  int curs_set(int s) {
-    return _curs_set(s);
-  }
-  int start_color(void) {
-    return _start_color();
-  }
-  int init_pair(short p, short fg, short bg) {
-    return _init_pair(p, fg, bg);
-  }
-  int getmouse(MEVENT *m) {
-    return _getmouse(m);
-  }
-  int waddnwstr(WINDOW *w, const wchar_t *s, int n) {
-    return _waddnwstr(w, s, n);
-  }
+int erase(void) {
+  return _erase();
+}
+int wmove(WINDOW *w, int y, int x) {
+  return _wmove(w, y, x);
+}
+int waddnstr(WINDOW *w, const char *s, int n) {
+  return _waddnstr(w, s, n);
+}
+int nodelay(WINDOW *w, bool b) {
+  return _nodelay(w, b);
+}
+int refresh(void) {
+  return _refresh();
+}
+int wgetch(WINDOW *w) {
+  return _wgetch(w);
+}
+int endwin(void) {
+  return _endwin();
+}
+WINDOW *initscr(void) {
+  return _initscr();
+}
+int raw(void) {
+  return _raw();
+}
+int keypad(WINDOW *w, bool b) {
+  return _keypad(w, b);
+}
+int noecho(void) {
+  return _noecho();
+}
+int set_escdelay(int delay) {
+  if (_set_escdelay)
+    return _set_escdelay(delay);
+  else
+    return 0;
+}
+int curs_set(int s) {
+  return _curs_set(s);
+}
+int start_color(void) {
+  return _start_color();
+}
+int init_pair(short p, short fg, short bg) {
+  return _init_pair(p, fg, bg);
+}
+int getmouse(MEVENT *m) {
+  return _getmouse(m);
+}
+int waddnwstr(WINDOW *w, const wchar_t *s, int n) {
+  return _waddnwstr(w, s, n);
+}
 
-  void init_curses() {
-    static bool stub_initialized = false;
+void init_curses() {
+  static bool stub_initialized = false;
     // Initialize the stub
-    if (!stub_initialized) {
-      stub_initialized = true;
+  if (!stub_initialized) {
+    stub_initialized = true;
       // We prefer libncursesw, but we'll accept libncurses if we have to
-      handle = dlopen("libncursesw.so.5", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncursesw.so", RTLD_LAZY);
-      if (handle) goto opened;
-      puts("Didn't find any flavor of libncursesw, attempting libncurses");
-      sleep(5);
-      handle = dlopen("libncurses.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.so.5", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.so", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("libncurses.5.4.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("/usr/lib/libncurses.dylib", RTLD_LAZY);
-      if (handle) goto opened;
-      handle = dlopen("/usr/lib/libncurses.5.4.dylib", RTLD_LAZY);
-      if (handle) goto opened;
+    handle = dlopen("libncursesw.so.5", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("libncursesw.so", RTLD_LAZY);
+    if (handle) goto opened;
+    puts("Didn't find any flavor of libncursesw, attempting libncurses");
+    sleep(5);
+    handle = dlopen("libncurses.dylib", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("libncurses.so.5", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("libncurses.so", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("libncurses.5.4.dylib", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("/usr/lib/libncurses.dylib", RTLD_LAZY);
+    if (handle) goto opened;
+    handle = dlopen("/usr/lib/libncurses.5.4.dylib", RTLD_LAZY);
+    if (handle) goto opened;
 
     opened:
-      if (!handle) {
-        puts("Unable to open any flavor of libncurses!");
-        exit(EXIT_FAILURE);
-      }
-      // Okay, look up our symbols
-      int *pairs = (int*)dlsym_orexit("COLOR_PAIRS");
-      COLOR_PAIRS = *pairs;
-      stdscr_p = (WINDOW**)dlsym_orexit("stdscr");
-      _erase = (int (*)(void))dlsym_orexit("erase");
-      _wmove = (int (*)(WINDOW *w, int y, int x))dlsym_orexit("wmove");
-      _waddnstr = (int (*)(WINDOW *w, const char *s, int n))dlsym_orexit("waddnstr");
-      _nodelay = (int (*)(WINDOW *w, bool b))dlsym_orexit("nodelay");
-      _refresh = (int (*)(void))dlsym_orexit("refresh");
-      _wgetch = (int (*)(WINDOW *w))dlsym_orexit("wgetch");
-      _endwin = (int (*)(void))dlsym_orexit("endwin");
-      _initscr = (WINDOW *(*)(void))dlsym_orexit("initscr");
-      _raw = (int (*)(void))dlsym_orexit("raw");
-      _keypad = (int (*)(WINDOW *w, bool b))dlsym_orexit("keypad");
-      _noecho = (int (*)(void))dlsym_orexit("noecho");
-      _set_escdelay = (int (*)(int delay))dlsym_orexit("set_escdelay", false);
-      _curs_set = (int (*)(int s))dlsym_orexit("curs_set");
-      _start_color = (int (*)(void))dlsym_orexit("start_color");
-      _init_pair = (int (*)(short p, short fg, short bg))dlsym_orexit("init_pair");
-      _getmouse = (int (*)(MEVENT *m))dlsym_orexit("getmouse");
-      _waddnwstr = (int (*)(WINDOW *w, const wchar_t *s, int i))dlsym_orexit("waddnwstr");
+    if (!handle) {
+      puts("Unable to open any flavor of libncurses!");
+      exit(EXIT_FAILURE);
     }
-    
+      // Okay, look up our symbols
+    int *pairs = (int*)dlsym_orexit("COLOR_PAIRS");
+    COLOR_PAIRS = *pairs;
+    stdscr_p = (WINDOW**)dlsym_orexit("stdscr");
+    _erase = (int (*)(void))dlsym_orexit("erase");
+    _wmove = (int (*)(WINDOW *w, int y, int x))dlsym_orexit("wmove");
+    _waddnstr = (int (*)(WINDOW *w, const char *s, int n))dlsym_orexit("waddnstr");
+    _nodelay = (int (*)(WINDOW *w, bool b))dlsym_orexit("nodelay");
+    _refresh = (int (*)(void))dlsym_orexit("refresh");
+    _wgetch = (int (*)(WINDOW *w))dlsym_orexit("wgetch");
+    _endwin = (int (*)(void))dlsym_orexit("endwin");
+    _initscr = (WINDOW *(*)(void))dlsym_orexit("initscr");
+    _raw = (int (*)(void))dlsym_orexit("raw");
+    _keypad = (int (*)(WINDOW *w, bool b))dlsym_orexit("keypad");
+    _noecho = (int (*)(void))dlsym_orexit("noecho");
+    _set_escdelay = (int (*)(int delay))dlsym_orexit("set_escdelay", false);
+    _curs_set = (int (*)(int s))dlsym_orexit("curs_set");
+    _start_color = (int (*)(void))dlsym_orexit("start_color");
+    _init_pair = (int (*)(short p, short fg, short bg))dlsym_orexit("init_pair");
+    _getmouse = (int (*)(MEVENT *m))dlsym_orexit("getmouse");
+    _waddnwstr = (int (*)(WINDOW *w, const wchar_t *s, int i))dlsym_orexit("waddnwstr");
+  }
+  
     // Initialize curses
-    if (!curses_initialized) {
-      curses_initialized = true;
-      WINDOW *new_window = initscr();
-      if (!new_window) {
-        puts("unable to create ncurses window - initscr failed!");
-        exit(EXIT_FAILURE);
-      }
+  if (!curses_initialized) {
+    curses_initialized = true;
+    WINDOW *new_window = initscr();
+    if (!new_window) {
+      puts("unable to create ncurses window - initscr failed!");
+      exit(EXIT_FAILURE);
+    }
       // in some versions of curses, initscr does not update stdscr!
-      if (!*stdscr_p) *stdscr_p = new_window;
-      raw();
-      noecho();
-      keypad(*stdscr_p, true);
-      nodelay(*stdscr_p, true);
+    if (!*stdscr_p) *stdscr_p = new_window;
+    raw();
+    noecho();
+    keypad(*stdscr_p, true);
+    nodelay(*stdscr_p, true);
       set_escdelay(25); // Possible bug
       curs_set(0);
       mmask_t dummy;

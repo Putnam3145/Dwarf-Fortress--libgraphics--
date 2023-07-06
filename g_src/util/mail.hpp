@@ -14,27 +14,27 @@ public:
   bool try_read(T &r) {
     std::unique_lock lk(mtx,std::try_to_lock);
     if (lk && !vals.empty()) {
-        r=std::move(vals.front());
-        vals.pop();
-        return true;
-      } else
-      return false;
+      r=std::move(vals.front());
+      vals.pop();
+      return true;
+    } else
+    return false;
   }
   bool try_read_for_millis(T &r,uint32_t millis) {
-      std::unique_lock lk(mtx);
-      if((lk && !vals.empty()) || cv.wait_for(lk,std::chrono::milliseconds(millis))==std::cv_status::no_timeout)
-          {
-          r=std::move(vals.front());
-          vals.pop();
-          return true;
-          } 
-      else 
-        return false;
+    std::unique_lock lk(mtx);
+    if((lk && !vals.empty()) || cv.wait_for(lk,std::chrono::milliseconds(millis))==std::cv_status::no_timeout)
+    {
+      r=std::move(vals.front());
+      vals.pop();
+      return true;
+    } 
+    else 
+    return false;
   }
   void read(T &r) {
     std::unique_lock lk(mtx);
     if(vals.empty())
-        cv.wait(lk);
+      cv.wait(lk);
     r = std::move(vals.front());
     vals.pop();
   }

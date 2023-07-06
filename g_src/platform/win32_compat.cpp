@@ -53,20 +53,20 @@ char* itoa(int value, char* result, int base)
 {
   // check that the base is valid
   if (base < 2 || base > 16) { *result = 0; return result; }
-	
+  
   char* out = result;
   int quot = value;
-	
+  
   do
-    {
+  {
       *out = "0123456789abcdef"[ /*std::*/abs(quot % base) ];
-      ++out;
-      quot /= base;
-    }
+    ++out;
+    quot /= base;
+  }
   while (quot);
-	
+  
   if (value < 0) *out++ = '-';
-	
+  
   std::reverse(result, out);
   *out = 0;
   return result;
@@ -96,8 +96,8 @@ int MessageBox(HWND *dummy, const char *text, const char *caption, UINT type)
   bool toggle_screen = false;
   static int ret = type==MB_YESNO ? IDNO : IDOK; // static is mostly just a precaution here
   static SDL_MessageBoxButtonData yesno_buttons[2] = {
-      SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDYES, "Yes"}),
-      SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, IDNO, "No"})
+    SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDYES, "Yes"}),
+    SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, IDNO, "No"})
   };
   static SDL_MessageBoxButtonData ok_button = SDL_MessageBoxButtonData({ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDOK, "Ok"});
   if (enabler.is_fullscreen()) {
@@ -108,12 +108,12 @@ int MessageBox(HWND *dummy, const char *text, const char *caption, UINT type)
   data.title = caption;
   data.message = text;
   if (type == MB_YESNO) {
-      data.numbuttons = 2;
-      data.buttons = yesno_buttons;
+    data.numbuttons = 2;
+    data.buttons = yesno_buttons;
   }
   else {
-      data.numbuttons = 1;
-      data.buttons = &ok_button;
+    data.numbuttons = 1;
+    data.buttons = &ok_button;
   }
   SDL_ShowMessageBox(&data, &ret);
   return ret;

@@ -5,14 +5,14 @@
 #define INTEGER_TYPES
 
 #ifdef WIN32
-	typedef signed char int8_t;
-	typedef short int16_t;
-	typedef int int32_t;
-	typedef long long int64_t;
-	typedef unsigned char uint8_t;
-	typedef unsigned short uint16_t;
-	typedef unsigned int uint32_t;
-	typedef unsigned long long uint64_t;
+typedef signed char int8_t;
+typedef short int16_t;
+typedef int int32_t;
+typedef long long int64_t;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long uint64_t;
 #endif
 
 typedef int32_t VIndex;
@@ -21,16 +21,16 @@ typedef int32_t Ordinal;
 #endif
 
 #include "../util/svector.hpp"
-	//#include "ttf_manager.hpp"
-	#include "../util/random.hpp"
-	#include "../util/endian.hpp"
-	#include "../files/files.hpp"
-	#include "../render/enabler.hpp"
-	#include "../text/textlines.hpp"
-	#include "../files/find_files.hpp"
-	#include "../util/basics.hpp"
-	#include "../util/g_basics.hpp"
-	#include "../texture/texture_handler.hpp"
+  //#include "ttf_manager.hpp"
+  #include "../util/random.hpp"
+  #include "../util/endian.hpp"
+  #include "../files/files.hpp"
+  #include "../render/enabler.hpp"
+  #include "../text/textlines.hpp"
+  #include "../files/find_files.hpp"
+  #include "../util/basics.hpp"
+  #include "../util/g_basics.hpp"
+  #include "../texture/texture_handler.hpp"
 #include "../render/graphics.hpp"
 #include "../render/init.hpp"
 #include "../render/keybindings.hpp"
@@ -97,9 +97,9 @@ void KeybindingScreen::feed(set<InterfaceKey> &input) {
       }
     }
   } else if (input.count(INTERFACEKEY_STANDARDSCROLL_PAGEUP) ||
-      input.count(INTERFACEKEY_STANDARDSCROLL_PAGEDOWN) ||
-      input.count(INTERFACEKEY_STANDARDSCROLL_UP) ||
-      input.count(INTERFACEKEY_STANDARDSCROLL_DOWN)) {
+    input.count(INTERFACEKEY_STANDARDSCROLL_PAGEDOWN) ||
+    input.count(INTERFACEKEY_STANDARDSCROLL_UP) ||
+    input.count(INTERFACEKEY_STANDARDSCROLL_DOWN)) {
     switch (mode) {
     case mode_main: main.feed(input); break;
     case mode_keyL: keyL.feed(input); reset_keyR(); break;
@@ -108,13 +108,13 @@ void KeybindingScreen::feed(set<InterfaceKey> &input) {
     case mode_register: keyRegister.feed(input); break;
     }
   } else if (mode == mode_keyL && input.count(INTERFACEKEY_STANDARDSCROLL_RIGHT))
-    mode = mode_keyR;
+  mode = mode_keyR;
   else if (mode == mode_main && input.count(INTERFACEKEY_STANDARDSCROLL_RIGHT)) {
     if (main.get_selection() == sel_macros) enter_macros();
     if (main.get_selection() >= sel_first_group)
       enter_key(main.get_selection() - sel_first_group);
   } else if (mode == mode_keyR && input.count(INTERFACEKEY_STANDARDSCROLL_LEFT))
-    mode = mode_keyL;
+  mode = mode_keyL;
   else if ((mode == mode_keyL || mode == mode_macro) && input.count(INTERFACEKEY_STANDARDSCROLL_LEFT))
     mode = mode_main;
   else if (input.count(INTERFACEKEY_STRING_A000)) { // Backspace: Delete something.
@@ -267,7 +267,7 @@ void KeybindingScreen::render_key() {
     gps.changecolor(4,0,1);
     drawborder("Keybinding - currently registering new key");
   } else
-    drawborder("Keybinding");
+  drawborder("Keybinding");
   gps.locate(3, 6);
   gps.changecolor(4,0,1);
   gps.addst("Select a binding, then press " + enabler.GetKeyDisplay(INTERFACEKEY_STRING_A000) + " to delete.");
@@ -281,9 +281,9 @@ void KeybindingScreen::render_key() {
 
 void KeybindingScreen::render_register() {
   int x1 = init.display.grid_x / 2 - 20,
-    x2 = init.display.grid_x / 2 + 20,
-    y1 = init.display.grid_y / 2 - 1,
-    y2 = init.display.grid_y / 2 + 1;
+  x2 = init.display.grid_x / 2 + 20,
+  y1 = init.display.grid_y / 2 - 1,
+  y2 = init.display.grid_y / 2 + 1;
   if (!enabler.is_registering()) {
     y2 = y1 + keyRegister.size() + 1;
   }
@@ -335,7 +335,7 @@ MacroScreenLoad::MacroScreenLoad() {
     menu.add("No macros!", "");
     height = 1;
   } else
-    height = (int)macros.size();
+  height = (int)macros.size();
 
   for (list<string>::iterator it = macros.begin(); it != macros.end(); ++it) {
     if (it->length() > width) width = (int)it->length();
@@ -385,8 +385,8 @@ MacroScreenSave::MacroScreenSave() : id(init.display.grid_x - 7, 0) {
 }
 
 void MacroScreenSave::logic() {
-    if (parent) parent->logic();
-    id.logic();
+  if (parent) parent->logic();
+  id.logic();
 }
 
 void MacroScreenSave::feed(set<InterfaceKey> &input) {
@@ -407,9 +407,9 @@ void MacroScreenSave::feed(set<InterfaceKey> &input) {
 void MacroScreenSave::render() {
   if (parent) parent->render();
   const int x1 = 5,
-    x2 = init.display.grid_x-4,
-    y1 = init.display.grid_y/2-1,
-    y2 = init.display.grid_y/2+2;
+  x2 = init.display.grid_x-4,
+  y1 = init.display.grid_y/2-1,
+  y2 = init.display.grid_y/2+2;
   id.set_extents(y1, y2, x1, x2);
   id.maxlen = 48;
   id.arrange();

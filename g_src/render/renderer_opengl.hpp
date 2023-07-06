@@ -25,7 +25,7 @@ protected:
     // Setup OpenGL attributes
     SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, init.window.flag.has_flag(INIT_WINDOW_FLAG_VSYNC_ON));
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,
-                        init.display.flag.has_flag(INIT_DISPLAY_FLAG_SINGLE_BUFFER) ? 0 : 1);
+      init.display.flag.has_flag(INIT_DISPLAY_FLAG_SINGLE_BUFFER) ? 0 : 1);
 
     // (Re)create the window
     screen = SDL_SetVideoMode(w, h, 32, flags);
@@ -166,117 +166,117 @@ public:
     for (int x = 0; x < gps.dimx; x++)
       for (int y = 0; y < gps.dimy; y++)
         update_tile(x, y);
-  }
-  
-  void render() {
-    draw(gps.dimx*gps.dimy*6);
-    if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_ARB_SYNC) && GL_ARB_sync) {
-      assert(enabler.sync == NULL);
-      enabler.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
-    SDL_GL_SwapBuffers();
-  }
+    
+    void render() {
+      draw(gps.dimx*gps.dimy*6);
+      if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_ARB_SYNC) && GL_ARB_sync) {
+        assert(enabler.sync == NULL);
+        enabler.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+      }
+      SDL_GL_SwapBuffers();
+    }
 
-  renderer_opengl() {
+    renderer_opengl() {
     // Init member variables so realloc'll work
-    screen   = NULL;
-    vertexes = NULL;
-    fg       = NULL;
-    bg       = NULL;
-    tex      = NULL;
-    zoom_steps = forced_steps = 0;
-    
+      screen   = NULL;
+      vertexes = NULL;
+      fg       = NULL;
+      bg       = NULL;
+      tex      = NULL;
+      zoom_steps = forced_steps = 0;
+      
     // Disable key repeat
-    SDL_EnableKeyRepeat(0, 0);
+      SDL_EnableKeyRepeat(0, 0);
     // Set window title/icon.
-    SDL_WM_SetCaption(GAME_TITLE_STRING, NULL);
-    SDL_Surface *icon = IMG_Load("data/art/icon.png");
-    if (icon != NULL) {
-      SDL_WM_SetIcon(icon, NULL);
+      SDL_WM_SetCaption(GAME_TITLE_STRING, NULL);
+      SDL_Surface *icon = IMG_Load("data/art/icon.png");
+      if (icon != NULL) {
+        SDL_WM_SetIcon(icon, NULL);
       // The icon's surface doesn't get used past this point.
-      SDL_FreeSurface(icon); 
-    }
-    
+        SDL_FreeSurface(icon); 
+      }
+      
     // Find the current desktop resolution if fullscreen resolution is auto
-    init.display.actual_windowed_width = init.display.desired_windowed_width;
-    init.display.actual_windowed_height = init.display.desired_windowed_height;
-    init.display.actual_fullscreen_width = init.display.desired_fullscreen_width;
-    init.display.actual_fullscreen_height = init.display.desired_fullscreen_height;
-    if (init.display.desired_fullscreen_width  == 0 ||
+      init.display.actual_windowed_width = init.display.desired_windowed_width;
+      init.display.actual_windowed_height = init.display.desired_windowed_height;
+      init.display.actual_fullscreen_width = init.display.desired_fullscreen_width;
+      init.display.actual_fullscreen_height = init.display.desired_fullscreen_height;
+      if (init.display.desired_fullscreen_width  == 0 ||
         init.display.desired_fullscreen_height == 0) {
-      const struct SDL_VideoInfo *info = SDL_GetVideoInfo();
+        const struct SDL_VideoInfo *info = SDL_GetVideoInfo();
       init.display.actual_fullscreen_width = info->current_w;
       init.display.actual_fullscreen_height = info->current_h;
     }
 
-	//verify full screen value against available modes
-	SDL_PixelFormat fmt;
-		fmt.palette = NULL;
-		fmt.BitsPerPixel = 32;
-		fmt.BytesPerPixel = 4;
-		fmt.Rloss = fmt.Gloss = fmt.Bloss = fmt.Aloss = 0;
-	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		fmt.Rshift = 24; fmt.Gshift = 16; fmt.Bshift = 8; fmt.Ashift = 0;
-	#else
-		fmt.Rshift = 0; fmt.Gshift = 8; fmt.Bshift = 16; fmt.Ashift = 24;
-	#endif
-		fmt.Rmask = 255 << fmt.Rshift;
-		fmt.Gmask = 255 << fmt.Gshift;
-		fmt.Bmask = 255 << fmt.Bshift;
-		fmt.Amask = 255 << fmt.Ashift;
-		fmt.colorkey = 0;
-		fmt.alpha = 255;
-	Uint32 flags = (SDL_SWSURFACE|SDL_FULLSCREEN);
+  //verify full screen value against available modes
+    SDL_PixelFormat fmt;
+    fmt.palette = NULL;
+    fmt.BitsPerPixel = 32;
+    fmt.BytesPerPixel = 4;
+    fmt.Rloss = fmt.Gloss = fmt.Bloss = fmt.Aloss = 0;
+  #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    fmt.Rshift = 24; fmt.Gshift = 16; fmt.Bshift = 8; fmt.Ashift = 0;
+  #else
+    fmt.Rshift = 0; fmt.Gshift = 8; fmt.Bshift = 16; fmt.Ashift = 24;
+  #endif
+    fmt.Rmask = 255 << fmt.Rshift;
+    fmt.Gmask = 255 << fmt.Gshift;
+    fmt.Bmask = 255 << fmt.Bshift;
+    fmt.Amask = 255 << fmt.Ashift;
+    fmt.colorkey = 0;
+    fmt.alpha = 255;
+    Uint32 flags = (SDL_SWSURFACE|SDL_FULLSCREEN);
 
-	bool good=false;
-	int32_t backup_fullscreen_width=0;
-	int32_t backup_fullscreen_height=0;
-	SDL_Rect **modes=SDL_ListModes(&fmt,flags);
-	if(modes==NULL);
-	else if(modes==(SDL_Rect **)-1);
-	else
-		{
-		int32_t i=0;
-		while(modes[i])
-			{
-			if(modes[i]->w>=MINIMUM_WINDOW_WIDTH&&modes[i]->h>=MINIMUM_WINDOW_HEIGHT)
-				{
-				if(backup_fullscreen_width==0)
-					{
-					backup_fullscreen_width=modes[i]->w;
-					backup_fullscreen_height=modes[i]->h;
-					}
-				if(init.display.actual_fullscreen_width==modes[i]->w&&
-					init.display.actual_fullscreen_height==modes[i]->h)
-					{
-					good=true;
-					break;
-					}
-				}
+    bool good=false;
+    int32_t backup_fullscreen_width=0;
+    int32_t backup_fullscreen_height=0;
+    SDL_Rect **modes=SDL_ListModes(&fmt,flags);
+    if(modes==NULL);
+    else if(modes==(SDL_Rect **)-1);
+    else
+    {
+      int32_t i=0;
+      while(modes[i])
+      {
+        if(modes[i]->w>=MINIMUM_WINDOW_WIDTH&&modes[i]->h>=MINIMUM_WINDOW_HEIGHT)
+        {
+          if(backup_fullscreen_width==0)
+          {
+            backup_fullscreen_width=modes[i]->w;
+            backup_fullscreen_height=modes[i]->h;
+          }
+          if(init.display.actual_fullscreen_width==modes[i]->w&&
+            init.display.actual_fullscreen_height==modes[i]->h)
+          {
+            good=true;
+            break;
+          }
+        }
 
-			++i;
-			}
-		}
-	if(!good&&backup_fullscreen_width!=0)
-		{
-		init.display.actual_fullscreen_width=backup_fullscreen_width;
-		init.display.actual_fullscreen_height=backup_fullscreen_height;
-		}
+        ++i;
+      }
+    }
+    if(!good&&backup_fullscreen_width!=0)
+    {
+      init.display.actual_fullscreen_width=backup_fullscreen_width;
+      init.display.actual_fullscreen_height=backup_fullscreen_height;
+    }
 
     // Initialize our window
     bool worked = init_video(enabler.is_fullscreen() ?
-                             init.display.actual_fullscreen_width :
-                             init.display.actual_windowed_width,
-                             enabler.is_fullscreen() ?
-                             init.display.actual_fullscreen_height :
-                             init.display.actual_windowed_height);
+     init.display.actual_fullscreen_width :
+     init.display.actual_windowed_width,
+     enabler.is_fullscreen() ?
+     init.display.actual_fullscreen_height :
+     init.display.actual_windowed_height);
 
     // Fallback to windowed mode if fullscreen fails
     if (!worked && enabler.is_fullscreen()) {
       enabler.fullscreen = false;
       report_error("SDL initialization failure, trying windowed mode", SDL_GetError());
       worked = init_video(init.display.actual_windowed_width,
-                          init.display.actual_windowed_height);
+        init.display.actual_windowed_height);
     }
     // Quit if windowed fails
     if (!worked) {
@@ -332,11 +332,11 @@ public:
   
   pair<int,int> compute_zoom(bool clamp = false) {
     const int dispx = enabler.is_fullscreen() ?
-      init.font.large_font_dispx :
-      init.font.small_font_dispx;
+    init.font.large_font_dispx :
+    init.font.small_font_dispx;
     const int dispy = enabler.is_fullscreen() ?
-      init.font.large_font_dispy :
-      init.font.small_font_dispy;
+    init.font.large_font_dispy :
+    init.font.small_font_dispy;
     int w, h;
     if (dispx < dispy) {
       w = natural_w + zoom_steps + forced_steps;
@@ -360,11 +360,11 @@ public:
     cout << "Resizing grid to " << w << "x" << h << endl;
 #endif
     const int dispx = enabler.is_fullscreen() ?
-      init.font.large_font_dispx :
-      init.font.small_font_dispx;
+    init.font.large_font_dispx :
+    init.font.small_font_dispx;
     const int dispy = enabler.is_fullscreen() ?
-      init.font.large_font_dispy :
-      init.font.small_font_dispy;
+    init.font.large_font_dispy :
+    init.font.small_font_dispy;
 
     gps_allocate(w,h,screen->w,screen->h,dispx,dispy);
     reshape_gl();
@@ -377,7 +377,7 @@ public:
     SDL_GetMouseState(&mouse_x, &mouse_y);
     mouse_x -= off_x; mouse_y -= off_y;
     if (mouse_x < 0 || mouse_y < 0 ||
-        mouse_x >= size_x || mouse_y >= size_y)
+      mouse_x >= size_x || mouse_y >= size_y)
       return false; // Out of bounds
     x = double(mouse_x) / double(size_x) * double(gps.dimx);
     y = double(mouse_y) / double(size_y) * double(gps.dimy);
@@ -393,11 +393,11 @@ public:
       for (GLfloat y = 0; y < gps.dimy; y++, tile++)
         write_tile_vertexes(x, y, vertexes + 6*2*tile);
     // Setup invariant state
-    glEnableClientState(GL_COLOR_ARRAY);
+      glEnableClientState(GL_COLOR_ARRAY);
     /// Set up our coordinate system
-    if (forced_steps + zoom_steps == 0 &&
+      if (forced_steps + zoom_steps == 0 &&
         init.display.flag.has_flag(INIT_DISPLAY_FLAG_BLACK_SPACE)) {
-      size_x = gps.dimx * dispx;
+        size_x = gps.dimx * dispx;
       size_y = gps.dimy * dispy;
       off_x = (screen->w - size_x) / 2;
       off_y = (screen->h - size_y) / 2;
@@ -420,11 +420,11 @@ public:
   void resize(int w, int h) {
     // (Re)calculate grid-size
     dispx = enabler.is_fullscreen() ?
-      init.font.large_font_dispx :
-      init.font.small_font_dispx;
+    init.font.large_font_dispx :
+    init.font.small_font_dispx;
     dispy = enabler.is_fullscreen() ?
-      init.font.large_font_dispy :
-      init.font.small_font_dispy;
+    init.font.large_font_dispy :
+    init.font.small_font_dispy;
     natural_w = MAX(w / dispx,1);
     natural_h = MAX(h / dispy,1);
     // Compute forced_steps so we satisfy our grid-size limits
@@ -452,7 +452,7 @@ public:
       init.display.actual_windowed_width = screen->w;
       init.display.actual_windowed_height = screen->h;
       resize(init.display.actual_fullscreen_width,
-             init.display.actual_fullscreen_height);
+       init.display.actual_fullscreen_height);
     } else {
       resize(init.display.actual_windowed_width, init.display.actual_windowed_height);
     }
@@ -467,9 +467,9 @@ protected:
   void update_tile(int x, int y) {
     write_tile_vertexes(x, y, vertexes + tile_count * 6 * 2);
     write_tile_arrays(x, y,
-                      fg + tile_count * 6 * 4,
-                      bg + tile_count * 6 * 4,
-                      tex + tile_count * 6 * 2);
+      fg + tile_count * 6 * 4,
+      bg + tile_count * 6 * 4,
+      tex + tile_count * 6 * 2);
     tile_count++;
   }
 
@@ -496,9 +496,9 @@ class renderer_partial : public renderer_opengl {
   void update_tile(int x, int y) {
     write_tile_vertexes(x, y, vertexes + head * 6 * 2);
     write_tile_arrays(x, y,
-                      fg + head * 6 * 4,
-                      bg + head * 6 * 4,
-                      tex + head * 6 * 2);
+      fg + head * 6 * 4,
+      bg + head * 6 * 4,
+      tex + head * 6 * 2);
     head = (head + 1) % buffersz;
     current_erasz++; sum_erasz++;
     if (head == tail) {
@@ -526,75 +526,75 @@ class renderer_partial : public renderer_opengl {
     glEnableClientState(GL_COLOR_ARRAY);
     /// Set up our coordinate system
     if (forced_steps + zoom_steps == 0 &&
-        init.display.flag.has_flag(INIT_DISPLAY_FLAG_BLACK_SPACE)) {
+      init.display.flag.has_flag(INIT_DISPLAY_FLAG_BLACK_SPACE)) {
       size_x = gps.dimx * dispx;
-      size_y = gps.dimy * dispy;
-      off_x = (screen->w - size_x) / 2;
-      off_y = (screen->h - size_y) / 2;
-    } else {
+    size_y = gps.dimy * dispy;
+    off_x = (screen->w - size_x) / 2;
+    off_y = (screen->h - size_y) / 2;
+  } else {
       // If we're zooming (or just not using black space), we use the
       // entire window.
-      size_x = screen->w;
-      size_y = screen->h;
-      off_x = off_y = 0;
-    }
-    glViewport(off_x, off_y, size_x, size_y);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, gps.dimx, gps.dimy, 0);
+    size_x = screen->w;
+    size_y = screen->h;
+    off_x = off_y = 0;
   }
+  glViewport(off_x, off_y, size_x, size_y);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluOrtho2D(0, gps.dimx, gps.dimy, 0);
+}
 
-  void draw_arrays(GLfloat *vertexes, GLfloat *fg, GLfloat *bg, GLfloat *tex, int tile_count) {
+void draw_arrays(GLfloat *vertexes, GLfloat *fg, GLfloat *bg, GLfloat *tex, int tile_count) {
     // Set vertex pointer
-    glVertexPointer(2, GL_FLOAT, 0, vertexes);
+  glVertexPointer(2, GL_FLOAT, 0, vertexes);
     // Render the background colors
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisable(GL_BLEND);
-    glDisable(GL_ALPHA_TEST);
-    glColorPointer(4, GL_FLOAT, 0, bg);
-    glDrawArrays(GL_TRIANGLES, 0, tile_count * 6);
+  glDisable(GL_TEXTURE_2D);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisable(GL_BLEND);
+  glDisable(GL_ALPHA_TEST);
+  glColorPointer(4, GL_FLOAT, 0, bg);
+  glDrawArrays(GL_TRIANGLES, 0, tile_count * 6);
     // Render the foreground, colors and textures both
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_NOTEQUAL, 0);
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColorPointer(4, GL_FLOAT, 0, fg);
-    glTexCoordPointer(2, GL_FLOAT, 0, tex);
-    glDrawArrays(GL_TRIANGLES, 0, tile_count * 6);
-  }
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_NOTEQUAL, 0);
+  glEnable(GL_TEXTURE_2D);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glColorPointer(4, GL_FLOAT, 0, fg);
+  glTexCoordPointer(2, GL_FLOAT, 0, tex);
+  glDrawArrays(GL_TRIANGLES, 0, tile_count * 6);
+}
 
-  void draw(int dummy) {
-    if (tail > head) {
+void draw(int dummy) {
+  if (tail > head) {
       // We're straddling the end of the array, so have to do this in two steps
-      draw_arrays(vertexes + tail * 6 * 2,
-                  fg + tail * 6 * 4,
-                  bg + tail * 6 * 4,
-                  tex + tail * 6 * 2,
-                  buffersz - tail);
-      draw_arrays(vertexes, fg, bg, tex, head-1);
-    } else {
-      draw_arrays(vertexes + tail * 6 * 2,
-                  fg + tail * 6 * 4,
-                  bg + tail * 6 * 4,
-                  tex + tail * 6 * 2,
-                  sum_erasz);
-    }
-    
-    printGLError();
-    erasz.push_back(current_erasz); current_erasz = 0;
-    if (erasz.size() == redraw_count) {
-      // Right, time to retire the oldest era.
-      tail = (tail + erasz.front()) % buffersz;
-      sum_erasz -= erasz.front();
-      erasz.pop_front();
-    }
+    draw_arrays(vertexes + tail * 6 * 2,
+      fg + tail * 6 * 4,
+      bg + tail * 6 * 4,
+      tex + tail * 6 * 2,
+      buffersz - tail);
+    draw_arrays(vertexes, fg, bg, tex, head-1);
+  } else {
+    draw_arrays(vertexes + tail * 6 * 2,
+      fg + tail * 6 * 4,
+      bg + tail * 6 * 4,
+      tex + tail * 6 * 2,
+      sum_erasz);
   }
   
+  printGLError();
+  erasz.push_back(current_erasz); current_erasz = 0;
+  if (erasz.size() == redraw_count) {
+      // Right, time to retire the oldest era.
+    tail = (tail + erasz.front()) % buffersz;
+    sum_erasz -= erasz.front();
+    erasz.pop_front();
+  }
+}
+
 public:
   renderer_partial() {
     redraw_count = init.display.partial_print_count;
@@ -623,15 +623,15 @@ class renderer_framebuffer : public renderer_once {
     glGenTextures(1, &fb_texture);
     glBindTexture(GL_TEXTURE_2D, fb_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 screen->w, screen->h,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+     screen->w, screen->h,
+     0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     
     // Bind texture to FBO
     glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, framebuffer);
     glFramebufferTexture2DEXT(GL_DRAW_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                              GL_TEXTURE_2D, fb_texture, 0);
+      GL_TEXTURE_2D, fb_texture, 0);
     renderer_once::init_opengl();
   }
 
@@ -651,8 +651,8 @@ class renderer_framebuffer : public renderer_once {
     glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
     glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, framebuffer);
     glBlitFramebufferEXT(0,0, screen->w, screen->h,
-                         0,0, screen->w, screen->h,
-                         GL_COLOR_BUFFER_BIT, GL_NEAREST);
+     0,0, screen->w, screen->h,
+     GL_COLOR_BUFFER_BIT, GL_NEAREST);
     printGLError();
   }
 };

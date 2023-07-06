@@ -35,28 +35,28 @@ extern char filecomp_buffer2_aux[80000];
 
 void textlinesst::load_raw_to_lines(const char *filename)
 {
-	clean_lines();
+  clean_lines();
 
-	//LOAD THE FILE
-	std::ifstream fseed(filename);
-	if(fseed.is_open())
-		{
-		string str;
+    //LOAD THE FILE
+  std::ifstream fseed(filename);
+  if(fseed.is_open())
+  {
+    string str;
 
-		while(std::getline(fseed,str))
-			{
-			long end=(long)str.length();
+    while(std::getline(fseed,str))
+    {
+      long end=(long)str.length();
 
-			while(end>0)
-				{
-				if(isspace(str[end-1]))end--;
-				else break;
-				}
+      while(end>0)
+      {
+        if(isspace(str[end-1]))end--;
+        else break;
+      }
 
-			str.resize(end);
+      str.resize(end);
 
-			if(str.length()>0)text.add_string(str);
-			}
-		}
-	fseed.close();
+      if(str.length()>0)text.add_string(str);
+    }
+  }
+  fseed.close();
 }

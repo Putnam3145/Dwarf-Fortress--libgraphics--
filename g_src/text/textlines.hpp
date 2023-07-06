@@ -3,20 +3,20 @@
 
 struct textlinesst
 {
-	stringvectst text;
+  stringvectst text;
 
 
 
-	void load_raw_to_lines(const char *filename);
+  void load_raw_to_lines(const char *filename);
 
-	void clean_lines()
-		{
-		text.clean();
-		}
-	void copy_from(textlinesst &ot)
-		{
-		text.copy_from(ot.text);
-		}
+  void clean_lines()
+  {
+    text.clean();
+  }
+  void copy_from(textlinesst &ot)
+  {
+    text.copy_from(ot.text);
+  }
 };
 
 #endif

@@ -47,7 +47,7 @@ class MacroScreenLoad : public viewscreenst {
   widgets::menu<string> menu;
   int width, height;
   
- public:
+public:
   MacroScreenLoad();
   virtual void logic();
   virtual void render();
