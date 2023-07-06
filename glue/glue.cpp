@@ -11,7 +11,7 @@
 
 // random.h glue
 
-#include "../g_src/random.h"
+#include "../g_src/util/random.hpp"
 int mt_index[MT_BUFFER_NUM];
 short mt_cur_buffer;
 short mt_virtual_buffer;
@@ -31,7 +31,7 @@ void endroutine(){
 
 // interface.cpp glue
 
-#include "../g_src/interface.h"
+#include "../g_src/render/interface.hpp"
 interfacest gview;
 
 void dwarf_end_announcements(){}
@@ -44,12 +44,12 @@ thread_local string errorlog_prefix;
 
 // initst init glue
 
-#include "../g_src/init.h"
+#include "../g_src/render/init.hpp"
 initst init;
 
 // graphics.cpp glue
 
-#include "../g_src/textlines.h"
+#include "../g_src/text/textlines.hpp"
 void process_object_lines(textlinesst &lines,const std::string &chktype, const std::string &graphics_dir){
     return;
 }
@@ -62,14 +62,14 @@ int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b
 
 // ViewBase.cpp glue
 
-#include "../g_src/KeybindingScreen.h"
+#include "../g_src/render/KeybindingScreen.hpp"
 viewscreenst::viewscreenst(){}
 void viewscreenst::set_port_flags() {
 }
 
 // other stuff
 
-#include "../g_src/basics.h"
+#include "../g_src/util/basics.hpp"
 GameMode gamemode;
 GameType gametype;
 int32_t movie_version;
