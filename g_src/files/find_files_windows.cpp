@@ -1,7 +1,10 @@
+#ifdef WIN32
+
+#include "find_files.hpp"
+
 #include "../game_g.h"
 #include "../game_extv.h"
 
-#ifdef _WIN32
 void find_files_by_pattern(const char* pattern, svector<char *>& filenames)
 {
   HANDLE h;
@@ -179,4 +182,5 @@ void find_directories_by_pattern_with_exception(const char* pattern, stringvects
     FindClose(h);
   }
 }
-#endif
+
+#endif // WIN32

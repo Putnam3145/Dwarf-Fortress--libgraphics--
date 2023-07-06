@@ -32,6 +32,7 @@ all:
     g_src/files/files.cpp \
     g_src/files/file_compressor.cpp \
     g_src/files/find_files_posix.cpp \
+    g_src/files/find_files_windows.cpp \
     g_src/render/graphics.cpp \
     g_src/audio/music_and_sound.cpp \
     g_src/render/init.cpp \
