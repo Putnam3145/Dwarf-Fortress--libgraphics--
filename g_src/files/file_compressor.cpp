@@ -1,16 +1,17 @@
 #include "file_compressor.hpp"
+
 #include "../platform/platform.hpp"
+#include "../util/random.hpp"
+#include "../util/basics.hpp"
+#include "../render/enabler.hpp"
+#include "../files/find_files.hpp"
 
 #include <cerrno>
-#include <string>
-#include <cstring>
 #include <cmath>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
-#include <map>
-#include <set>
 #include <stdio.h>
 
 extern "C" {
@@ -43,26 +44,12 @@ typedef int32_t Ordinal;
 
 #endif
 
-#include "../util/random.hpp"
-
-using std::string;
-
-#include "../util/basics.hpp"
-#include "../util/endian.hpp"
-#include "../files/files.hpp"
-#include "../render/enabler.hpp"
-#include "../files/find_files.hpp"
-
-inline void CHECK_ERR(int err, const char* msg)
-{
-  if (err != Z_OK)
-  {
+inline void CHECK_ERR(int err, const char* msg){
+  if (err != Z_OK){
     MessageBox(NULL, "One of the compressed files on disk has errors in it.  Restore from backup if you are able.", 0, 0);
     exit(1);
   }
 }
-
-using std::fstream;
 
 char file_compressorst::def_ibuff[FILE_IN_BUFF];
 char file_compressorst::def_obuff[FILE_OUT_BUFF];
@@ -94,7 +81,7 @@ char file_compressorst::save_posnull_pointer(void *ptr)
   }
 }
 
-char file_compressorst::write_file(string &str)
+char file_compressorst::write_file(std::string &str)
 {
   int16_t ln=(int16_t)str.length();
   if(ln>=10000||ln<0)ln=0;
@@ -108,7 +95,7 @@ char file_compressorst::write_file(string &str)
   return 1;
 }
 
-char file_compressorst::read_file(string &str)
+char file_compressorst::read_file(std::string &str)
 {
   str.erase();
 
@@ -326,7 +313,7 @@ void file_compressorst::close_file()
   }
 }
 
-char file_compressorst::open_file(const string &filename,char existing_only)
+char file_compressorst::open_file(const std::string &filename, char existing_only)
 {
   if(filename.empty())return 0;
 
@@ -354,9 +341,9 @@ char file_compressorst::open_file(const string &filename,char existing_only)
   f.clear();
 
   if(existing_only)
-    f.open(filename.c_str(), fstream::in | fstream::out | fstream::binary);
+    f.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::binary);
   else
-    f.open(filename.c_str(), fstream::in | fstream::out | fstream::binary | fstream::trunc);
+    f.open(filename.c_str(), std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
 
   if (f.is_open())return 1;
   else return 0;
