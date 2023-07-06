@@ -44,7 +44,7 @@ all:
     g_src/render/resize++.cpp \
     g_src/text/stringvec.cpp \
     g_src/text/textlines.cpp \
-    g_src/texture/textures.cpp \
+    g_src/graphics/textures.cpp \
     g_src/render/ViewBase.cpp \
     g_src/platform/win32_compat.cpp \
     glue/glue.cpp \

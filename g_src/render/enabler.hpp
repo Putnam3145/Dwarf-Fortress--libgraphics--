@@ -46,7 +46,7 @@ using std::queue;
 #include "../render/enabler_input.hpp"
 #include "../util/mail.hpp"
 
-#include "../texture/textures.hpp"
+#include "../graphics/textures.hpp"
 
 #define ENABLER
 

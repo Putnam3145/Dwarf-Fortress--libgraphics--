@@ -55,7 +55,7 @@ typedef int32_t Ordinal;
 
 #include "../util/g_basics.hpp"
 
-#include "../texture/texture_handler.hpp"
+#include "../graphics/texture_handler.hpp"
 
 #include "../render/graphics.hpp"
 

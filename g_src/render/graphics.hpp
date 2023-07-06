@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "../texture/textures.hpp"
+#include "../graphics/textures.hpp"
 #include "../util/g_basics.hpp"
 #include "../platform/platform.hpp"
 #include "../util/basics.hpp"

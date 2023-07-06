@@ -28,7 +28,7 @@ typedef int32_t Ordinal;
 #include "../text/textlines.hpp"
 #include "../util/basics.hpp"
 #include "../util/g_basics.hpp"
-#include "../texture/texture_handler.hpp"
+#include "../graphics/texture_handler.hpp"
 #include "../render/graphics.hpp"
 #include "../render/init.hpp"
 #include "../render/keybindings.hpp"
