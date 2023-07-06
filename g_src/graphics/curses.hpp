@@ -1,5 +1,5 @@
-#ifndef DF_CURSES_H
-#define DF_CURSES_H
+#ifndef DF_GSRC_GRAPHICS_CURSES_HPP
+#define DF_GSRC_GRAPHICS_CURSES_HPP
 
 extern "C" {
 #include "GL/glew.h"
@@ -25,4 +25,4 @@ extern "C" {
 #endif
 
 
-#endif
+#endif // DF_GSRC_GRAPHICS_CURSES_HPP

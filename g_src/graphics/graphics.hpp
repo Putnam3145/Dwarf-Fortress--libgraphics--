@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef DF_GSRC_GRAPHICS_HPP
+#define DF_GSRC_GRAPHICS_HPP
 
 #include "../platform/platform.hpp"
 #include "../platform/types.hpp"
@@ -8071,4 +8071,4 @@ public:
   }
 };
 
-#endif
+#endif // DF_GSRC_GRAPHICS_HPP

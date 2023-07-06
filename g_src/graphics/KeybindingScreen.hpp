@@ -1,5 +1,5 @@
-#ifndef KEYBINDINGSCREEN_H
-#define KEYBINDINGSCREEN_H
+#ifndef DF_GSRC_GRAPHICS_KEYBINDINGSCREEN_HPP
+#define DF_GSRC_GRAPHICS_KEYBINDINGSCREEN_HPP
 
 #include "../graphics/interface.hpp"
 #include "../graphics/ViewBase.hpp"
@@ -63,4 +63,4 @@ public:
   virtual void feed(std::set<InterfaceKey> &events);
 };
 
-#endif
+#endif // DF_GSRC_GRAPHICS_KEYBINDINGSCREEN_HPP

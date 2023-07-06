@@ -1,5 +1,5 @@
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef DF_GSRC_GRAPHICS_INTERFACE_HPP
+#define DF_GSRC_GRAPHICS_INTERFACE_HPP
 
 //#define CURSES_MOVIES
 
@@ -155,4 +155,4 @@ void drawborder(const char *str,char style=0,const char *colorstr=NULL);
 
 extern interfacest gview;
 
-#endif
+#endif // DF_GSRC_GRAPHICS_INTERFACE_HPP

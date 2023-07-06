@@ -1,5 +1,5 @@
-#ifndef ENABLER_INPUT_H
-#define ENABLER_INPUT_H
+#ifndef DF_GSRC_GRAPHICS_ENABLER_INPUT_HPP
+#define DF_GSRC_GRAPHICS_ENABLER_INPUT_HPP
 
 #ifdef __APPLE__
 #define _XOPEN_SOURCE_EXTENDED
@@ -138,5 +138,4 @@ class enabler_inputst {
   void remove_key(InterfaceKey key, EventMatch ev); // Removes a particular matcher from the keymap.
 };
 
-
-#endif
+#endif // DF_GSRC_GRAPHICS_ENABLER_INPUT_HPP

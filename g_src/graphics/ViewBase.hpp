@@ -1,5 +1,5 @@
-#ifndef VIEWBASE_H
-#define VIEWBASE_H
+#ifndef DF_GSRC_GRAPHICS_VIEWBASE_HPP
+#define DF_GSRC_GRAPHICS_VIEWBASE_HPP
 
 #include <set>
 #include <map>
@@ -574,4 +574,4 @@ struct scrollbarst
           virtual ~viewscreenst(){}
         };
 
-#endif
+#endif // DF_GSRC_GRAPHICS_VIEWBASE_HPP

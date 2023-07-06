@@ -32,4 +32,4 @@ extern int glerrorcount;
 # define deputs(str)
 #endif
 
-#endif
+#endif // DF_GSRC_GRAPHICS_DEFINITIONS

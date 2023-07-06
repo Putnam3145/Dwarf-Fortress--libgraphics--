@@ -1,9 +1,9 @@
+#ifndef DF_GSRC_GRAPHICS_ENABLER_HPP
+#define DF_GSRC_GRAPHICS_ENABLER_HPP
+
 //some of this stuff is based on public domain code from nehe or opengl books over the years
 //additions and modifications Copyright (c) 2008, Tarn Adams
 //All rights reserved.  See game.cpp or license.txt for more information.
-
-#ifndef ENABLER_H
-#define ENABLER_H
 
 #include "../platform/platform.hpp"
 
@@ -741,4 +741,4 @@ void endroutine();
 
 extern enablerst enabler;
 
-#endif //ENABLER_H
+#endif // DF_GSRC_GRAPHICS_ENABLER_HPP

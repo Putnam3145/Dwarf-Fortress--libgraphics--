@@ -1,5 +1,3 @@
-//#include "../release_type.h"
-
 #include "../platform/platform.hpp"
 #include <string.h>
 #include <math.h>

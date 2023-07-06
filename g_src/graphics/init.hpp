@@ -1,5 +1,5 @@
-#ifndef INIT_H
-#define INIT_H
+#ifndef DF_GSRC_GRAPHICS_INIT_HPP
+#define DF_GSRC_GRAPHICS_INIT_HPP
 
 #include "../graphics/enabler.hpp"
 
@@ -339,4 +339,4 @@ public:
 
 extern initst init;
 
-#endif
+#endif // DF_GSRC_GRAPHICS_INIT_HPP

@@ -1,5 +1,5 @@
-#ifndef KEYBINDINGS_H
-#define KEYBINDINGS_H
+#ifndef DF_GSRC_GRAPHICS_KEYBINDINGS_HPP
+#define DF_GSRC_GRAPHICS_KEYBINDINGS_HPP
 
 #include <map>
 #include <set>
@@ -1799,4 +1799,4 @@ extern std::set<int> unicodeCapitals;
 
 void keybinding_init();
 
-#endif
+#endif // DF_GSRC_GRAPHICS_KEYBINDINGSCREEN_HPP
