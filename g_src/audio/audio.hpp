@@ -1,36 +1,36 @@
+#ifndef DF_GSRC_AUDIO_HPP
+#define DF_GSRC_AUDIO_HPP
+
 //copyright (c) 2006 by tarn adams
-
-// yeah sorry i just like the ergonomics
-#include <array>
-
-#include <string>
-
-#include <cstddef>
-
-#include "../util/svector.hpp"
-
-#include <unordered_map>
-
-#include <future>
-
-#include <variant>
+//yeah sorry i just like the ergonomics
 
 #include "../platform/platform.hpp"
+#include "../util/definitions.hpp"
+#include "../util/svector.hpp"
+
+#include <array>
+#include <string>
+#include <unordered_map>
+#include <future>
+#include <variant>
 
 #ifdef WIN32
 #include "../../fmod/inc/fmod.hpp"
 #include "../../fmod/inc/fmod_common.h"
 #endif
 
+// Audio Type Declarations
+
+typedef int32_t MusicEvent;
+typedef int32_t MusicContext;
+typedef int32_t Sound;
+
+// Audio Definitions
+
 #define SOUND_CHANNELNUM 32
-
-
 
 #define MAXSONGNUM 1000
 #define MAXSOUNDNUM 1000
-
-#ifndef MUSICSOUND
-#define MUSICSOUND
 
 #define MUSICSOUND_FLAG_JUST_ADDED_EVENT BIT1
 #define MUSICSOUND_FLAG_WAS_PLAYING BIT2
@@ -40,10 +40,8 @@
 #define MUSICSOUND_FLAG_POST_START_AMBIENCE_FADE BIT6
 #define MUSICSOUND_FLAG_FADE_CARD_OUT BIT7
 
-using std::string;
+enum MusicEventType {
 
-enum MusicEventType
-{
   MUSIC_EVENT_FIRST_CAVERN_OPENED,
   MUSIC_EVENT_DEATH_SPIRAL,
   MUSIC_EVENT_MEGABEAST_ATTACK,
@@ -55,11 +53,11 @@ enum MusicEventType
   MUSIC_EVENT_LOST_FORT,
   MUSIC_EVENTNUM,
   MUSIC_EVENT_NONE=-1
-};
-typedef int32_t MusicEvent;
 
-enum MusicContextType
-{
+};
+
+enum MusicContextType {
+
   MUSIC_CONTEXT_ANY,
   MUSIC_CONTEXT_MAIN,
   MUSIC_CONTEXT_CAVERNS_OPENED,
@@ -71,11 +69,11 @@ enum MusicContextType
   MUSIC_CONTEXT_WINTER,
   MUSIC_CONTEXTNUM,
   MUSIC_CONTEXT_NONE=-1
-};
-typedef int32_t MusicContext;
 
-enum Song
-{
+};
+
+enum Song {
+
   SONG_DWARF_FORTRESS,
   SONG_KOGANUSAN,
   SONG_EXPANSIVE_CAVERN,
@@ -184,10 +182,11 @@ enum Song
   SONG_AMBIENCE_NEUTRAL_CAVERN,
   SONGNUM,
   SONG_NONE=-1
+
 };
 
-enum SoundType
-{
+enum SoundType {
+
   SOUND_ADAMANTINE,
   SOUND_AMBUSH,
   SOUND_ARTIFACT_CREATED,
@@ -209,8 +208,8 @@ enum SoundType
   SOUND_GIANT_STEP_3,
   SOUNDNUM,
   SOUND_NONE=-1
+
 };
-typedef int32_t Sound;
 
 // human hearing is exponential, so this is too. 25 db range from 1 to 255, so ~0.1 decibels per
 
@@ -519,8 +518,8 @@ public:
     void playsound(int s,int32_t vol=255,bool use_media_sound_volume=true);
     bool initsound();
     void deinitsound();
-    bool set_song(string &filename,int slot,bool loops);
-    bool set_sound(string &filename,int slot);
+    bool set_song(std::string &filename,int slot,bool loops);
+    bool set_sound(std::string &filename,int slot);
     void set_master_volume(int32_t newvol);
     void play_ambience(int32_t new_ambience);
     int32_t get_song_playing();
@@ -553,11 +552,11 @@ public:
 
     int get_custom_sound(std::string &token);
 
-    void set_custom_song(std::string &token,std::string &filename,string &title,string &author, bool loops);
+    void set_custom_song(std::string &token, std::string &filename, std::string &title, std::string &author, bool loops);
 
-    void set_custom_sound(std::string &token,std::string &filename);
+    void set_custom_sound(std::string &token, std::string &filename);
 
-    void prepare_sounds(const string &src_dir);
+    void prepare_sounds(const std::string &src_dir);
 
   private:
 
@@ -574,4 +573,5 @@ public:
 
     char on;
   };
-#endif
+
+#endif // DF_GSRC_AUDIO_HPP

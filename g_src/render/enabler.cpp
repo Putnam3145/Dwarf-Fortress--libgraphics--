@@ -6,7 +6,8 @@
 #include "../util/logger.hpp"
 
 #include "../render/init.hpp"
-#include "../audio/music_and_sound_g.hpp"
+#include "../audio/audio.hpp"
+
 #include "../hooks/dfhooks.hpp"
 #ifndef NO_FMOD
 extern musicsoundst musicsound;

@@ -1,3 +1,5 @@
+#include "audio.hpp"
+
 #include <string.h>
 #include <math.h>
 #include <iosfwd>
@@ -10,10 +12,6 @@
 #include <sstream>
 #include <cstdlib>
 #include <fstream>
-
-#include "../audio/music_and_sound_g.hpp"
-
-#include "../util/definitions.hpp"
 
 #include "../../fmod/inc/fmod.hpp"
 #include "../../fmod/inc/fmod_common.h"

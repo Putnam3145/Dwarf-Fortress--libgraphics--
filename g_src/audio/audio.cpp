@@ -1,57 +1,13 @@
-//copyright (c) 2006 by tarn adams
+#include "audio.hpp"
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <string.h>
-#include <math.h>
-#include <iosfwd>
-#include <iostream>
-#include <ios>
-#include <streambuf>
-#include <istream>
-#include <ostream>
-#include <iomanip>
-#include <sstream>
-#include <cstdlib>
-#include <fstream>
-
-#include "../util/svector.hpp"
-
-#ifndef INTEGER_TYPES
-
-#define INTEGER_TYPES
-
-#ifdef WIN32
-typedef signed char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long long int64_t;
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long uint64_t;
-#endif
-
-typedef int32_t VIndex;
-typedef int32_t Ordinal;
-
-#endif
-
-#include "../util/random.hpp"
-
-using std::string;
-
-#include "../files/files.hpp"
-
+#include "../platform/platform.hpp"
+#include "../platform/types.hpp"
 #include "../text/transform.hpp"
-
-#include "../render/enabler.hpp"
 
 #include "../render/init.hpp"
 
-#include "../audio/music_and_sound_g.hpp"
-#include "../audio/music_and_sound_v.hpp"
+extern initst init;
+musicsoundst musicsound;
 
 //MUSIC AND SOUND FUNCTIONS
 

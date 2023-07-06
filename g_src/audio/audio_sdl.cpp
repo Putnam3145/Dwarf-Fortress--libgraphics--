@@ -1,8 +1,8 @@
+#include "audio.hpp"
+
 #include <cstdint>
 
 #include "../util/definitions.hpp"
-
-#include "../audio/music_and_sound_g.hpp"
 
 #include <SDL2/SDL_mixer.h>
 

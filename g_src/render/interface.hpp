@@ -10,7 +10,7 @@ using std::string;
 #include "../render/ViewBase.hpp"
 #include "../render/keybindings.hpp"
 #include "../render/enabler.hpp"
-#include "../audio/music_and_sound_g.hpp"
+#include "../audio/audio.hpp"
 
 #ifdef CURSES_MOVIES
 struct cursesmovie_headerst

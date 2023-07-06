@@ -59,7 +59,7 @@ typedef int32_t Ordinal;
 
 #include "../render/graphics.hpp"
 
-#include "../audio/music_and_sound_g.hpp"
+#include "../audio/audio.hpp"
 
 #include "../render/init.hpp"
 

@@ -31,7 +31,7 @@ using std::string;
 
 #include "../util/g_basics.hpp"
 
-#include "../audio/music_and_sound_g.hpp"
+#include "../audio/audio.hpp"
 
 #include "../render/graphics.hpp"
 
