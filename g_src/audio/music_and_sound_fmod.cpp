@@ -13,7 +13,7 @@
 
 #include "../audio/music_and_sound_g.hpp"
 
-#include "../util/basics.hpp"
+#include "../util/definitions.hpp"
 
 #include "../../fmod/inc/fmod.hpp"
 #include "../../fmod/inc/fmod_common.h"

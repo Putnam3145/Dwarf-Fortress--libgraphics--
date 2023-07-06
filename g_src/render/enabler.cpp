@@ -3,6 +3,8 @@
 #include "../platform/platform.hpp"
 #include "../render/enabler.hpp"
 #include "../util/random.hpp"
+#include "../util/logger.hpp"
+
 #include "../render/init.hpp"
 #include "../audio/music_and_sound_g.hpp"
 #include "../hooks/dfhooks.hpp"

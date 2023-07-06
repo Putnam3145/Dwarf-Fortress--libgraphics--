@@ -3,7 +3,7 @@
 #include "../platform/platform.hpp"
 #include "../platform/types.hpp"
 
-#include "../util/basics.hpp"
+#include "../text/transform.hpp"
 
 void command_linest::init(const std::string &str){
 

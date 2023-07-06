@@ -69,7 +69,7 @@ void viewscreenst::set_port_flags() {
 
 // other stuff
 
-#include "../g_src/util/basics.hpp"
+#include "../g_src/util/definitions.hpp"
 GameMode gamemode;
 GameType gametype;
 int32_t movie_version;

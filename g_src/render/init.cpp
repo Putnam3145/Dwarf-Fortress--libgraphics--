@@ -26,7 +26,7 @@ using std::string;
 
 #include "../text/textlines.hpp"
 
-#include "../util/basics.hpp"
+#include "../text/transform.hpp"
 
 #include "../util/g_basics.hpp"
 

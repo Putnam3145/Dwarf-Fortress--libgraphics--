@@ -1,189 +1,56 @@
-#include "../platform/platform.hpp"
-#include <string.h>
-#include <math.h>
-#include <iosfwd>
-#include <iostream>
-#include <ios>
-#include <streambuf>
-#include <syncstream>
-#include <istream>
-#include <ostream>
-#include <iomanip>
+#include "transform.hpp"
+
+#include <cstring>
 #include <sstream>
-#include <cstdlib>
-#include <fstream>
-#include <zlib.h>
-#include "../_external/zlib/contrib/minizip/unzip.h"
 
-#include "../util/svector.hpp"
-using std::string;
-using std::endl;
-using std::ofstream;
-
-#ifndef INTEGER_TYPES
-
-#define INTEGER_TYPES
-
-#ifdef WIN32
-typedef signed char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long long int64_t;
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long long uint64_t;
-#endif
-
-typedef int32_t VIndex;
-typedef int32_t Ordinal;
-
-#endif
-
-//#include "ttf_manager.hpp"
-#include "../render/init.hpp"
-#include "../util/basics.hpp"
-
-//#define FAST_ERRORLOG
-
-extern thread_local string errorlog_prefix;
-
-// opening/closing these too often seems to cause crashes on linux--std::osyncstream makes sure they can be used between threads, too
-static std::ofstream error_file("errorlog.txt",std::ios::out|std::ios::app);
-
-static std::ofstream gamelog_file("gamelog.txt",std::ios::out|std::ios::app);
-
-void emit_logs()
-{
-  error_file.close();
-  gamelog_file.close();
-}
-
-#ifdef FAST_ERRORLOG
-std::ofstream error_feed;
-bool error_opened=false;
-
-void errorlog_string(const string &str)
-{
-  if(str.empty())return;
-
-  //SAVE AN ERROR TO THE LOG FILE
-  if(!error_opened)
-  {
-    error_feed.open("errorlog.txt", std::ios::out | std::ios::app);
-    error_opened=true;
-  }
-  if(error_feed.is_open())
-  {
-    if(!errorlog_prefix.empty())
-    {
-      error_feed<<errorlog_prefix.c_str()<<std::endl;
-      errorlog_prefix.clear();
-    }
-    error_feed<<str.c_str()<<std::endl;
-  }
-  //fseed.close();
-}
-#else
-
-void errorlog_string(const string &str)
-{
-  if(str.empty())return;
-  if (!error_file.is_open()) error_file.open("errorlog.txt",std::ios::out|std::ios::app);
-  //SAVE AN ERROR TO THE LOG FILE
-  std::osyncstream fseed(error_file);
-  if(!errorlog_prefix.empty())
-  {
-    fseed<<errorlog_prefix.c_str()<<std::endl;
-    errorlog_prefix.clear();
-  }
-  fseed<<str.c_str()<<std::endl;
-}
-#endif
-
-void gamelog_string(const string &str)
-{
-  if(str.empty())return;
-
-  if(!gamelog_file.is_open()) gamelog_file.open("gamelog.txt",std::ios::out|std::ios::app);
-
-  std::osyncstream fseed(gamelog_file);
-
-  fseed<<str.c_str()<<std::endl;
-}
-
-void errorlog_string(const char *ptr)
-{
-  if(ptr==NULL)return;
-
-  //SAVE AN ERROR TO THE LOG FILE
-  std::osyncstream fseed(error_file);
-  if(!errorlog_prefix.empty())
-  {
-    fseed<<errorlog_prefix.c_str()<<std::endl;
-    errorlog_prefix.clear();
-  }
-  fseed<<ptr<<std::endl;
-}
-
-int32_t convert_string_to_long(const string &str)
-{
+int32_t convert_string_to_long(const std::string &str){
   return atoi(str.c_str());
 }
 
-uint32_t convert_string_to_ulong(const string &str)
-{
+uint32_t convert_string_to_ulong(const std::string &str){
   return strtoul(str.c_str(),NULL,0);
 }
 
-uint64_t convert_string_to_ulong64(const string &str)
-{
+uint64_t convert_string_to_ulong64(const std::string &str){
   return strtoull(str.c_str(),NULL,0);
 }
 
-void add_long_to_string(int32_t n,string &str)
-{
-  string str2;
+void add_long_to_string(int32_t n, std::string &str){
+  std::string str2;
   convert_long_to_string(n,str2);
   str+=str2;
 }
 
-void add_ulong64_to_string(uint64_t n,string &str)
-{
-  string str2;
+void add_ulong64_to_string(uint64_t n, std::string &str){
+  std::string str2;
   convert_ulong64_to_string(n,str2);
   str+=str2;
 }
 
-void convert_long_to_string(int32_t n,string &str)
-{
+void convert_long_to_string(int32_t n, std::string &str){
   std::ostringstream o;
   o << n;
   str = o.str();
 }
 
-void convert_ulong_to_string(uint32_t n,string &str)
-{
+void convert_ulong_to_string(uint32_t n, std::string &str){
   std::ostringstream o;
   o << n;
   str = o.str();
 }
 
-void convert_ulong64_to_string(uint64_t n,string &str)
-{
+void convert_ulong64_to_string(uint64_t n, std::string &str){
   std::ostringstream o;
   o << n;
   str = o.str();
 }
 
-char grab_variable_token(string &str,string &token,char sec_comp,int32_t &pos,int32_t i_pos)
-{
+char grab_variable_token(std::string &str, std::string &token,char sec_comp,int32_t &pos,int32_t i_pos){
+
   token.erase();
 
-  for(pos=i_pos;pos<str.length();pos++)
-  {
-    if((str[pos]=='['&&pos+1<str.length())||sec_comp)
-    {
+  for(pos=i_pos;pos<str.length();pos++){
+    if((str[pos]=='['&&pos+1<str.length())||sec_comp){
       if(str[pos]=='['&&!sec_comp)pos++;
       grab_token_string_pos(token,str,pos,':');
       pos--;
@@ -195,39 +62,38 @@ char grab_variable_token(string &str,string &token,char sec_comp,int32_t &pos,in
   return 0;
 }
 
-bool grab_token_expression(string &dest,string &source,int32_t &pos,char compc)
-{
+bool grab_token_expression(std::string &dest,std::string &source,int32_t &pos,char compc){
+
   dest.erase();
   dest+="[";
 
-  string token1;
-  while(grab_token_string(token1,source,pos))
-  {
+  std::string token1;
+  while(grab_token_string(token1,source,pos)){
+
     if(dest.length()>1)dest+=":";
     dest+=token1;
 
-    if(pos<source.length())
-    {
+    if(pos<source.length()){
       if(source[pos]==']')break;//grab_token_string CAN'T HANDLE THESE
     }
+
   }
   dest+="]";
 
   return (dest.length()>2);
 }
 
-bool grab_token_list_as_string(string &dest,string &source,int32_t &pos,char compc)
-{
+bool grab_token_list_as_string(std::string &dest,std::string &source,int32_t &pos,char compc){
+
   dest.erase();
 
-  string token1;
-  while(grab_token_string(token1,source,pos))
-  {
+  std::string token1;
+  while(grab_token_string(token1,source,pos)){
+
     if(dest.length()>0)dest+=":";
     dest+=token1;
 
-    if(pos<source.length())
-    {
+    if(pos<source.length()){
       if(source[pos]==']')break;//grab_token_string CAN'T HANDLE THESE
     }
   }
@@ -235,8 +101,8 @@ bool grab_token_list_as_string(string &dest,string &source,int32_t &pos,char com
   return (dest.length()>0);
 }
 
-bool grab_token_string(string &dest,string &source,int32_t &pos,char compc)
-{
+bool grab_token_string(std::string &dest,std::string &source,int32_t &pos,char compc){
+
   dest.erase();
   if(source.length()==0)return false;
 
@@ -246,8 +112,8 @@ bool grab_token_string(string &dest,string &source,int32_t &pos,char compc)
   //GO UNTIL YOU HIT A compc, ], or the end
   auto s=source.begin(),e=source.end();
   s+=pos;
-  for(;s<e;++s)
-  {
+  for(;s<e;++s){
+
     if((*s)==compc||(*s)==']')break;
     dest+=(*s);
     pos++;
@@ -255,8 +121,8 @@ bool grab_token_string(string &dest,string &source,int32_t &pos,char compc)
   return (dest.length()>0);
 }
 
-bool grab_token_string(string &dest,string &source,char compc)
-{
+bool grab_token_string(std::string &dest,std::string &source,char compc){
+
   dest.erase();
   if(source.length()==0)return false;
 
@@ -270,8 +136,8 @@ bool grab_token_string(string &dest,string &source,char compc)
   return (dest.length()>0);
 }
 
-bool grab_token_string_pos(string &dest,string &source,int32_t pos,char compc)
-{
+bool grab_token_string_pos(std::string &dest,std::string &source,int32_t pos,char compc){
+
   dest.erase();
   if(source.length()==0)return false;
   if(pos>source.length())return false;
@@ -279,59 +145,56 @@ bool grab_token_string_pos(string &dest,string &source,int32_t pos,char compc)
   //GO UNTIL YOU HIT A :, ], or the end
   auto s=source.begin(),e=source.end();
   s+=pos;
-  for(;s<e;++s)
-  {
-    if((*s)==compc||(*s)==']')break;
+  for(;s<e;++s){
+    if((*s)==compc||(*s)==']')
+      break;
     dest+=(*s);
   }
   return (dest.length()>0);
 }
 
-bool grab_token_string(string &dest,const char *source,char compc)
-{
+bool grab_token_string(std::string &dest,const char *source,char compc){
+
   dest.erase();
   int32_t sz=(int32_t)strlen(source);
   if(sz==0)return false;
 
   //GO UNTIL YOU HIT A :, ], or the end
   int32_t s;
-  for(s=0;s<sz;s++)
-  {
-    if(source[s]==compc||source[s]==']')break;
+  for(s=0;s<sz;s++){
+    if(source[s]==compc||source[s]==']')
+      break;
     dest+=source[s];
   }
   return (dest.length()>0);
 }
 
 
-void replace_token_string(string &token,string &str,int32_t pos,char compc,string &nw,char repc)
-{
-  string rep;
+void replace_token_string(std::string &token,std::string &str,int32_t pos,char compc,std::string &nw,char repc){
+
+  std::string rep;
   if(repc!=0)rep=repc;
   rep+=token;
   if(compc!=0)rep+=compc;
 
-  string::size_type wpos;
+  std::string::size_type wpos;
 
-  if ((wpos = str.find(rep)) != string::npos)
-  {
+  if ((wpos = str.find(rep)) != std::string::npos){
     str.replace(wpos,rep.size(),nw);
   }
 }
 
-void simplify_string(string &str)
-{
+void simplify_string(std::string &str){
+
   int32_t s;
-  for(s=0;s<str.length();s++)
-  {
+  for(s=0;s<str.length();s++){
     //CAPITALIZE
-    if(str[s]>='A'&&str[s]<='Z')
-    {
+    if(str[s]>='A'&&str[s]<='Z'){
       str[s]-='A';
       str[s]+='a';
     }
-    switch(str[s])
-    {
+
+    switch(str[s]){
     case (char)129:
     case (char)150:
     case (char)151:
@@ -385,11 +248,10 @@ void simplify_string(string &str)
   }
 }
 
-void lower_case_string(string &str)
-{
+void lower_case_string(std::string &str){
+
   int32_t s;
-  for(s=0;s<str.length();s++)
-  {
+  for(s=0;s<str.length();s++){
     //CAPITALIZE
     if(str[s]>='A'&&str[s]<='Z')
     {
@@ -410,39 +272,38 @@ void lower_case_string(string &str)
   }
 }
 
-void upper_case_string(string &str)
-{
+void upper_case_string(std::string &str){
+
   int32_t s;
-  for(s=0;s<str.length();s++)
-  {
+  for(s=0;s<str.length();s++){
+
     //CAPITALIZE
-    if(str[s]>='a'&&str[s]<='z')
-    {
+    if(str[s]>='a'&&str[s]<='z'){
       str[s]-='a';
       str[s]+='A';
     }
-    switch(str[s])
-    {
-    case (char)129:str[s]=(char)154;break;
-    case (char)164:str[s]=(char)165;break;
-    case (char)132:str[s]=(char)142;break;
-    case (char)134:str[s]=(char)143;break;
-    case (char)130:str[s]=(char)144;break;
-    case (char)148:str[s]=(char)153;break;
-    case (char)135:str[s]=(char)128;break;
-    case (char)145:str[s]=(char)146;break;
+
+    switch(str[s]){
+      case (char)129:str[s]=(char)154;break;
+      case (char)164:str[s]=(char)165;break;
+      case (char)132:str[s]=(char)142;break;
+      case (char)134:str[s]=(char)143;break;
+      case (char)130:str[s]=(char)144;break;
+      case (char)148:str[s]=(char)153;break;
+      case (char)135:str[s]=(char)128;break;
+      case (char)145:str[s]=(char)146;break;
     }
   }
 }
 
-void capitalize_string_words(string &str)
-{
+void capitalize_string_words(std::string &str){
+
   bool starting=true;
   int32_t bracket_count=0;
   char conf;
   int32_t s;
-  for(s=0;s<str.length();s++)
-  {
+  for(s=0;s<str.length();s++){
+
     if(str[s]=='['){++bracket_count;continue;}
     if(str[s]==']'){--bracket_count;continue;}
     if(bracket_count>0)continue;
@@ -486,14 +347,14 @@ void capitalize_string_words(string &str)
   }
 }
 
-void capitalize_string_first_word(string &str)
-{
+void capitalize_string_first_word(std::string &str){
+
   bool starting=true;
   int32_t bracket_count=0;
   char conf;
   int32_t s;
-  for(s=0;s<str.length();s++)
-  {
+  for(s=0;s<str.length();s++){
+
     conf=0;
     if(str[s]=='['){++bracket_count;continue;}
     if(str[s]==']'){--bracket_count;continue;}
@@ -539,7 +400,7 @@ void capitalize_string_first_word(string &str)
   }
 }
 
-static void abbreviate_string_helper(string &str, int len) {
+static void abbreviate_string_helper(std::string &str, int len) {
  if(str.length()>=2)
  {
   if((str[0]=='A'||str[0]=='a')&&
@@ -607,8 +468,8 @@ if(str.length()>len)str.resize(len);
 }
 
 
-void abbreviate_string(string &str, int32_t len)
-{
+void abbreviate_string(std::string &str, int32_t len){
+
   /*
   if (ttf_manager.ttf_active()) {
     // We'll need to use TTF-aware text shrinking.
@@ -622,8 +483,8 @@ void abbreviate_string(string &str, int32_t len)
 
 
 
-void get_number(int32_t number,string &str)
-{
+void get_number(int32_t number,std::string &str){
+  
   str.erase();
 
   if(number<0)
@@ -657,7 +518,7 @@ void get_number(int32_t number,string &str)
     {
       if(number>=1000000000)
       {
-        string nm;
+        std::string nm;
         get_number(number/1000000000,nm);
         str+=nm;
         str+=" billion";
@@ -671,7 +532,7 @@ void get_number(int32_t number,string &str)
       }
       if(number>=1000000&&number<1000000000)
       {
-        string nm;
+        std::string nm;
         get_number(number/1000000,nm);
         str+=nm;
         str+=" million";
@@ -685,7 +546,7 @@ void get_number(int32_t number,string &str)
       }
       if(number>=1000&&number<1000000)
       {
-        string nm;
+        std::string nm;
         get_number(number/1000,nm);
         str+=nm;
         str+=" thousand";
@@ -699,7 +560,7 @@ void get_number(int32_t number,string &str)
       }
       if(number>=100&&number<1000)
       {
-        string nm;
+        std::string nm;
         get_number(number/100,nm);
         str+=nm;
         str+=" hundred";
@@ -727,7 +588,7 @@ void get_number(int32_t number,string &str)
         if(number%10!=0)
         {
           str+="-";
-          string nm;
+          std::string nm;
           get_number(number%10,nm);
           str+=nm;
         }
@@ -739,7 +600,7 @@ void get_number(int32_t number,string &str)
   }
 }
 
-void get_ordinal(int32_t number,string &str,bool shorten)
+void get_ordinal(int32_t number, std::string &str,bool shorten)
 {
   str.erase();
 
@@ -823,36 +684,3 @@ void get_ordinal(int32_t number,string &str,bool shorten)
     break;
   }
 }
-
-// Map DF's CP437 to Unicode
-// see: http://dwarffortresswiki.net/index.php/Character_table
-int charmap[256] = {
-  ' ', 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
-  0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
-  0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25AC, 0x21A8,
-  0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
-  /* 0x20 */
-  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,
-  0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,
-  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,
-  0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x5c,0x5d,0x5e,0x5f,
-  0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x6b,0x6c,0x6d,0x6e,0x6f,
-  0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x7b,0x7c,0x7d,0x7e,0x2302,
-  /* 0x80 */
-  0xC7, 0xFC, 0xE9, 0xE2, 0xE4, 0xE0, 0xE5, 0xE7,
-  0xEA, 0xEB, 0xE8, 0xEF, 0xEE, 0xEC, 0xC4, 0xC5,
-  0xC9, 0xE6, 0xC6, 0xF4, 0xF6, 0xF2, 0xFB, 0xF9,
-  0xFF, 0xD6, 0xDC, 0xA2, 0xA3, 0xA5, 0x20A7, 0x192,
-  0xE1, 0xED, 0xF3, 0xFA, 0xF1, 0xD1, 0xAA, 0xBA,
-  0xBF, 0x2310, 0xAC, 0xBD, 0xBC, 0xA1, 0xAB, 0xBB,
-  0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-  0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
-  0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
-  0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
-  0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
-  0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
-  0x3B1, 0xDF/*yay*/, 0x393, 0x3C0, 0x3A3, 0x3C3, 0xB5, 0x3C4,
-  0x3A6, 0x398, 0x3A9, 0x3B4, 0x221E, 0x3C6, 0x3B5, 0x2229,
-  0x2261, 0xB1, 0x2265, 0x2264, 0x2320, 0x2321, 0xF7, 0x2248,
-  0xB0, 0x2219, 0xB7, 0x221A, 0x207F, 0xB2, 0x25A0, 0xA0
-};

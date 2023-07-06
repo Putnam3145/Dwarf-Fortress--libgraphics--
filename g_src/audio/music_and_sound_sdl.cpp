@@ -1,6 +1,6 @@
 #include <cstdint>
 
-#include "../util/basics.hpp"
+#include "../util/definitions.hpp"
 
 #include "../audio/music_and_sound_g.hpp"
 

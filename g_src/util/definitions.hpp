@@ -1,14 +1,14 @@
 #ifndef BASICS_H
 #define BASICS_H
 
-#ifndef WIN32
-#include <stdint.h>
-#endif
-#include <string>
-using std::string;
+#include "../platform/types.hpp"
+
+extern int charmap[256];
+
+typedef int32_t AnnouncementAlert;
+typedef int16_t Announcement;
 
 #ifndef BITS
-
 #define BITS
 
 #define BIT1 1
@@ -75,50 +75,20 @@ using std::string;
 #define BIT62 2305843009213693952ULL
 #define BIT63 4611686018427387904ULL
 #define BIT64 9223372036854775808ULL
-#endif
 
-void emit_logs();
-void gamelog_string(const string &str);
-void errorlog_string(const string &str);
-void errorlog_string(const char *ptr);
+#endif // BITS
 
-bool grab_token_string(string &dest,string &source,char compc=':');
-bool grab_token_string(string &dest,string &source,int32_t &pos,char compc=':');
-bool grab_token_string_pos(string &dest,string &source,int32_t pos,char compc=':');
-void replace_token_string(string &token,string &str,int32_t pos,char compc,string &nw,char repc);
-bool grab_token_list_as_string(string &dest,string &source,int32_t &pos,char compc=':');
-bool grab_token_expression(string &dest,string &source,int32_t &pos,char compc=':');
-char grab_variable_token(string &str,string &token,char sec_comp,int32_t &pos,int32_t i_pos);
+enum GameMode{
 
-int32_t convert_string_to_long(const string &str);
-uint32_t convert_string_to_ulong(const string &str);
-uint64_t convert_string_to_ulong64(const string &str);
-void add_long_to_string(int32_t n,string &str);
-void add_ulong64_to_string(uint64_t n,string &str);
-void convert_long_to_string(int32_t n,string &str);
-void convert_ulong_to_string(uint32_t n,string &str);
-void convert_ulong64_to_string(uint64_t n,string &str);
-
-void lower_case_string(string &str);
-void upper_case_string(string &str);
-void simplify_string(string &str);
-void capitalize_string_words(string &str);
-void capitalize_string_first_word(string &str);
-void abbreviate_string(string &str,int32_t len);
-
-void get_number(int32_t number,string &str);
-void get_ordinal(int32_t number,string &str,bool shorten);
-
-enum GameMode
-{
   GAMEMODE_DWARF,
   GAMEMODE_ADVENTURE,
   GAMEMODENUM,
   GAMEMODE_NONE
+
 };
 
-enum GameType
-{
+enum GameType{
+
   GAMETYPE_DWARF_MAIN,
   GAMETYPE_ADVENTURE_MAIN,
   GAMETYPE_VIEW_LEGENDS,
@@ -131,10 +101,11 @@ enum GameType
   GAMETYPE_ADVENTURE_WORLD_DEBUG,
   GAMETYPENUM,
   GAMETYPE_NONE
+
 };
 
-enum AnnouncementType
-{
+enum AnnouncementType {
+
   ANNOUNCEMENT_REACHED_PEAK,
   ANNOUNCEMENT_ERA_CHANGE,
   ANNOUNCEMENT_FEATURE_DISCOVERY,
@@ -489,61 +460,57 @@ enum AnnouncementType
   ANNOUNCEMENT_UNUSED_48,
   ANNOUNCEMENT_UNUSED_49,
   ANNOUNCEMENT_UNUSED_50,
-    ANNOUNCEMENTNUM,//no save compat trouble from changing it
-    ANNOUNCEMENT_NONE=-1
-  };
-  typedef int16_t Announcement;
+  ANNOUNCEMENTNUM,//no save compat trouble from changing it
+  ANNOUNCEMENT_NONE=-1
+};
 
-  enum AnnouncementAlertType
-  {
-    ANNOUNCEMENT_ALERT_GENERAL,
-    ANNOUNCEMENT_ALERT_ERA_CHANGE,
-    ANNOUNCEMENT_ALERT_UNDERGROUND,
-    ANNOUNCEMENT_ALERT_MIGRANT,
-    ANNOUNCEMENT_ALERT_MONSTER,
-    ANNOUNCEMENT_ALERT_AMBUSH,
-    ANNOUNCEMENT_ALERT_TRADE,
-    ANNOUNCEMENT_ALERT_NOBLE,
-    ANNOUNCEMENT_ALERT_ANIMAL,
-    ANNOUNCEMENT_ALERT_BIRTH,
-    ANNOUNCEMENT_ALERT_MOOD,
-    ANNOUNCEMENT_ALERT_LABOR_CHANGE,
-    ANNOUNCEMENT_ALERT_MILITARY,
-    ANNOUNCEMENT_ALERT_MARRIAGE,
-    ANNOUNCEMENT_ALERT_BERSERK,
-    ANNOUNCEMENT_ALERT_MARTIAL_TRANCE,
-    ANNOUNCEMENT_ALERT_LOSE_EMOTION,
-    ANNOUNCEMENT_ALERT_STRESS,
-    ANNOUNCEMENT_ALERT_ART_DEFACEMENT,
-    ANNOUNCEMENT_ALERT_MASTERPIECE,
-    ANNOUNCEMENT_ALERT_JOB_FAILED,
-    ANNOUNCEMENT_ALERT_DEATH,
-    ANNOUNCEMENT_ALERT_GHOST,
-    ANNOUNCEMENT_ALERT_UNDEAD_ATTACK,
-    ANNOUNCEMENT_ALERT_WEATHER,
-    ANNOUNCEMENT_ALERT_VERMIN,
-    ANNOUNCEMENT_ALERT_CURIOUS_GUZZLER,
-    ANNOUNCEMENT_ALERT_RESEARCH_BREAKTHROUGH,
-    ANNOUNCEMENT_ALERT_GUEST_ARRIVAL,
-    ANNOUNCEMENT_ALERT_HOLDINGS,
-    ANNOUNCEMENT_ALERT_RUMOR,
-    ANNOUNCEMENT_ALERT_AGREEMENT,
-    ANNOUNCEMENT_ALERT_CRIME,
-    ANNOUNCEMENT_ALERT_DEITY_CURSE,
-    ANNOUNCEMENT_ALERT_COMBAT,
-    ANNOUNCEMENT_ALERT_SPARRING,
-    ANNOUNCEMENT_ALERT_HUNTING,
-    ANNOUNCEMENT_ALERTNUM,
-    ANNOUNCEMENT_ALERT_NONE=-1
-  };
-  typedef int32_t AnnouncementAlert;
+enum AnnouncementAlertType {
 
-  enum justification : unsigned char {
-    justify_left, justify_center, justify_right,
-    justify_cont,
-    not_truetype
-  };
+  ANNOUNCEMENT_ALERT_GENERAL,
+  ANNOUNCEMENT_ALERT_ERA_CHANGE,
+  ANNOUNCEMENT_ALERT_UNDERGROUND,
+  ANNOUNCEMENT_ALERT_MIGRANT,
+  ANNOUNCEMENT_ALERT_MONSTER,
+  ANNOUNCEMENT_ALERT_AMBUSH,
+  ANNOUNCEMENT_ALERT_TRADE,
+  ANNOUNCEMENT_ALERT_NOBLE,
+  ANNOUNCEMENT_ALERT_ANIMAL,
+  ANNOUNCEMENT_ALERT_BIRTH,
+  ANNOUNCEMENT_ALERT_MOOD,
+  ANNOUNCEMENT_ALERT_LABOR_CHANGE,
+  ANNOUNCEMENT_ALERT_MILITARY,
+  ANNOUNCEMENT_ALERT_MARRIAGE,
+  ANNOUNCEMENT_ALERT_BERSERK,
+  ANNOUNCEMENT_ALERT_MARTIAL_TRANCE,
+  ANNOUNCEMENT_ALERT_LOSE_EMOTION,
+  ANNOUNCEMENT_ALERT_STRESS,
+  ANNOUNCEMENT_ALERT_ART_DEFACEMENT,
+  ANNOUNCEMENT_ALERT_MASTERPIECE,
+  ANNOUNCEMENT_ALERT_JOB_FAILED,
+  ANNOUNCEMENT_ALERT_DEATH,
+  ANNOUNCEMENT_ALERT_GHOST,
+  ANNOUNCEMENT_ALERT_UNDEAD_ATTACK,
+  ANNOUNCEMENT_ALERT_WEATHER,
+  ANNOUNCEMENT_ALERT_VERMIN,
+  ANNOUNCEMENT_ALERT_CURIOUS_GUZZLER,
+  ANNOUNCEMENT_ALERT_RESEARCH_BREAKTHROUGH,
+  ANNOUNCEMENT_ALERT_GUEST_ARRIVAL,
+  ANNOUNCEMENT_ALERT_HOLDINGS,
+  ANNOUNCEMENT_ALERT_RUMOR,
+  ANNOUNCEMENT_ALERT_AGREEMENT,
+  ANNOUNCEMENT_ALERT_CRIME,
+  ANNOUNCEMENT_ALERT_DEITY_CURSE,
+  ANNOUNCEMENT_ALERT_COMBAT,
+  ANNOUNCEMENT_ALERT_SPARRING,
+  ANNOUNCEMENT_ALERT_HUNTING,
+  ANNOUNCEMENT_ALERTNUM,
+  ANNOUNCEMENT_ALERT_NONE=-1
+};
 
-  extern int charmap[256];
+enum justification : unsigned char {
+  justify_left, justify_center, justify_right,
+  justify_cont,
+  not_truetype
+};
 
 #endif

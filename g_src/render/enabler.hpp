@@ -40,7 +40,7 @@ using std::queue;
 
 #include "GL/glew.h"
 
-#include "../util/basics.hpp"
+#include "../util/definitions.hpp"
 #include "../util/svector.hpp"
 #include "../files/files.hpp"
 #include "../render/enabler_input.hpp"

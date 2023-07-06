@@ -15,7 +15,7 @@ using std::string;
 
 #include "../util/svector.hpp"
 #include "../files/files.hpp"
-#include "../util/basics.hpp"
+#include "../util/definitions.hpp"
 
 #include "../render/enabler.hpp"
 #include "../render/init.hpp"

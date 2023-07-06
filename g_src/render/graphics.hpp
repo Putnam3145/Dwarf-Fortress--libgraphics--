@@ -4,7 +4,7 @@
 #include "../graphics/textures.hpp"
 #include "../util/g_basics.hpp"
 #include "../platform/platform.hpp"
-#include "../util/basics.hpp"
+#include "../util/definitions.hpp"
 
 #include "GL/glew.h"
 #include <string>
