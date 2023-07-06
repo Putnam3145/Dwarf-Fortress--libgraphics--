@@ -1,91 +1,80 @@
-#ifndef TEXTURE_HANDLER_H
-#define TEXTURE_HANDLER_H
+#ifndef DF_GSRC_TEXTURE_HANDLER_H
+#define DF_GSRC_TEXTURE_HANDLER_H
 
 #include "../text/textlines.hpp"
 
-struct palette_pagest
-{
+struct palette_pagest {
+
   string token;
-
   string graphics_dir;
-
   string filename;
-
 
   int32_t default_row;
   stringvectst color_token;
-        svector<int32_t> color_row;//linked
+  svector<int32_t> color_row;//linked
 
+  palette_pagest(){
+    default_row=-1;
+  }
 
-        palette_pagest()
-        {
-          default_row=-1;
-        }
-      };
+};
 
-      struct tile_pagest
-      {
-        string token;
+struct tile_pagest {
 
-        string graphics_dir;
+  string token;
+  string graphics_dir;
 
-        string filename;
-        short tile_dim_x;
-        short tile_dim_y;
-        short page_dim_x;
-        short page_dim_y;
+  string filename;
+  short tile_dim_x;
+  short tile_dim_y;
+  short page_dim_x;
+  short page_dim_y;
 
-        svector<long> texpos;
-        svector<long> datapos;
-        svector<long> texpos_gs;
-        svector<long> datapos_gs;
+  svector<long> texpos;
+  svector<long> datapos;
+  svector<long> texpos_gs;
+  svector<long> datapos_gs;
 
-        char loaded;
+  char loaded;
 
+  tile_pagest(){
+    loaded=0;
+  }
 
+  void load_graphics();
+  void refresh_graphics();
 
-        tile_pagest()
-        {
-          loaded=0;
-        }
+};
 
-        void load_graphics();
-        void refresh_graphics();
-      };
+class texture_handlerst {
+public:
 
-      class texture_handlerst
-      {
-      public:
-        svector<tile_pagest *> page;
-        svector<palette_pagest *> palette;
+  svector<tile_pagest*> page;
+  svector<palette_pagest*> palette;
 
+  ~texture_handlerst(){
+    clean();
+  }
 
-        void clean();
-        void adopt_new_lines(textlinesst &lines,const string &graphics_dir);
+  void clean();
+  void adopt_new_lines(textlinesst &lines,const string &graphics_dir);
 
-        ~texture_handlerst()
-        {
-          clean();
-        }
+  tile_pagest *get_tile_page_by_token(string &tk){
+    for(int32_t t = 0; t < page.size(); t++){
+      if(page[t]->token == tk)
+        return page[t];
+    }
+    return NULL;
+  }
 
-        tile_pagest *get_tile_page_by_token(string &tk)
-        {
-          int32_t t;
-          for(t=0;t<page.size();t++)
-          {
-            if(page[t]->token==tk)return page[t];
-          }
-          return NULL;
-        }
-        palette_pagest *get_palette_page_by_token(string &tk)
-        {
-          int32_t t;
-          for(t=0;t<palette.size();t++)
-          {
-            if(palette[t]->token==tk)return palette[t];
-          }
-          return NULL;
-        }
-      };
+  palette_pagest *get_palette_page_by_token(string &tk){
+    for(int32_t t = 0; t < palette.size(); t++){
+      if(palette[t]->token == tk)
+        return palette[t];
+    }
+    return NULL;
+  }
 
-#endif
+};
+
+#endif // DF_GSRC_TEXTURE_HANDLER_H

@@ -30,6 +30,7 @@ all:
     g_src/render/enabler.cpp \
     g_src/render/enabler_input.cpp \
     g_src/files/files.cpp \
+    g_src/files/file_compressor.cpp \
     g_src/files/find_files_posix.cpp \
     g_src/render/graphics.cpp \
     g_src/audio/music_and_sound.cpp \
@@ -40,6 +41,7 @@ all:
     g_src/util/random.cpp \
     g_src/render/renderer_offscreen.cpp \
     g_src/render/resize++.cpp \
+    g_src/text/stringvec.cpp \
     g_src/text/textlines.cpp \
     g_src/texture/textures.cpp \
     g_src/render/ViewBase.cpp \

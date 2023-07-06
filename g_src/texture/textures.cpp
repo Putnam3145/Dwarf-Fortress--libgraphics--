@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include "../render/enabler.hpp"
 #include "../render/init.hpp"
 
