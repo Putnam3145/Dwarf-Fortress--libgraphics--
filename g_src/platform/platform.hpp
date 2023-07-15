@@ -4,7 +4,7 @@
 #ifdef WIN32
 #undef WINDOWS_LEAN_AND_MEAN
 #define WINDOWS_LEAN_AND_MEAN
-# include <windows.h>
+#include <windows.h>
 #else
 
 #define stricmp strcasecmp
@@ -12,16 +12,15 @@
 
 enum {
   // NOTE: These probably don't match Windows values.
-  MB_OK    = 0x01,
+  MB_OK = 0x01,
   MB_YESNO = 0x02,
-  MB_ICONQUESTION    = 0x10,
+  MB_ICONQUESTION = 0x10,
   MB_ICONEXCLAMATION = 0x20,
 
   IDOK = 1,
   IDNO,
   IDYES,
 };
-
 
 typedef int HANDLE;
 typedef HANDLE HINSTANCE;
@@ -32,7 +31,6 @@ typedef HANDLE HGLRC;
 #ifndef HWND_DESKTOP
 #define HWND_DESKTOP ((HWND)-1)
 #endif
-
 
 typedef int BOOL;
 
@@ -54,7 +52,6 @@ typedef long long LONGLONG;
 typedef WORD WPARAM;
 typedef DWORD LPARAM;
 
-
 typedef struct {
   LONG x;
   LONG y;
@@ -65,10 +62,12 @@ typedef union {
     DWORD LowPart;
     LONG HighPart;
   };
+
   struct {
     DWORD LowPart;
     LONG HighPart;
   } u;
+
   LONGLONG QuadPart;
 } LARGE_INTEGER;
 
@@ -81,14 +80,13 @@ typedef struct {
   POINT pt;
 } MSG;
 
-
 DWORD GetTickCount(); // returns ms since system startup
 BOOL CreateDirectory(const char* pathname, void*);
 BOOL DeleteFile(const char* filename);
 void ZeroMemory(void* dest, int len);
 BOOL QueryPerformanceCounter(LARGE_INTEGER* performanceCount);
 BOOL QueryPerformanceFrequency(LARGE_INTEGER* performanceCount);
-int MessageBox(HWND *dummy, const char* text, const char* caption, UINT type);
+int MessageBox(HWND* dummy, const char* text, const char* caption, UINT type);
 char* itoa(int value, char* result, int base);
 
 #endif // WIN32

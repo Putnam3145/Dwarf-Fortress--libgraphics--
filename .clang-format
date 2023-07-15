@@ -1,0 +1,24 @@
+# DwarfFortress clang-format code style rules
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+#
+# In-Place Usage:
+# find g_src/ -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i -style=file
+
+Language: Cpp
+BasedOnStyle: LLVM
+
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+EmptyLineBeforeAccessModifier: Always
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+SeparateDefinitionBlocks: Always

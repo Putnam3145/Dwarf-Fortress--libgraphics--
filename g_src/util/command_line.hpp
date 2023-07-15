@@ -2,10 +2,10 @@
 #define DF_GSRC_UTIL_COMMANDLINE_HPP
 
 #include <string>
+
 #include "../text/stringvec.hpp"
 
 struct command_linest {
-
   std::string original;
   stringvectst arg_vect;
 
@@ -19,12 +19,11 @@ struct command_linest {
   char grab_arg(std::string& source, long& pos);
   void handle_arg(std::string& arg);
 
-  command_linest(){
-    gen_id=-1;
-    use_seed=0;
-    use_param=0;
+  command_linest() {
+    gen_id = -1;
+    use_seed = 0;
+    use_param = 0;
   }
-
 };
 
 #endif // DF_GSRC_UTIL_COMMANDLINE_HPP

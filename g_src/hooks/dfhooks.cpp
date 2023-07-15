@@ -3,14 +3,14 @@
 #include <string>
 
 #if _WIN32
-#   include <windows.h>
+#include <windows.h>
 #else
-#   include <dlfcn.h>
-#   if __APPLE__
+#include <dlfcn.h>
+#if __APPLE__
 const std::string lib_ext = ".dylib";
-#   else
+#else
 const std::string lib_ext = ".so";
-#   endif
+#endif
 #endif
 
 const std::string g_lib_name = "dfhooks";
@@ -66,11 +66,15 @@ static void* load_sym(void* handle, const char* sym) {
 
 static void init_fns(void* handle) {
   g_dfhooks_init = (dfhooks_init_fn)load_sym(handle, "dfhooks_init");
-  g_dfhooks_shutdown = (dfhooks_shutdown_fn)load_sym(handle, "dfhooks_shutdown");
+  g_dfhooks_shutdown =
+      (dfhooks_shutdown_fn)load_sym(handle, "dfhooks_shutdown");
   g_dfhooks_update = (dfhooks_update_fn)load_sym(handle, "dfhooks_update");
-  g_dfhooks_prerender = (dfhooks_prerender_fn)load_sym(handle, "dfhooks_prerender");
-  g_dfhooks_sdl_event = (dfhooks_sdl_event_fn)load_sym(handle, "dfhooks_sdl_event");
-  g_dfhooks_ncurses_key = (dfhooks_ncurses_key_fn)load_sym(handle, "dfhooks_ncurses_key");
+  g_dfhooks_prerender =
+      (dfhooks_prerender_fn)load_sym(handle, "dfhooks_prerender");
+  g_dfhooks_sdl_event =
+      (dfhooks_sdl_event_fn)load_sym(handle, "dfhooks_sdl_event");
+  g_dfhooks_ncurses_key =
+      (dfhooks_ncurses_key_fn)load_sym(handle, "dfhooks_ncurses_key");
 }
 
 void hooks_init() {

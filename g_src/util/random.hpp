@@ -12,7 +12,8 @@ void trandom_twist();
 
 void push_trandom_uniform_seed(uint32_t newseed);
 void push_trandom_double_seed(uint32_t newseed1, uint32_t newseed2);
-void push_trandom_triple_seed(uint32_t newseed1, uint32_t newseed2, uint32_t newseed3);
+void push_trandom_triple_seed(uint32_t newseed1, uint32_t newseed2,
+                              uint32_t newseed3);
 void pop_trandom_uniform_seed();
 
 uint32_t mt_trandom();

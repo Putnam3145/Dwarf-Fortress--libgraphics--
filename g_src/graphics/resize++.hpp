@@ -1,8 +1,8 @@
-/*resize++.cpp : 
-  High quality image scaling with Lanczos interpolation method adapted 
+/*resize++.cpp :
+  High quality image scaling with Lanczos interpolation method adapted
   from the Lanczos filtering code available on wikipedia.org.
   -by David Olsen.
-  
+
   There are two methods to use the library, the only difference is in
   whether the image should be scaled to a specific size in pixels,
   or be scaled proportionally by a certain percentage(1.0 = 100%).
@@ -15,14 +15,14 @@
   optimized surface pointer, i.e. scale_factor = 1.0). The SDL_SRCALPHA flag
   is also set for the returned image, if appropriate.
 
-  The option to free or not free the source image is given, so that if you 
-  desire to make multiple copies of a source image at various sizes, 
+  The option to free or not free the source image is given, so that if you
+  desire to make multiple copies of a source image at various sizes,
   you do not need to reload the image for each operation.
 
   The filter variable determines the radius of the Lanczos filter.
   The following settings can be used:
     1 = Quickest filtering mode, but when used for enlarging, produces
-        blocky results, similar to the nearest neighbor approach. 
+        blocky results, similar to the nearest neighbor approach.
         When used for reductions, it outputs very nice results.
     2 = Medium filtering mode - slightly faster than 3, but slower than 1.
         When enlarging, this mode produces high quality results similar
@@ -37,23 +37,25 @@
     If you shrink an image a little bit, it will choose radius of 2.
     For all other operations, it will choose a radius of 3.
     You may therefore specify which filter mode to use manually, if speed
-    is a particular issue, or let it be automatically handled, 
-    for highest quality results. 
+    is a particular issue, or let it be automatically handled,
+    for highest quality results.
 
     The typical usage pattern can be demonstrated as follows:
         SDL_Surface *image = SDL_LoadBMP("myimage.bmp");
         image = SDL_Resize(image,320,240); //scale image to 320x240
-        //the original image is freed, and image points to the new scaled surface.
+        //the original image is freed, and image points to the new scaled
+  surface.
 
     or
 
         SDL_Surface *image = SDL_LoadBMP("myimage.bmp");
-        SDL_Surface *small_image = SDL_Resize(image,0.5f,false); //shrink to 50% size
-        SDL_Surface *big_image = SDL_Resize(image,2.0f,false); //enlarge to 200% size
+        SDL_Surface *small_image = SDL_Resize(image,0.5f,false); //shrink to 50%
+  size SDL_Surface *big_image = SDL_Resize(image,2.0f,false); //enlarge to 200%
+  size
         //image still points to the original loaded surface.
 
-    If you have any questions or comments, feel free to contact me(David Olsen) at:
-    jolynsbass@gmail.com
+    If you have any questions or comments, feel free to contact me(David Olsen)
+  at: jolynsbass@gmail.com
 
 */
 
@@ -62,7 +64,9 @@
 
 #include <SDL2/SDL.h>
 
-SDL_Surface * SDL_Resize(SDL_Surface *src, float scale_factor,   bool free_src = true, int filter = 4);
-SDL_Surface * SDL_Resize(SDL_Surface *src, int new_w, int new_h, bool free_src = true, int filter = 4);
+SDL_Surface* SDL_Resize(SDL_Surface* src, float scale_factor,
+                        bool free_src = true, int filter = 4);
+SDL_Surface* SDL_Resize(SDL_Surface* src, int new_w, int new_h,
+                        bool free_src = true, int filter = 4);
 
 #endif

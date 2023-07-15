@@ -3,8 +3,7 @@
 
 #include "../graphics/enabler.hpp"
 
-class init_fontst
-{
+class init_fontst {
 public:
   long basic_font_texpos[256];
   long small_font_texpos[256];
@@ -36,30 +35,28 @@ public:
   void create_derived_font_textures();
 };
 
-enum InitDisplayFlag
-{
+enum InitDisplayFlag {
   INIT_DISPLAY_FLAG_USE_GRAPHICS,
-//  INIT_DISPLAY_FLAG_BLACK_SPACE,
-//  INIT_DISPLAY_FLAG_PARTIAL_PRINT,
-//  INIT_DISPLAY_FLAG_FRAME_BUFFER,
-//  INIT_DISPLAY_FLAG_SINGLE_BUFFER,
-//  INIT_DISPLAY_FLAG_ACCUM_BUFFER,
-//  INIT_DISPLAY_FLAG_VBO,
-//       INIT_DISPLAY_FLAG_2D,
+  //  INIT_DISPLAY_FLAG_BLACK_SPACE,
+  //  INIT_DISPLAY_FLAG_PARTIAL_PRINT,
+  //  INIT_DISPLAY_FLAG_FRAME_BUFFER,
+  //  INIT_DISPLAY_FLAG_SINGLE_BUFFER,
+  //  INIT_DISPLAY_FLAG_ACCUM_BUFFER,
+  //  INIT_DISPLAY_FLAG_VBO,
+  //       INIT_DISPLAY_FLAG_2D,
   INIT_DISPLAY_FLAG_SOFTWARE,
-//        INIT_DISPLAY_FLAG_2DHW,
-//        INIT_DISPLAY_FLAG_2DASYNC,
-//  INIT_DISPLAY_FLAG_UNUSED_01_08,//
+  //        INIT_DISPLAY_FLAG_2DHW,
+  //        INIT_DISPLAY_FLAG_2DASYNC,
+  //  INIT_DISPLAY_FLAG_UNUSED_01_08,//
   INIT_DISPLAY_FLAG_TEXT,
-//        INIT_DISPLAY_FLAG_SHADER,
+  //        INIT_DISPLAY_FLAG_SHADER,
   INIT_DISPLAY_FLAG_NOT_RESIZABLE,
-//        INIT_DISPLAY_FLAG_ARB_SYNC,
+  //        INIT_DISPLAY_FLAG_ARB_SYNC,
   INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH,
   INIT_DISPLAY_FLAGNUM
 };
 
-enum InitDisplayWindow
-{
+enum InitDisplayWindow {
   INIT_DISPLAY_WINDOW_TRUE,
   INIT_DISPLAY_WINDOW_FALSE,
   INIT_DISPLAY_WINDOW_PROMPT,
@@ -67,15 +64,9 @@ enum InitDisplayWindow
   INIT_DISPLAY_WINDOWNUM
 };
 
-enum struct InitDisplayFilterMode : int32_t {
-  AUTO,
-  NEAREST,
-  LANCZOS,
-  NUM
-};
+enum struct InitDisplayFilterMode : int32_t { AUTO, NEAREST, LANCZOS, NUM };
 
-class init_displayst
-{
+class init_displayst {
 public:
   flagarrayst flag;
   InitDisplayWindow windowed;
@@ -92,7 +83,6 @@ public:
   int32_t interface_scaling_desired_height;
   int32_t interface_scaling_percentage;
 
-  
   char partial_print_count;
 
   InitDisplayFilterMode filter_mode;
@@ -100,16 +90,14 @@ public:
   init_displayst();
 };
 
-enum InitMediaFlag
-{
+enum InitMediaFlag {
   INIT_MEDIA_FLAG_SOUND_OFF,
   INIT_MEDIA_FLAG_UNUSED_01_02,
   INIT_MEDIA_FLAG_COMPRESS_SAVES,
   INIT_MEDIA_FLAGNUM
 };
 
-class init_mediast
-{
+class init_mediast {
 public:
   flagarrayst flag;
   int32_t volume_master;
@@ -118,27 +106,23 @@ public:
   int32_t volume_sfx;
   int32_t time_between_songs;
 
-
-  init_mediast()
-  {
+  init_mediast() {
     flag.set_size_on_flag_num(INIT_MEDIA_FLAGNUM);
-    volume_master=255;
-    volume_music=255;
-    volume_ambience=220;
-    volume_sfx=255;
-    time_between_songs=240;
+    volume_master = 255;
+    volume_music = 255;
+    volume_ambience = 220;
+    volume_sfx = 255;
+    time_between_songs = 240;
   }
 };
 
-enum InitInputFlag
-{
+enum InitInputFlag {
   INIT_INPUT_FLAG_MOUSE_OFF,
   INIT_INPUT_FLAG_MOUSE_PICTURE,
   INIT_INPUT_FLAGNUM
 };
 
-class init_inputst
-{
+class init_inputst {
 public:
   int32_t hold_time;
   int32_t repeat_time;
@@ -148,13 +132,12 @@ public:
   int32_t zoom_speed;
   int32_t repeat_accel_start;
   int32_t repeat_accel_limit;
-  
-  init_inputst()
-  {
-    hold_time=150;
-    repeat_time=150;
-    macro_time=75;
-    pause_zoom_no_interface_ms=0;
+
+  init_inputst() {
+    hold_time = 150;
+    repeat_time = 150;
+    macro_time = 75;
+    pause_zoom_no_interface_ms = 0;
     flag.set_size_on_flag_num(INIT_INPUT_FLAGNUM);
 
     zoom_speed = 10;
@@ -163,29 +146,25 @@ public:
   }
 };
 
-enum InitWindowFlag
-{
+enum InitWindowFlag {
   INIT_WINDOW_FLAG_VSYNC_ON,
   INIT_WINDOW_FLAG_VSYNC_OFF,
   INIT_WINDOW_FLAG_TEXTURE_LINEAR,
   INIT_WINDOW_FLAGNUM
 };
 
-class init_windowst
-{
+class init_windowst {
 public:
   flagarrayst flag;
 
-  init_windowst()
-  {
+  init_windowst() {
     flag.set_size_on_flag_num(INIT_WINDOW_FLAGNUM);
     flag.add_flag(INIT_WINDOW_FLAG_VSYNC_OFF);
     flag.add_flag(INIT_WINDOW_FLAG_TEXTURE_LINEAR);
   }
 };
 
-enum InitLoadBarTextureType
-{
+enum InitLoadBarTextureType {
   INIT_LOAD_BAR_TEXTURE_LEFT_FULL,
   INIT_LOAD_BAR_TEXTURE_MID_FULL,
   INIT_LOAD_BAR_TEXTURE_RIGHT_FULL,
@@ -193,17 +172,17 @@ enum InitLoadBarTextureType
   INIT_LOAD_BAR_TEXTURE_MID_EMPTY,
   INIT_LOAD_BAR_TEXTURE_RIGHT_EMPTY,
   INIT_LOAD_BAR_TEXTURENUM,
-  INIT_LOAD_BAR_TEXTURE_NONE=-1
+  INIT_LOAD_BAR_TEXTURE_NONE = -1
 };
+
 typedef int32_t InitLoadBarTexture;
-#define INIT_INTRO_BUTTON_TEXTURENUM 13*9
+#define INIT_INTRO_BUTTON_TEXTURENUM 13 * 9
 #define INIT_BORDER_TEXTURENUM 21
 #define INIT_SCROLLBAR_TEXTURENUM 48
 #define INIT_FILTER_TEXTURENUM 30
 #define INIT_TABS_TEXTURENUM 30
 
-class initst
-{
+class initst {
 public:
   init_displayst display;
   init_mediast media;
@@ -211,7 +190,7 @@ public:
   init_fontst font;
   init_windowst window;
 
-    //these are just used for save/load purposes
+  // these are just used for save/load purposes
   int32_t fps_cap;
   int32_t gfps_cap;
 
@@ -276,7 +255,7 @@ public:
   int32_t texpos_tab_unselected[5][2];
   int32_t texpos_tab_selected[5][2];
 
-    //classic basic interface
+  // classic basic interface
   long classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];
   int32_t classic_texpos_neutral_intro_button[9];
   int32_t classic_texpos_confirm_intro_button[9];

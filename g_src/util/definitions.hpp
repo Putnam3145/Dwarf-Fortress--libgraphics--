@@ -78,17 +78,14 @@ typedef int16_t Announcement;
 
 #endif // BITS
 
-enum GameMode{
-
+enum GameMode {
   GAMEMODE_DWARF,
   GAMEMODE_ADVENTURE,
   GAMEMODENUM,
   GAMEMODE_NONE
-
 };
 
-enum GameType{
-
+enum GameType {
   GAMETYPE_DWARF_MAIN,
   GAMETYPE_ADVENTURE_MAIN,
   GAMETYPE_VIEW_LEGENDS,
@@ -101,11 +98,9 @@ enum GameType{
   GAMETYPE_ADVENTURE_WORLD_DEBUG,
   GAMETYPENUM,
   GAMETYPE_NONE
-
 };
 
 enum AnnouncementType {
-
   ANNOUNCEMENT_REACHED_PEAK,
   ANNOUNCEMENT_ERA_CHANGE,
   ANNOUNCEMENT_FEATURE_DISCOVERY,
@@ -460,12 +455,11 @@ enum AnnouncementType {
   ANNOUNCEMENT_UNUSED_48,
   ANNOUNCEMENT_UNUSED_49,
   ANNOUNCEMENT_UNUSED_50,
-  ANNOUNCEMENTNUM,//no save compat trouble from changing it
-  ANNOUNCEMENT_NONE=-1
+  ANNOUNCEMENTNUM, // no save compat trouble from changing it
+  ANNOUNCEMENT_NONE = -1
 };
 
 enum AnnouncementAlertType {
-
   ANNOUNCEMENT_ALERT_GENERAL,
   ANNOUNCEMENT_ALERT_ERA_CHANGE,
   ANNOUNCEMENT_ALERT_UNDERGROUND,
@@ -504,11 +498,13 @@ enum AnnouncementAlertType {
   ANNOUNCEMENT_ALERT_SPARRING,
   ANNOUNCEMENT_ALERT_HUNTING,
   ANNOUNCEMENT_ALERTNUM,
-  ANNOUNCEMENT_ALERT_NONE=-1
+  ANNOUNCEMENT_ALERT_NONE = -1
 };
 
 enum justification : unsigned char {
-  justify_left, justify_center, justify_right,
+  justify_left,
+  justify_center,
+  justify_right,
   justify_cont,
   not_truetype
 };

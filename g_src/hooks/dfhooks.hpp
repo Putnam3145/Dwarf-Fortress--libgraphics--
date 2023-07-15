@@ -2,9 +2,9 @@
 #define DF_GSRC_HOOKS_DFHOOKS_HPP
 
 namespace SDL {
-    // so we don't need to actually include SDL_events.h
-    union Event;
-}
+// so we don't need to actually include SDL_events.h
+union Event;
+} // namespace SDL
 
 // called before main event loop starts
 void hooks_init();

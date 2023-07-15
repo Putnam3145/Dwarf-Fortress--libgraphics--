@@ -1,34 +1,36 @@
 #ifndef DF_GSRC_GRAPHICS_INTERFACE_HPP
 #define DF_GSRC_GRAPHICS_INTERFACE_HPP
 
-//#define CURSES_MOVIES
+// #define CURSES_MOVIES
 
 #include <string>
 using std::string;
 #include <set>
-#include "../util/svector.hpp"
-#include "../graphics/ViewBase.hpp"
-#include "../graphics/keybindings.hpp"
-#include "../graphics/enabler.hpp"
+
 #include "../audio/audio.hpp"
+#include "../graphics/ViewBase.hpp"
+#include "../graphics/enabler.hpp"
+#include "../graphics/keybindings.hpp"
+#include "../util/svector.hpp"
 
 #ifdef CURSES_MOVIES
-struct cursesmovie_headerst
-{
-  int dimx,dimy;
+struct cursesmovie_headerst {
+  int dimx, dimy;
   int delayrate;
 };
 
-class viewscreen_movieplayerst : viewscreenst
-{
+class viewscreen_movieplayerst : viewscreenst {
 public:
-  static viewscreen_movieplayerst *create(char pushtype,viewscreenst *scr=NULL);
-  virtual void feed(std::set<InterfaceKey> &events);
+  static viewscreen_movieplayerst* create(char pushtype,
+                                          viewscreenst* scr = NULL);
+  virtual void feed(std::set<InterfaceKey>& events);
   virtual void logic();
   virtual void render();
-  virtual char movies_okay(){return 0;}
+
+  virtual char movies_okay() { return 0; }
+
   void clearfilelist();
-  void force_play(const string &file);
+  void force_play(const string& file);
 
 protected:
   char saving;
@@ -51,15 +53,15 @@ protected:
   int end_frame_pos;
 
   int32_t selfile;
-  svector<char *> filelist;
+  svector<char*> filelist;
 
   viewscreen_movieplayerst();
-  virtual ~viewscreen_movieplayerst(){clearfilelist();};
+
+  virtual ~viewscreen_movieplayerst() { clearfilelist(); };
 };
 #endif
 
-enum InterfacePushType
-{
+enum InterfacePushType {
   INTERFACE_PUSH_AS_PARENT,
   INTERFACE_PUSH_AS_CHILD,
   INTERFACE_PUSH_AT_BACK,
@@ -72,10 +74,9 @@ enum InterfacePushType
 #define MOVIEBUFFSIZE 800000
 #define COMPMOVIEBUFFSIZE 1000000
 
-class interfacest
-{
+class interfacest {
   int original_fps;
-  viewscreenst *grab_lastscreen();
+  viewscreenst* grab_lastscreen();
   friend class viewscreen_movieplayerst;
 
 public:
@@ -87,16 +88,14 @@ public:
 
   char loop();
   void remove_to_first();
-  void removescreen(viewscreenst *scr);
-  void addscreen(viewscreenst *scr,char pushtype,viewscreenst *relate);
+  void removescreen(viewscreenst* scr);
+  void addscreen(viewscreenst* scr, char pushtype, viewscreenst* relate);
 #ifdef CURSES_MOVIES
-  char is_supermovie_on()
-  {
-    return supermovie_on;
-  }
+  char is_supermovie_on() { return supermovie_on; }
 #endif
 
-  void print_interface_token(InterfaceKey key,justification just=justify_left);
+  void print_interface_token(InterfaceKey key,
+                             justification just = justify_left);
 
   interfacest();
   ~interfacest();
@@ -119,39 +118,52 @@ protected:
   string movie_file;
 #endif
 
-  void insertscreen_as_parent(viewscreenst *scr,viewscreenst *child);
-  void insertscreen_as_child(viewscreenst *scr,viewscreenst *parent);
-  void insertscreen_at_back(viewscreenst *scr);
-  void insertscreen_at_front(viewscreenst *scr);
+  void insertscreen_as_parent(viewscreenst* scr, viewscreenst* child);
+  void insertscreen_as_child(viewscreenst* scr, viewscreenst* parent);
+  void insertscreen_at_back(viewscreenst* scr);
+  void insertscreen_at_front(viewscreenst* scr);
 #ifdef CURSES_MOVIES
   void handlemovie(char flushall);
   void finish_movie();
   void use_movie_input();
 
   int write_movie_chunk();
-  void read_movie_chunk(int &maxmoviepos,char &is_playing);
+  void read_movie_chunk(int& maxmoviepos, char& is_playing);
 #endif
 };
 
 #define SCROLLING_NOSELECT BIT1
 #define SCROLLING_NO_WRAP BIT2
 #define SCROLLING_REVERSE BIT3
-void finishscrolling(int32_t &selection,int32_t min,int32_t max,int32_t jump,uint32_t flag,char littlekey);
-char standardscrolling(std::set<InterfaceKey> &events,short &selection,int32_t min,int32_t max,int32_t jump,uint32_t flag=0);
-char standardscrolling(std::set<InterfaceKey> &events,int32_t &selection,int32_t min,int32_t max,int32_t jump,uint32_t flag=0);
-char secondaryscrolling(std::set<InterfaceKey> &events,short &scroll,int32_t min,int32_t max,int32_t jump,uint32_t flag=0);
-char secondaryscrolling(std::set<InterfaceKey> &events,int32_t &scroll,int32_t min,int32_t max,int32_t jump,uint32_t flag=0);
+void finishscrolling(int32_t& selection, int32_t min, int32_t max, int32_t jump,
+                     uint32_t flag, char littlekey);
+char standardscrolling(std::set<InterfaceKey>& events, short& selection,
+                       int32_t min, int32_t max, int32_t jump,
+                       uint32_t flag = 0);
+char standardscrolling(std::set<InterfaceKey>& events, int32_t& selection,
+                       int32_t min, int32_t max, int32_t jump,
+                       uint32_t flag = 0);
+char secondaryscrolling(std::set<InterfaceKey>& events, short& scroll,
+                        int32_t min, int32_t max, int32_t jump,
+                        uint32_t flag = 0);
+char secondaryscrolling(std::set<InterfaceKey>& events, int32_t& scroll,
+                        int32_t min, int32_t max, int32_t jump,
+                        uint32_t flag = 0);
 #define STRINGENTRY_LETTERS BIT1
 #define STRINGENTRY_SPACE BIT2
 #define STRINGENTRY_NUMBERS BIT3
 #define STRINGENTRY_CAPS BIT4
 #define STRINGENTRY_SYMBOLS BIT5
 #define STRINGENTRY_FILENAME BIT6
-char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);
-char standardstringentry(string& str, int maxlen, unsigned int flag, std::set<InterfaceKey>& events, const char* text_entry);
-char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);
+char standardstringentry(char* str, int maxlen, unsigned int flag,
+                         std::set<InterfaceKey>& events);
+char standardstringentry(string& str, int maxlen, unsigned int flag,
+                         std::set<InterfaceKey>& events,
+                         const char* text_entry);
+char standardstringentry(string& str, int maxlen, unsigned int flag,
+                         std::set<InterfaceKey>& events);
 
-void drawborder(const char *str,char style=0,const char *colorstr=NULL);
+void drawborder(const char* str, char style = 0, const char* colorstr = NULL);
 
 extern interfacest gview;
 

@@ -3,19 +3,19 @@
 
 extern "C" {
 
-  #include <zlib.h>
-  #include "../_external/zlib/contrib/minizip/unzip.h"
-  #ifndef WIN32
-    # include <sys/types.h>
-    # include <sys/stat.h>
-    # include <sys/time.h>
-    # include <signal.h>
-  #endif
+#include <zlib.h>
 
+#include "../_external/zlib/contrib/minizip/unzip.h"
+#ifndef WIN32
+#include <signal.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#endif
 }
 
 #ifndef WIN32
-  #include <stdint.h>
+#include <stdint.h>
 #endif
 
 // Integer Types Base-Definition

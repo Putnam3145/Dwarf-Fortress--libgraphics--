@@ -1,7 +1,9 @@
 /*
 #include "ttf_manager.hpp"
-#include "../graphics/init.hpp"
+
 #include <iostream>
+
+#include "../graphics/init.hpp"
 
 using namespace std;
 
@@ -26,7 +28,8 @@ bool ttf_managerst::init(int ceiling, int tile_width) {
     if (!font) continue;
     if (TTF_FontHeight(font) <= ceiling) {
 #ifdef DEBUG
-      cout << "Picked font at " << sz << " points for ceiling " << ceiling << endl;
+      cout << "Picked font at " << sz << " points for ceiling " << ceiling <<
+endl;
       // get the glyph metric for the letter 'M' in a loaded font
       cout << "TTF_FontHeight " << TTF_FontHeight(font) << endl;
       cout << "TTF_FontAscent " << TTF_FontAscent(font) << endl;
@@ -34,14 +37,9 @@ bool ttf_managerst::init(int ceiling, int tile_width) {
       cout << "TTF_FontLineSkip " << TTF_FontLineSkip(font) << endl;
 #endif
       int minx,maxx,miny,maxy,advance;
-      if (TTF_GlyphMetrics(font, 'M', &minx, &maxx, &miny, &maxy, &advance) == -1)
-        puts(TTF_GetError());
-      else {
-        em_width = maxx;
-#ifdef DEBUG
-        printf("minx    : %d\n",minx);
-        printf("maxx    : %d\n",maxx);
-        printf("miny    : %d\n",miny);
+      if (TTF_GlyphMetrics(font, 'M', &minx, &maxx, &miny, &maxy, &advance) ==
+-1) puts(TTF_GetError()); else { em_width = maxx; #ifdef DEBUG printf("minx    :
+%d\n",minx); printf("maxx    : %d\n",maxx); printf("miny    : %d\n",miny);
         printf("maxy    : %d\n",maxy);
         printf("advance : %d\n",advance);
 #endif
@@ -76,7 +74,8 @@ int ttf_managerst::size_text(const string &text) {
 }
 
 
-ttf_details ttf_managerst::get_handle(const list<ttf_id> &text, justification just) {
+ttf_details ttf_managerst::get_handle(const list<ttf_id> &text, justification
+just) {
   // Check for an existing handle
   handleid id = {text, just};
   auto it = handles.find(id);
@@ -132,18 +131,19 @@ ttf_details ttf_managerst::get_handle(const list<ttf_id> &text, justification ju
   double fraction, integral;
   fraction = modf(offset, &integral);
   // Outputs:
-  const int grid_offset = int(integral + 0.001); // Tiles to move to the right in addst
-  const int pixel_offset = int(fraction * tile_width); // Black columns to add to the left of the image
-  // const int full_grid_width = int(ceil(double(ttf_width) / double(tile_width) + fraction) + 0.1); // Total width of the image in grid units
-  const int full_grid_width = text_width;
-  const int pixel_width = full_grid_width * tile_width; // And pixels
-  assert(pixel_width >= ttf_width);
+  const int grid_offset = int(integral + 0.001); // Tiles to move to the right
+in addst const int pixel_offset = int(fraction * tile_width); // Black columns
+to add to the left of the image
+  // const int full_grid_width = int(ceil(double(ttf_width) / double(tile_width)
++ fraction) + 0.1); // Total width of the image in grid units const int
+full_grid_width = text_width; const int pixel_width = full_grid_width *
+tile_width; // And pixels assert(pixel_width >= ttf_width);
   // Store for later
-  ttf_details ret; ret.handle = handle; ret.offset = grid_offset; ret.width = full_grid_width;
-  handles[id] = ret;
+  ttf_details ret; ret.handle = handle; ret.offset = grid_offset; ret.width =
+full_grid_width; handles[id] = ret;
   // We do the actual rendering in the render thread, later on.
-  todo.push_back(todum(handle, split_text, ttf_height, pixel_offset, pixel_width));
-  return ret;
+  todo.push_back(todum(handle, split_text, ttf_height, pixel_offset,
+pixel_width)); return ret;
 }
 
 SDL_Surface *ttf_managerst::get_texture(int handle) {
@@ -152,9 +152,11 @@ SDL_Surface *ttf_managerst::get_texture(int handle) {
     vector<Uint16> text_unicode;
     for (auto it = todo.cbegin(); it != todo.cend(); ++it) {
       const int height = it->height;
-      SDL_Surface *textimg = SDL_CreateRGBSurface(SDL_SWSURFACE, it->pixel_width, height, 32, 0, 0, 0, 0);
+      SDL_Surface *textimg = SDL_CreateRGBSurface(SDL_SWSURFACE,
+it->pixel_width, height, 32, 0, 0, 0, 0);
 // #ifdef DEBUG
-//       SDL_FillRect(textimg, NULL, SDL_MapRGBA(textimg->format, 255, 0, 0, 255));
+//       SDL_FillRect(textimg, NULL, SDL_MapRGBA(textimg->format, 255, 0, 0,
+255));
 // #endif
       // Render each of the text segments
       int idx = 0;
@@ -194,15 +196,15 @@ SDL_Surface *ttf_managerst::get_texture(int handle) {
           SDL_FillRect(textimg, &left, bgc);
         } else if (seg == it->text.cend()) {
           // Fill in the right side
-          SDL_Rect right = {Sint16(xpos), 0, Sint16(it->pixel_width), Sint16(height)};
-          SDL_FillRect(textimg, &right, bgc);
+          SDL_Rect right = {Sint16(xpos), 0, Sint16(it->pixel_width),
+Sint16(height)}; SDL_FillRect(textimg, &right, bgc);
         }
         // Render the TTF segment
-        SDL_Surface *textimg_seg = TTF_RenderUNICODE_Blended(font, &text_unicode[0], fgc);
+        SDL_Surface *textimg_seg = TTF_RenderUNICODE_Blended(font,
+&text_unicode[0], fgc);
         // Fill the background color of this part of the textimg
-        SDL_Rect dest = {Sint16(xpos), 0, Sint16(textimg_seg->w), Sint16(height)};
-        SDL_FillRect(textimg, &dest,
-                     SDL_MapRGB(textimg->format,
+        SDL_Rect dest = {Sint16(xpos), 0, Sint16(textimg_seg->w),
+Sint16(height)}; SDL_FillRect(textimg, &dest, SDL_MapRGB(textimg->format,
                                 // Uint8(255),
                                 // Uint8(255),
                                 // Uint8(255)));
@@ -219,7 +221,8 @@ SDL_Surface *ttf_managerst::get_texture(int handle) {
       // ..and make the whole thing display format. Phew!
       SDL_Surface *textimg_2 = SDL_DisplayFormat(textimg);
 #ifdef DEBUG
-      // cout << "Rendering \"" << text.text << "\" at height " << box2->h << endl;
+      // cout << "Rendering \"" << text.text << "\" at height " << box2->h <<
+endl;
       // cout << " width " << textimg->w << " in box of " << box->w << endl;
 #endif
       SDL_FreeSurface(textimg);

@@ -5,9 +5,9 @@
 #define _XOPEN_SOURCE_EXTENDED
 #endif
 
-#include <string>
-#include <set>
 #include <list>
+#include <set>
+#include <string>
 
 #include "../graphics/ViewBase.hpp"
 #include "../graphics/keybindings.hpp"
@@ -19,17 +19,19 @@
 typedef Uint32 Time;
 
 enum Repeat {
-  REPEAT_NOT,  // Don't repeat at all. Furthermore, cancel other repeats.
-  REPEAT_SLOW, // Repeat normally.
-  REPEAT_FAST,  // Repeat instantly, without waiting for the first-repeat interval.
-  REPEAT_MWHEEL // Count *down* from repeat until it's 0, original value set by mouse wheel y
+  REPEAT_NOT,   // Don't repeat at all. Furthermore, cancel other repeats.
+  REPEAT_SLOW,  // Repeat normally.
+  REPEAT_FAST,  // Repeat instantly, without waiting for the first-repeat
+                // interval.
+  REPEAT_MWHEEL // Count *down* from repeat until it's 0, original value set by
+                // mouse wheel y
 };
 
 enum MatchType { type_key, type_button, type_mwheel };
 
 Uint8 getModState();
 std::string translate_mod(Uint8 mod);
-int decode_utf8(const std::string &s);
+int decode_utf8(const std::string& s);
 int decode_utf8_predict_length(char byte);
 std::string encode_utf8(int unicode);
 
@@ -41,31 +43,44 @@ struct EventMatch {
   MatchType type;
   Uint8 mod;      // not defined for type=unicode. 1: shift, 2: ctrl, 4:alt
   Uint8 scancode; // not defined for type=button
+
   union {
     SDL_Keycode key;
     Uint8 button;
     Sint32 y;
   };
-  
-  bool operator== (const EventMatch &other) const {
-    if (mod != other.mod) return false;
-    if (type != other.type) return false;
+
+  bool operator==(const EventMatch& other) const {
+    if (mod != other.mod)
+      return false;
+    if (type != other.type)
+      return false;
     switch (type) {
-    case type_key: return key == other.key;
-    case type_button: return button == other.button;
-    case type_mwheel: return y == other.y;
-    default: return false;
+    case type_key:
+      return key == other.key;
+    case type_button:
+      return button == other.button;
+    case type_mwheel:
+      return y == other.y;
+    default:
+      return false;
     }
   }
-  
-  bool operator< (const EventMatch &other) const {
-    if (mod != other.mod) return mod < other.mod;
-    if (type != other.type) return type < other.type;
+
+  bool operator<(const EventMatch& other) const {
+    if (mod != other.mod)
+      return mod < other.mod;
+    if (type != other.type)
+      return type < other.type;
     switch (type) {
-    case type_key: return key < other.key;
-    case type_button: return button < other.button;
-    case type_mwheel: return y < other.y;
-    default: return false;
+    case type_key:
+      return key < other.key;
+    case type_button:
+      return button < other.button;
+    case type_mwheel:
+      return y < other.y;
+    default:
+      return false;
     }
   }
 };
@@ -75,7 +90,7 @@ struct KeyEvent {
   EventMatch match;
 };
 
-typedef std::list<std::set<InterfaceKey> > macro;
+typedef std::list<std::set<InterfaceKey>> macro;
 
 struct RegisteredKey {
   MatchType type;
@@ -83,17 +98,19 @@ struct RegisteredKey {
 };
 
 class enabler_inputst {
-  std::set<InterfaceKey> key_translation(EventMatch &match);
- public:
+  std::set<InterfaceKey> key_translation(EventMatch& match);
+
+public:
   Repeat key_repeat(InterfaceKey);
   void key_repeat(InterfaceKey, Repeat);
-  void load_macro_from_file(const std::string &file);
-  void save_macro_to_file(const std::string &file, const std::string &name, const macro &);
-  
+  void load_macro_from_file(const std::string& file);
+  void save_macro_to_file(const std::string& file, const std::string& name,
+                          const macro&);
+
   // In practice.. do not use this one.
-  void add_input(SDL_Event &e, Time now);
+  void add_input(SDL_Event& e, Time now);
   // Use this one. It's much nicer.
-  void add_input_refined(KeyEvent &e, Time now, int serial);
+  void add_input_refined(KeyEvent& e, Time now, int serial);
   // Made specifically for curses. <0 = unicode, >0 = ncurses symbols.
 #ifdef CURSES
   void add_input_ncurses(int key, Time now, bool esc);
@@ -101,9 +118,9 @@ class enabler_inputst {
   std::set<InterfaceKey> get_input(Time now);
   void clear_input();
 
-  bool load_keybindings(const std::string &file);
+  bool load_keybindings(const std::string& file);
   void clear_keybindings();
-  void save_keybindings(const std::string &file);
+  void save_keybindings(const std::string& file);
   void save_keybindings();
   virtual std::string GetKeyDisplay(int binding);
   std::string GetBindingDisplay(int binding);
@@ -111,9 +128,9 @@ class enabler_inputst {
 
   // Macros
   void record_input(); // Records input until such a time as you say stop
-  void record_stop(); // Stops recording, saving it as the active macro
+  void record_stop();  // Stops recording, saving it as the active macro
   bool is_recording();
-  void play_macro(); // Runs the active macro, if any
+  void play_macro();   // Runs the active macro, if any
   bool is_macro_playing();
   std::list<string> list_macros();
   void load_macro(string name); // Loads some macro as the active one
@@ -128,14 +145,22 @@ class enabler_inputst {
   string prefix();
 
   // Updating the key-bindings
-  void register_key(); // Sets the next key-press to be stored instead of executed.
-  std::list<RegisteredKey> getRegisteredKey(); // Returns a description of stored keys. Max one of each type.
-  void bindRegisteredKey(MatchType type, InterfaceKey key); // Binds one of the stored keys to key
+  void
+  register_key(); // Sets the next key-press to be stored instead of executed.
+  std::list<RegisteredKey>
+  getRegisteredKey(); // Returns a description of stored keys. Max one of each
+                      // type.
+  void
+  bindRegisteredKey(MatchType type,
+                    InterfaceKey key); // Binds one of the stored keys to key
   bool is_registering(); // Returns true if we're still waiting for a key-hit
-    void stop_registering_key();
+  void stop_registering_key();
 
-  std::list<EventMatch> list_keys(InterfaceKey key); // Returns a list of events matching this interfacekey
-  void remove_key(InterfaceKey key, EventMatch ev); // Removes a particular matcher from the keymap.
+  std::list<EventMatch> list_keys(
+      InterfaceKey key); // Returns a list of events matching this interfacekey
+  void
+  remove_key(InterfaceKey key,
+             EventMatch ev); // Removes a particular matcher from the keymap.
 };
 
 #endif // DF_GSRC_GRAPHICS_ENABLER_INPUT_HPP

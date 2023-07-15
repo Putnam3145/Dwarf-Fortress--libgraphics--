@@ -2,15 +2,15 @@
 #ifndef TTF_MANAGER_HPP
 #define TTF_MANAGER_HPP
 
-#include "../graphics/init.hpp"
 #include "../graphics/enabler.hpp"
+#include "../graphics/init.hpp"
 #ifdef __APPLE__
 #include <SDL_ttf/SDL_ttf.h>
 #else
 #include <SDL/SDL_ttf.h>
 #endif
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
 
 using std::unordered_map;
 using std::list;
@@ -73,8 +73,8 @@ public:
     em_width = 8;
   }
   ~ttf_managerst() {
-	for (auto it = textures.cbegin(); it != textures.cend(); ++it)
-		SDL_FreeSurface(it->second);
+  for (auto it = textures.cbegin(); it != textures.cend(); ++it)
+    SDL_FreeSurface(it->second);
     if (font) TTF_CloseFont(font);
   }
   bool init(int ceiling, int tile_width);
