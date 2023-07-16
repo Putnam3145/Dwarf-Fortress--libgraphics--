@@ -130,7 +130,7 @@ void errorlog_string(const char *ptr)
 
 int32_t convert_string_to_long(const string &str)
 {
-  return string_to_number(str);
+	return string_to_number(str);
 }
 
 uint32_t convert_string_to_ulong(const string &str)
@@ -145,7 +145,7 @@ uint64_t convert_string_to_ulong64(const string &str)
 
 void add_long_to_string(int32_t n,string &str)
 {
-  add_number_to_string(n, str);
+	add_number_to_string(n, str);
 }
 
 void add_ulong64_to_string(uint64_t n,string &str)
@@ -155,7 +155,7 @@ void add_ulong64_to_string(uint64_t n,string &str)
 
 void convert_long_to_string(int32_t n,string &str)
 {
-  number_to_string(n, str);
+	number_to_string(n, str);
 }
 
 void convert_ulong_to_string(uint32_t n,string &str)
