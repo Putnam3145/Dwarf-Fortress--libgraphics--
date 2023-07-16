@@ -5,6 +5,7 @@
 #include <stdint.h>
 #endif
 #include <string>
+#include <concepts>
 using std::string;
 
 #ifndef BITS
@@ -121,36 +122,28 @@ T string_to_number(const std::string& str)
 }
 
 template <typename T>
-  requires(std::is_same<T, short>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, int>::value || std::is_same<T, int32_t>::value || std::is_same<T, long long>::value ||
-           std::is_same<T, int64_t>::value || std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value ||
-           std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value || std::is_same<T, float>::value ||
-           std::is_same<T, double>::value || std::is_same<T, long double>::value)
-std::string number_to_string(T number)
-{
+concept convertable_number = std::is_same<T, short>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value ||
+                             std::is_same<T, int>::value || std::is_same<T, int32_t>::value || std::is_same<T, long long>::value ||
+                             std::is_same<T, int64_t>::value || std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value ||
+                             std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value ||
+                             std::is_same<T, float>::value || std::is_same<T, double>::value || std::is_same<T, long double>::value;
+
+template <convertable_number T>
+std::string number_to_string(T number) {
   std::ostringstream output;
-	output << number;
-	return output.str();
+  output << number;
+  return output.str();
 }
 
-template <typename T>
-  requires(std::is_same<T, short>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, int>::value || std::is_same<T, int32_t>::value || std::is_same<T, long long>::value ||
-           std::is_same<T, int64_t>::value || std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value ||
-           std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value || std::is_same<T, float>::value ||
-           std::is_same<T, double>::value || std::is_same<T, long double>::value)
-void number_to_string(T number, std::string& str)
-{
+template <convertable_number T>
+void number_to_string(T number, std::string& str) {
   std::ostringstream output;
-	output << number;
-	str = output.str();
+  output << number;
+  str = output.str();
 }
 
-template <typename T>
-  requires(std::is_same<T, short>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value || std::is_same<T, int>::value || std::is_same<T, int32_t>::value || std::is_same<T, long long>::value ||
-           std::is_same<T, int64_t>::value || std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value ||
-           std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value || std::is_same<T, float>::value ||
-           std::is_same<T, double>::value || std::is_same<T, long double>::value)
-std::string add_number_to_string(const T number, std::string &str)
-{
+template <convertable_number T>
+std::string add_number_to_string(const T number, std::string& str) {
   return str += number_to_string<T>(number);
 }
 
