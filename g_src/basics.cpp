@@ -130,52 +130,42 @@ void errorlog_string(const char *ptr)
 
 int32_t convert_string_to_long(const string &str)
 {
-	return atoi(str.c_str());
+  return string_to_number(str);
 }
 
 uint32_t convert_string_to_ulong(const string &str)
 {
-	return strtoul(str.c_str(),NULL,0);
+	return string_to_number<uint32_t>(str);
 }
 
 uint64_t convert_string_to_ulong64(const string &str)
 {
-	return strtoull(str.c_str(),NULL,0);
+	return string_to_number<uint64_t>(str);
 }
 
 void add_long_to_string(int32_t n,string &str)
 {
-	string str2;
-	convert_long_to_string(n,str2);
-	str+=str2;
+  add_number_to_string(n, str);
 }
 
 void add_ulong64_to_string(uint64_t n,string &str)
 {
-	string str2;
-	convert_ulong64_to_string(n,str2);
-	str+=str2;
+	add_number_to_string(n, str);
 }
 
 void convert_long_to_string(int32_t n,string &str)
 {
-	std::ostringstream o;
-	o << n;
-	str = o.str();
+  number_to_string(n, str);
 }
 
 void convert_ulong_to_string(uint32_t n,string &str)
 {
-	std::ostringstream o;
-	o << n;
-	str = o.str();
+	number_to_string(n, str);
 }
 
 void convert_ulong64_to_string(uint64_t n,string &str)
 {
-	std::ostringstream o;
-	o << n;
-	str = o.str();
+	number_to_string(n, str);
 }
 
 char grab_variable_token(string &str,string &token,char sec_comp,int32_t &pos,int32_t i_pos)
