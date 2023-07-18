@@ -130,16 +130,12 @@ T string_to_number(const std::string& str) {
 
 template <convertable_number_extended T>
 std::string number_to_string(T number) {
-  std::ostringstream output;
-  output << number;
-  return output.str();
+  return std::format("{}", number);;
 }
 
 template <convertable_number_extended T>
 void number_to_string(T number, std::string& str) {
-  std::ostringstream output;
-  output << number;
-  str = output.str();
+  str = std::format("{}", number);
 }
 
 template <convertable_number_extended T>
