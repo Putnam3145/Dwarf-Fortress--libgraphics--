@@ -130,7 +130,7 @@ T string_to_number(const std::string& str) {
 
 template <convertable_number_extended T>
 std::string number_to_string(T number) {
-  return std::format("{}", number);;
+  return std::format("{}", number);
 }
 
 template <convertable_number_extended T>
