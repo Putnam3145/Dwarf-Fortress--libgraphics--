@@ -5,6 +5,7 @@
 #include <stdint.h>
 #endif
 #include <string>
+#include <concepts>
 using std::string;
 
 #ifndef BITS
@@ -89,6 +90,58 @@ void replace_token_string(string &token,string &str,int32_t pos,char compc,strin
 bool grab_token_list_as_string(string &dest,string &source,int32_t &pos,char compc=':');
 bool grab_token_expression(string &dest,string &source,int32_t &pos,char compc=':');
 char grab_variable_token(string &str,string &token,char sec_comp,int32_t &pos,int32_t i_pos);
+
+template <typename T>
+concept convertable_number =
+  std::is_same<T, int>::value || std::is_same<T, int32_t>::value || std::is_same<T, long long>::value ||
+  std::is_same<T, int64_t>::value || std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value ||
+  std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value || std::is_same<T, float>::value ||
+  std::is_same<T, double>::value || std::is_same<T, long double>::value;
+
+template <typename T>
+concept convertable_number_extended =
+  convertable_number<T> || std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value ||
+  std::is_same<T, short>::value || std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value;
+
+template <convertable_number T = int32_t>
+T string_to_number(const std::string& str) {
+  if (std::is_same<T, int>::value || std::is_same<T, int32_t>::value) {
+    return std::stoi(str);
+  }
+  if (std::is_same<T, long long>::value || std::is_same<T, int64_t>::value) {
+    return std::stoll(str);
+  }
+  if (std::is_same<T, unsigned int>::value || std::is_same<T, uint32_t>::value) {
+    return std::stoul(str);
+  }
+  if (std::is_same<T, unsigned long long>::value || std::is_same<T, uint64_t>::value) {
+    return std::stoull(str);
+  }
+  if (std::is_same<T, float>::value) {
+    return std::stof(str);
+  }
+  if (std::is_same<T, double>::value) {
+    return std::stod(str);
+  }
+  if (std::is_same<T, long double>::value) {
+    return std::stold(str);
+  }
+}
+
+template <convertable_number_extended T>
+std::string number_to_string(T number) {
+  return std::format("{}", number);
+}
+
+template <convertable_number_extended T>
+void number_to_string(T number, std::string& str) {
+  str = std::format("{}", number);
+}
+
+template <convertable_number_extended T>
+std::string add_number_to_string(const T number, std::string& str) {
+  return str += number_to_string<T>(number);
+}
 
 int32_t convert_string_to_long(const string &str);
 uint32_t convert_string_to_ulong(const string &str);
