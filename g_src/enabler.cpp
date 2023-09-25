@@ -6,6 +6,9 @@
 #include "init.h"
 #include "music_and_sound_g.h"
 #include "dfhooks.h"
+#ifdef WIN32
+#include "glaiel/crashlogs.h"
+#endif
 #ifndef NO_FMOD
 extern musicsoundst musicsound;
 #endif
@@ -1055,10 +1058,14 @@ void enablerst::eventLoop_SDL()
 
 int enablerst::loop(string cmdline) {
   command_line = cmdline;
+#ifdef WIN32
+  glaiel::crashlogs::set_crashlog_folder("crashlogs");
 
+  glaiel::crashlogs::begin_monitoring();
+#endif
   // Initialize the tick counters
-  simticks.store(0);
-  gputicks.store(0);
+  simticks=0;
+  gputicks=0;
   
   // Call DF's initialization routine
   if (!beginroutine())

@@ -1,19 +1,8 @@
-#include "GL/glew.h"
-
 #ifndef INTEGER_TYPES
 
 #define INTEGER_TYPES
 
-#ifdef WIN32
-	typedef signed char int8_t;
-	typedef short int16_t;
-	typedef int int32_t;
-	typedef long long int64_t;
-	typedef unsigned char uint8_t;
-	typedef unsigned short uint16_t;
-	typedef unsigned int uint32_t;
-	typedef unsigned long long uint64_t;
-#endif
+#include <cstdint>
 
 typedef int32_t VIndex;
 typedef int32_t Ordinal;
@@ -379,9 +368,10 @@ void MacroScreenLoad::render() {
   // gps.renewscreen();
 }
 
-MacroScreenSave::MacroScreenSave() : id(init.display.grid_x - 7, 0) {
+MacroScreenSave::MacroScreenSave() : id(48, 0) {
   enabler.flag |= ENABLERFLAG_RENDER;
   id.input=true;
+  id.set_parent(this);
 }
 
 void MacroScreenSave::logic() {
@@ -406,12 +396,9 @@ void MacroScreenSave::feed(set<InterfaceKey> &input) {
 
 void MacroScreenSave::render() {
   if (parent) parent->render();
-  const int x1 = 5,
-    x2 = init.display.grid_x-4,
-    y1 = init.display.grid_y/2-1,
-    y2 = init.display.grid_y/2+2;
-  id.set_extents(y1, y2, x1, x2);
-  id.maxlen = 48;
+  id.set_anchors(0.5,0.5,0.0,1.0);
+  id.set_offsets(-1,1,3,-7);
+  id.move_to_anchor();
   id.arrange();
   id.render();
   // gps.renewscreen();

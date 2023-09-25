@@ -24,12 +24,54 @@ extern int32_t cinematic_start_scrolly;
 
 void report_error(const char*, const char*);
 
+struct tile_cachest
+	{
+	unordered_map<texture_fullid,SDL_Texture *> tile_cache;
+	SDL_Texture *&operator[](const texture_fullid &id)
+		{
+		if (auto it=tile_cache.find(id); it!=tile_cache.end())
+			{
+			return it->second;
+			}
+		else
+			{
+			tile_cache[id]=NULL;
+			return tile_cache[id];
+			}
+		}
+	const SDL_Texture *operator[](const texture_fullid &id) const
+		{
+		if (auto it=tile_cache.find(id); it!=tile_cache.end())
+			{
+			return it->second;
+			}
+		return NULL;
+		}
+	void clear()
+		{
+		for (auto &p:tile_cache)
+			{
+			SDL_DestroyTexture(p.second);
+			}
+		tile_cache.clear();
+		}
+	void erase(const texture_fullid &id)
+		{
+		if (auto it=tile_cache.find(id); it!=tile_cache.end())
+			{
+			SDL_DestroyTexture(it->second);
+			tile_cache.erase(it);
+			}
+		}
+	tile_cachest()=default;
+	};
+
 class renderer_2d_base : public renderer {
 protected:
   SDL_Window *window;
   SDL_Renderer *sdl_renderer;
   SDL_Texture *screen_tex;
-  map<texture_fullid, SDL_Texture*> tile_cache;
+  tile_cachest tile_cache;
   int dispx, dispy, dimx, dimy;
   // We may shrink or enlarge dispx/dispy in response to zoom requests. dispx/y_z are the
   // size we actually display tiles at.
@@ -48,11 +90,11 @@ protected:
 	}
 
   SDL_Texture *tile_cache_lookup(texture_fullid &id) {
-
-    map<texture_fullid, SDL_Texture*>::iterator it = tile_cache.find(id);
-    if (it != tile_cache.end()) {
-      return it->second;
-    } else {
+	  if (auto tile=tile_cache[id]; tile!=NULL)
+		  {
+		  return tile;
+		  }
+	  {
       // Create the colorized texture
       SDL_Surface *surf   = enabler.textures.get_texture_data(id.texpos);
 	  if(surf==NULL)return NULL;
@@ -3754,8 +3796,6 @@ void do_blank_screen_fill()
 		{
 		for (auto &t:textures_to_destroy)
 			{
-			if (auto it=tile_cache.find(t); it!=tile_cache.end())
-				SDL_DestroyTexture(it->second);
 			tile_cache.erase(t);
 			}
 		textures_to_destroy.clear();
@@ -3766,10 +3806,6 @@ void do_blank_screen_fill()
 		}
 	void clean_tile_cache()
 		{
-		for (auto it = tile_cache.begin(); it != tile_cache.end(); ++it)
-			{
-			SDL_DestroyTexture(it->second);
-			}
 		tile_cache.clear();
 		}
 
@@ -3813,8 +3849,7 @@ void do_blank_screen_fill()
   }
 
   virtual ~renderer_2d_base() {
-	for (auto it = tile_cache.cbegin(); it != tile_cache.cend(); ++it)
-		SDL_DestroyTexture(it->second);
+	  tile_cache.clear();
 	for (auto it = ttfs_to_render.cbegin(); it != ttfs_to_render.cend(); ++it)
 		SDL_FreeSurface(it->first);
   }

@@ -38,7 +38,7 @@ static void* open_library(const std::string& lib_name) {
 #if _WIN32
     return LoadLibrary((lib_name + ".dll").c_str());
 #else
-    return dlopen(("lib" + lib_name + lib_ext).c_str(), RTLD_LAZY);
+    return dlopen(("./lib" + lib_name + lib_ext).c_str(),RTLD_LAZY);
 #endif
 }
 

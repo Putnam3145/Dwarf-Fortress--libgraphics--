@@ -12,7 +12,7 @@
 #include "ViewBase.h"
 #include "keybindings.h"
 #ifdef CURSES
-#include "curses.h"
+//#include "curses.h"
 #endif
 #include <SDL2/SDL.h>
 

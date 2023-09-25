@@ -75,7 +75,6 @@ enum InterfacePushType
 class interfacest
 {
   int original_fps;
-  viewscreenst *grab_lastscreen();
 	friend class viewscreen_movieplayerst;
 
 	public:
@@ -98,6 +97,7 @@ class interfacest
 
 		void print_interface_token(InterfaceKey key,justification just=justify_left);
 
+	    viewscreenst *grab_lastscreen();
 		interfacest();
 		~interfacest();
 

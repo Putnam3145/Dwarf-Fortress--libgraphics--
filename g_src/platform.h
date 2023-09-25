@@ -7,6 +7,12 @@
 # include <windows.h>
 #else
 
+#ifndef WIN32
+#include <algorithm>
+using std::max;
+using std::min;
+#endif
+
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 

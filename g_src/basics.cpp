@@ -117,6 +117,7 @@ void gamelog_string(const string &str)
 void errorlog_string(const char *ptr)
 {
 	if(ptr==NULL)return;
+	if (!error_file.is_open()) error_file.open("errorlog.txt",std::ios::out|std::ios::app);
 
 	//SAVE AN ERROR TO THE LOG FILE
 	std::osyncstream fseed(error_file);
@@ -622,7 +623,28 @@ void abbreviate_string(string &str, int32_t len)
   }
 }
 
-
+void separate_string(const string &str,std::vector<string> &separated,int32_t len)
+	{
+	separated.clear();
+	if (str.size()>len)
+		{
+		for (int i=0; i<str.size();)
+			{
+			auto sub=str.substr(i,len);
+			if (sub.length()==len)
+				{
+				auto linebreak_char=sub.find_last_of("- ");
+				if(linebreak_char!=std::string::npos) sub=sub.substr(0,linebreak_char+1);
+				}
+			separated.push_back(sub);
+			i+=(int)sub.length();
+			}
+		}
+	else
+		{
+		separated.push_back(str);
+		}
+	}
 
 void get_number(int32_t number,string &str)
 {

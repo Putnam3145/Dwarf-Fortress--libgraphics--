@@ -855,6 +855,7 @@ char interfacest::loop() {
   case INTERFACE_BREAKDOWN_NONE: {
     
     currentscreen->logic();
+	currentscreen->widgets.logic();
 
 #ifdef CURSES_MOVIES
 	if(currentscreen->movies_okay())

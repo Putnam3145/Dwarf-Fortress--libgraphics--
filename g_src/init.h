@@ -203,6 +203,8 @@ typedef int32_t InitLoadBarTexture;
 #define INIT_FILTER_TEXTURENUM 30
 #define INIT_TABS_TEXTURENUM 30
 
+void get_main_interface_dims(int32_t &,int32_t &);
+
 class initst
 {
 	public:
@@ -274,8 +276,8 @@ class initst
 			int32_t texpos_button_filter[6][3];
 			int32_t texpos_button_filter_name[4][3];
 		long tabs_texpos[INIT_TABS_TEXTURENUM];
-			int32_t texpos_tab_unselected[5][2];
-			int32_t texpos_tab_selected[5][2];
+			std::array<std::array<int32_t, 2>, 5> texpos_tab_unselected;
+			std::array<std::array<int32_t, 2>, 5> texpos_tab_selected;
 
 		//classic basic interface
 		long classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURENUM];

@@ -8,7 +8,6 @@
 #include <cstring>
 using std::string;
 
-#include "GL/glew.h"
 #include "g_basics.h"
 #include "platform.h"
 #include "basics.h"
@@ -2347,6 +2346,7 @@ enum InterfaceButtonUnitSheetType
 	INTERFACE_BUTTON_LARGE_UNIT_SHEET_EXPEL,
 	INTERFACE_BUTTON_LARGE_UNIT_SHEET_CAMERA_INACTIVE,
 	INTERFACE_BUTTON_LARGE_UNIT_SHEET_CAMERA_ACTIVE,
+	INTERFACE_BUTTON_LARGE_UNIT_SHEET_VIEW_REPORTS,
 	INTERFACE_BUTTON_LARGE_UNIT_SHEETNUM,
 	INTERFACE_BUTTON_LARGE_UNIT_SHEET_NONE=-1
 };
@@ -2671,6 +2671,11 @@ struct interface_setst
 	int32_t texpos_grid_cell_active[3][3];
 	int32_t texpos_grid_cell_button[3][3];
 
+	int32_t texpos_button_announcement_open_all_announcements[3][3];
+	int32_t texpos_button_announcement_not_pausing_on_new_report[3*3];
+	int32_t texpos_button_announcement_pausing_on_new_report[3*3];
+	int32_t texpos_button_announcement_open_from_main[3][3];
+
 	int32_t texpos_button_stocks_recenter[3][3];
 	int32_t texpos_button_stocks_view_item[3][3];
 	int32_t texpos_button_stocks_forbid[3][3];
@@ -2888,6 +2893,11 @@ struct interface_setst
 		memset(texpos_grid_cell_active,0,sizeof(int32_t)*3*3);
 		memset(texpos_grid_cell_button,0,sizeof(int32_t)*3*3);
 
+		memset(texpos_button_announcement_open_all_announcements,0,sizeof(int32_t)*3*3);
+		memset(texpos_button_announcement_not_pausing_on_new_report,0,sizeof(int32_t)*3*3);
+		memset(texpos_button_announcement_pausing_on_new_report,0,sizeof(int32_t)*3*3);
+		memset(texpos_button_announcement_open_from_main,0,sizeof(int32_t)*3*3);
+
 		memset(texpos_button_stocks_recenter,0,sizeof(int32_t)*3*3);
 		memset(texpos_button_stocks_view_item,0,sizeof(int32_t)*3*3);
 		memset(texpos_button_stocks_forbid,0,sizeof(int32_t)*3*3);
@@ -2998,6 +3008,8 @@ struct texblitst {
 	int32_t x, y;
 	int8_t tex;
 };
+
+#include <array>
 
 class graphicst
 {
@@ -3601,12 +3613,12 @@ class graphicst
 		int32_t texpos_slider_hover[2][3];
 		int32_t texpos_tab[5][3];
 		int32_t texpos_tab_selected[5][3];
-		int32_t texpos_short_tab[5][2];
-		int32_t texpos_short_tab_selected[5][2];
-		int32_t texpos_short_subtab[5][2];
-		int32_t texpos_short_subtab_selected[5][2];
-		int32_t texpos_short_subsubtab[5][2];
-		int32_t texpos_short_subsubtab_selected[5][2];
+		std::array<std::array<int32_t,2>,5> texpos_short_tab;
+		std::array<std::array<int32_t,2>,5> texpos_short_tab_selected;
+		std::array<std::array<int32_t,2>,5> texpos_short_subtab;
+		std::array<std::array<int32_t,2>,5> texpos_short_subtab_selected;
+		std::array<std::array<int32_t,2>,5> texpos_short_subsubtab;
+		std::array<std::array<int32_t,2>,5> texpos_short_subsubtab_selected;
 		int32_t texpos_interface_background;
 		int32_t texpos_button_main[INTERFACE_BUTTON_MAINNUM][4][3];
 		int32_t texpos_button_small[INTERFACE_BUTTON_SMALLNUM][2][2];
@@ -3633,6 +3645,11 @@ class graphicst
 		int32_t texpos_grid_cell_inactive[3][3];
 		int32_t texpos_grid_cell_active[3][3];
 		int32_t texpos_grid_cell_button[3][3];
+
+		int32_t texpos_button_announcement_open_all_announcements[3][3];
+		int32_t texpos_button_announcement_not_pausing_on_new_report[3*3];
+		int32_t texpos_button_announcement_pausing_on_new_report[3*3];
+		int32_t texpos_button_announcement_open_from_main[3][3];
 
 		int32_t texpos_button_stocks_recenter[3][3];
 		int32_t texpos_button_stocks_view_item[3][3];

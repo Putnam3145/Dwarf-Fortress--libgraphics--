@@ -40,8 +40,6 @@ using std::queue;
 # include <SDL2/SDL_image.h>
 #endif
 
-#include "GL/glew.h"
-
 #include "basics.h"
 #include "svector.h"
 #include "endian.h"
@@ -400,7 +398,7 @@ enum render_phase {
   complete,
   phase_count
 };
-
+/*
 class texture_bo {
   GLuint bo, tbo;
  public:
@@ -430,7 +428,6 @@ class texture_bo {
   GLuint texnum() { return tbo; }
 };
 
-/*
 class shader {
   string filename;
   std::ostringstream lines;
@@ -515,9 +512,9 @@ class curses_text_boxst
 #define ENABLERFLAG_BASIC_TEXT BIT3
 
 // GL texture positions
-struct gl_texpos {
+/*struct gl_texpos {
   GLfloat left, right, top, bottom;
-};
+};*/
 
 // Covers every allowed permutation of text
 struct ttf_id {
@@ -557,13 +554,13 @@ class textures
   bool uploaded;
   long add_texture(SDL_Surface*);
  protected:
-  GLuint gl_catalog; // texture catalog gennum
-  struct gl_texpos *gl_texpos; // Texture positions in the GL catalog, if any
+/*  GLuint gl_catalog; // texture catalog gennum
+  struct gl_texpos *gl_texpos; // Texture positions in the GL catalog, if any*/
  public:
   // Initialize state variables
   textures() {
     uploaded = false;
-    gl_texpos = NULL;
+    //gl_texpos = NULL;
   }
   ~textures() {
   	for (auto it = raws.cbegin(); it != raws.cend(); ++it)
@@ -634,6 +631,7 @@ enum zoom_commands { zoom_in, zoom_out, zoom_reset, zoom_fullscreen, zoom_resetg
 #define TEXTURE_FULLID_FLAG_DO_RECOLOR BIT2
 #define TEXTURE_FULLID_FLAG_CONVERT BIT3
 
+#ifdef WIN32
 struct texture_fullid {
   int texpos;
   float r, g, b;
@@ -641,17 +639,52 @@ struct texture_fullid {
   uint32_t flag;
 
 
-  bool operator< (const struct texture_fullid &other) const {
-    if (texpos != other.texpos) return texpos < other.texpos;
-    if (r != other.r) return r < other.r;
-    if (g != other.g) return g < other.g;
-    if (b != other.b) return b < other.b;
-    if (br != other.br) return br < other.br;
-    if (bg != other.bg) return bg < other.bg;
-    if (bb != other.bb) return bb < other.bb;
-    return flag < other.flag;
-  }
+  auto operator<=> (const struct texture_fullid &other) const=default;
 };
+
+template<>
+struct std::hash<texture_fullid>
+	{
+	size_t operator()(texture_fullid const &t) const noexcept
+		{
+		size_t h=std::hash<int>{}(t.texpos);
+		auto u_hash=std::hash<uint64_t>{};
+		h^=u_hash(std::bit_cast<uint64_t>(std::make_pair(t.r, t.g)));
+		h^=u_hash(std::bit_cast<uint64_t>(std::make_pair(t.b, t.br)))<<1;
+		h^=u_hash(std::bit_cast<uint64_t>(std::make_pair(t.bg, t.bb)))<<2;
+		h^=std::hash<uint32_t>{}(t.flag);
+		return h;
+		}
+	};
+#else
+struct texture_fullid {
+  int texpos;
+  float r, g, b;
+  float br, bg, bb;
+  uint32_t flag;
+
+
+  auto operator<=> (const struct texture_fullid &other) const=default;
+};
+
+template<>
+struct std::hash<texture_fullid>
+	{
+	size_t operator()(texture_fullid const &t) const noexcept
+		{
+		size_t h=std::hash<float>{}(t.texpos);
+		auto u_hash=std::hash<uint64_t>{};
+		h^=u_hash(t.r);
+		h^=u_hash(t.g)<<1;
+		h^=u_hash(t.b)<<2;
+		h^=u_hash(t.br)<<3;
+		h^=u_hash(t.bg)<<4;
+		h^=u_hash(t.bb)<<5;
+		h^=std::hash<uint32_t>{}(t.flag)<<6;
+		return h;
+		}
+	};
+#endif
 
 //typedef int texture_ttfid; // Just the texpos
 
@@ -911,7 +944,7 @@ class enablerst : public enabler_inputst
 	  }
 
   // TOADY: MOVE THESE TO "FRAMERATE INTERFACE"
-  std::atomic<int> simticks, gputicks;
+  int simticks, gputicks;
   Uint32 clock; // An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.
   bool mouse_focus;
   std::array<char, 32> last_text_input;

@@ -13,6 +13,11 @@
 #endif
 
 #ifndef WIN32
+using std::max;
+using std::min;
+#endif
+
+#ifndef WIN32
 BOOL CreateDirectory(const char* pathname, void*)
 {
   if (mkdir(pathname, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {

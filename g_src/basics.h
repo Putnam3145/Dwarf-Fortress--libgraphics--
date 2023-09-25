@@ -5,6 +5,7 @@
 #include <stdint.h>
 #endif
 #include <string>
+#include <vector>
 using std::string;
 
 #ifndef BITS
@@ -105,6 +106,7 @@ void simplify_string(string &str);
 void capitalize_string_words(string &str);
 void capitalize_string_first_word(string &str);
 void abbreviate_string(string &str,int32_t len);
+void separate_string(const string &str,std::vector<string> &separated,int32_t len);
 
 void get_number(int32_t number,string &str);
 void get_ordinal(int32_t number,string &str,bool shorten);
@@ -194,7 +196,7 @@ enum AnnouncementType
 	ANNOUNCEMENT_AMBUSH_THIEF_SUPPORT_SKULKING,
 	ANNOUNCEMENT_AMBUSH_THIEF_SUPPORT_NATURE,
 	ANNOUNCEMENT_AMBUSH_THIEF_SUPPORT,
-	ANNOUNCEMENT_AMBUSH_MISCHIEVIOUS,
+	ANNOUNCEMENT_AMBUSH_MISCHIEVOUS,
 	ANNOUNCEMENT_AMBUSH_SNATCHER,
 	ANNOUNCEMENT_AMBUSH_SNATCHER_SUPPORT,
 	ANNOUNCEMENT_AMBUSH_AMBUSHER_NATURE,

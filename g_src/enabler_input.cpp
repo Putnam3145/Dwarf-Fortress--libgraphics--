@@ -16,7 +16,7 @@ extern initst init;
 #include "find_files.h"
 #include "svector.h"
 #ifdef CURSES
-#include "curses.h"
+//#include "curses.h"
 #endif
 using namespace std;
 
@@ -193,9 +193,9 @@ string translate_mod(Uint8 mod) {
 static string display(const EventMatch &match) {
     static const std::map<SDL_Keycode,string> capitals={ {SDLK_a, "A"},
         {SDLK_b, "B"},{SDLK_c, "C"},{SDLK_d, "D"},{SDLK_e, "E"},{SDLK_f, "F"},
-        {SDLK_g, "G"},{SDLK_h, "H"},{SDLK_i, "I"},{SDLK_h, "J"},{SDLK_j, "K"},
-        {SDLK_k, "L"},{SDLK_l, "M"},{SDLK_m, "N"},{SDLK_n, "O"},{SDLK_o, "P"},
-        {SDLK_p, "Q"},{SDLK_q, "R"},{SDLK_r, "S"},{SDLK_t, "T"},{SDLK_u, "U"},
+        {SDLK_g, "G"},{SDLK_h, "H"},{SDLK_i, "I"},{SDLK_j, "J"},{SDLK_k, "K"},
+        {SDLK_l, "L"},{SDLK_m, "M"},{SDLK_n, "N"},{SDLK_o, "O"},{SDLK_p, "P"},
+        {SDLK_q, "Q"},{SDLK_r, "R"},{SDLK_s, "S"},{SDLK_t, "T"},{SDLK_u, "U"},
         {SDLK_v, "V"},{SDLK_w, "W"},{SDLK_x, "X"},{SDLK_y, "Y"},{SDLK_z, "Z"},
         };
   ostringstream ret;
@@ -696,7 +696,7 @@ void enabler_inputst::add_input_refined(KeyEvent &e, Uint32 now, int serial) {
   // rest of this function.
   if (key_registering && !e.release) {
     stored_keys.push_back(e.match);
-    Event e; e.r = REPEAT_NOT; e.repeats = 0; e.time = now; e.serial = serial; e.k = INTERFACEKEY_KEYBINDING_COMPLETE; e.tick = enabler.simticks.load();
+    Event e; e.r = REPEAT_NOT; e.repeats = 0; e.time = now; e.serial = serial; e.k = INTERFACEKEY_KEYBINDING_COMPLETE; e.tick = enabler.simticks;
     timeline.insert(e);
     return;
   }
@@ -734,7 +734,7 @@ void enabler_inputst::add_input_refined(KeyEvent &e, Uint32 now, int serial) {
     // non-repeating.
     for (set<InterfaceKey>::iterator k = keys.begin(); k != keys.end(); ++k) {
       bool is_mousewheel = e.match.type == type_mwheel;
-      Event ev = {is_mousewheel ? REPEAT_MWHEEL : key_repeat(*k), *k, is_mousewheel ? abs(e.match.y) : 0, serial, (int)now, enabler.simticks.load()};
+      Event ev = {is_mousewheel ? REPEAT_MWHEEL : key_repeat(*k), *k, is_mousewheel ? abs(e.match.y) : 0, serial, (int)now, enabler.simticks};
       timeline.insert(ev);
     }
     // if (cancel_ok) {
@@ -768,7 +768,7 @@ set<InterfaceKey> enabler_inputst::get_input(Time now) {
 
   const Time first_time = ev->time;
   const int first_serial = ev->serial;
-  int simtick = enabler.simticks.load();
+  int simtick = enabler.simticks;
   bool event_from_macro = false;
   while (ev != timeline.end() && ev->time == first_time && ev->serial == first_serial) {
     // Avoid recording macro-sources events as macro events.

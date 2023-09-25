@@ -71,7 +71,7 @@ typedef int32_t Ordinal;
 #define _XOPEN_SOURCE_EXTENDED
 #endif
 #ifdef CURSES
-#include "curses.h"
+//#include "curses.h"
 #endif
 using namespace std;
 
@@ -1095,10 +1095,10 @@ void render_things()
   if(currentscreen->breakdownlevel==INTERFACE_BREAKDOWN_NONE)
 	{
 	currentscreen->render();
+	// WANT THE WIDGETS TO RENDER LAST, BASICALLY ALWAYS--MOSTLY DFHACK, BUT OTHER REASONS TOO
+	currentscreen->widgets.render();
 	}
   else gps.erasescreen();
-
-  hooks_prerender();
 
   // Render REC when recording macros. Definitely want this screen-specific. Or do we?
   const Time now = SDL_GetTicks();
@@ -5299,15 +5299,6 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_sort_descending_inactive,0,sizeof(int32_t)*4);
 	memset(texpos_sort_text_active,0,sizeof(int32_t)*3);
 	memset(texpos_sort_text_inactive,0,sizeof(int32_t)*3);
-
-	memset(texpos_tab,0,sizeof(int32_t)*5*3);
-	memset(texpos_tab_selected,0,sizeof(int32_t)*5*3);
-	memset(texpos_short_tab,0,sizeof(int32_t)*5*2);
-	memset(texpos_short_tab_selected,0,sizeof(int32_t)*5*2);
-	memset(texpos_short_subtab,0,sizeof(int32_t)*5*2);
-	memset(texpos_short_subtab_selected,0,sizeof(int32_t)*5*2);
-	memset(texpos_short_subsubtab,0,sizeof(int32_t)*5*2);
-	memset(texpos_short_subsubtab_selected,0,sizeof(int32_t)*5*2);
 	texpos_interior_border_n_s_w_e=0;
 	texpos_interior_border_n_w_e=0;
 	texpos_interior_border_s_w_e=0;
@@ -5326,6 +5317,11 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_grid_cell_inactive,0,sizeof(int32_t)*3*3);
 	memset(texpos_grid_cell_active,0,sizeof(int32_t)*3*3);
 	memset(texpos_grid_cell_button,0,sizeof(int32_t)*3*3);
+
+	memset(texpos_button_announcement_open_all_announcements,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_announcement_not_pausing_on_new_report,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_announcement_pausing_on_new_report,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_announcement_open_from_main,0,sizeof(int32_t)*3*3);
 
 	memset(texpos_button_stocks_recenter,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_stocks_view_item,0,sizeof(int32_t)*3*3);

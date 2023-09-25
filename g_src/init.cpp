@@ -47,6 +47,30 @@ extern graphicst gps;
 
 int32_t convert_raw_to_ascii_texpos(uint8_t tile,uint8_t color_f,uint8_t color_b,uint8_t color_br);
 
+void get_main_interface_dims(int32_t &main_interface_sx,int32_t &main_interface_ex)
+	{
+	main_interface_sx=0;
+	main_interface_ex=(::init.display.grid_x)-1;
+	//***************************** FONT SIZE DEPENDENCE
+		//all the 8s and 12s in this need to be watched, in feed and render too
+	int32_t adjusted_width=(::init.display.grid_x)*init.display.max_interface_percentage/100;
+	if (adjusted_width<MIN_GRID_X)adjusted_width=MIN_GRID_X;
+	if (main_interface_ex-main_interface_sx+1>adjusted_width)
+		{
+		int32_t excess=main_interface_ex-main_interface_sx-adjusted_width+1;
+		if (main_interface_ex-main_interface_sx+1-excess<MIN_GRID_X)
+			{
+			excess=main_interface_ex-main_interface_sx+1-MIN_GRID_X;
+			}
+		if (excess>0)
+			{
+			main_interface_sx+=excess;
+			main_interface_sx-=excess/2;
+			main_interface_ex-=excess/2;
+			}
+		}
+	}
+
 init_displayst::init_displayst()
 {
 	flag.set_size_on_flag_num(INIT_DISPLAY_FLAGNUM);
