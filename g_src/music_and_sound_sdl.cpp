@@ -6,13 +6,15 @@
 
 #include <SDL2/SDL_mixer.h>
 
-static int volume_ambience = 128;
+#define MIX_MAX_VOLUME 128
 
-static int volume_music = 128;
+static int volume_ambience = MIX_MAX_VOLUME;
 
-static int volume_sfx = 128;
+static int volume_music = MIX_MAX_VOLUME;
 
-static int volume_master = 128;
+static int volume_sfx = MIX_MAX_VOLUME;
+
+static int volume_master = MIX_MAX_VOLUME;
 
 enum struct StreamAudioType : int8_t {
 	SONG,
@@ -155,34 +157,34 @@ extern "C"
 	void set_song_volume(float vol)
 	{
 		if(is_song_playing())
-			Mix_VolumeMusic(vol * 128);
+			Mix_VolumeMusic(vol * MIX_MAX_VOLUME);
 	}
 	void set_card_volume(float vol)
 	{
 		if(is_card_playing())
-			Mix_VolumeMusic(vol * 128);
+			Mix_VolumeMusic(vol * MIX_MAX_VOLUME);
 	}
 	void set_ambience_volume(int32_t chan, float vol)
 	{
 		if(is_ambience_playing(chan))
-			Mix_VolumeMusic(vol * 128);
+			Mix_VolumeMusic(vol * MIX_MAX_VOLUME);
 	}
 	 float get_song_volume()
 	{
 		if (is_song_playing())
-			return (float)Mix_VolumeMusic(-1)/128.0f;
+			return (float)Mix_VolumeMusic(-1)/ float(MIX_MAX_VOLUME);
 		return 0.0f;
 	};
 	 float get_card_volume()
 	{
 		if (is_card_playing())
-			return (float)Mix_VolumeMusic(-1) / 128.0f;
+			return (float)Mix_VolumeMusic(-1) / float(MIX_MAX_VOLUME);
 		return 0.0f;
 	};
 	 float get_ambience_volume(int32_t chan)
 	{
 		if (is_ambience_playing(chan))
-			return (float)Mix_VolumeMusic(-1) / 128.0f;
+			return (float)Mix_VolumeMusic(-1) / float(MIX_MAX_VOLUME);
 		return 0.0f;
 	};
 	void update()
