@@ -1094,9 +1094,10 @@ void render_things()
 
   if(currentscreen->breakdownlevel==INTERFACE_BREAKDOWN_NONE)
 	{
-	currentscreen->render();
+	uint32_t curtick=GetTickCount();
+	currentscreen->render(curtick);
 	// WANT THE WIDGETS TO RENDER LAST, BASICALLY ALWAYS--MOSTLY DFHACK, BUT OTHER REASONS TOO
-	currentscreen->widgets.render();
+	currentscreen->widgets.render(curtick);
 	}
   else gps.erasescreen();
 
@@ -5317,6 +5318,9 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_grid_cell_inactive,0,sizeof(int32_t)*3*3);
 	memset(texpos_grid_cell_active,0,sizeof(int32_t)*3*3);
 	memset(texpos_grid_cell_button,0,sizeof(int32_t)*3*3);
+	memset(texpos_type_filter_left,0,sizeof(int32_t)*3);
+	memset(texpos_type_filter_right,0,sizeof(int32_t)*3);
+	memset(texpos_type_filter_text,0,sizeof(int32_t)*3);
 
 	memset(texpos_button_announcement_open_all_announcements,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_announcement_not_pausing_on_new_report,0,sizeof(int32_t)*3*3);
@@ -5375,6 +5379,22 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_moon_weather,0,sizeof(int32_t)*INTERFACE_MOON_WEATHERNUM);
 	memset(texpos_announcement_alert,0,sizeof(int32_t)*ANNOUNCEMENT_ALERTNUM);
 	memset(texpos_unit_status,0,sizeof(int32_t)*UNIT_STATUSNUM);
+
+	texpos_default_portrait_background=0;
+	texpos_default_portrait_frame=0;
+	texpos_chosen_portrait_frame=0;
+	texpos_hero_portrait_frame=0;
+	texpos_portrait_chosen=0;
+	texpos_portrait_hero=0;
+	texpos_portrait_ordinary=0;
+	texpos_portrait_chosen_selected=0;
+	texpos_portrait_hero_selected=0;
+	texpos_portrait_ordinary_selected=0;
+	texpos_default_portrait_background_selected=0;
+	texpos_portrait_left=0;
+	texpos_portrait_right=0;
+	texpos_portrait_add_active=0;
+	texpos_portrait_add_inactive=0;
 
 	multilevel_ramp_with_wall_nsew=0;
 	multilevel_ramp_with_wall_nse=0;
@@ -8844,6 +8864,13 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_liquid_for_barrel_metal=0;
 	texpos_item_barrel_wood_item=0;
 	texpos_item_barrel_metal_item=0;
+	texpos_item_barrel_top_plant.clear();
+	texpos_item_barrel_top_plant_subterranean.clear();
+	texpos_item_barrel_top_meal.clear();
+	texpos_item_barrel_top_cheese.clear();
+	texpos_item_barrel_top_meat.clear();
+	texpos_item_barrel_top_fish.clear();
+	texpos_item_barrel_top_bag.clear();
 
 	texpos_food_container_top_liquid=0;
 	texpos_food_container_top_bag=0;
@@ -8917,6 +8944,27 @@ void graphicst::zero_and_clear_all_texpos()
 		texpos_item_bin_metal_empty=0;
 		texpos_item_bin_wood_in_use=0;
 		texpos_item_bin_metal_in_use=0;
+		texpos_item_bin_top_ammo.clear();
+		texpos_item_bin_top_cloth.clear();
+		texpos_item_bin_top_clothing.clear();
+		texpos_item_bin_top_armor_leather.clear();
+		texpos_item_bin_top_armor_metal.clear();
+		texpos_item_bin_top_bars.clear();
+		texpos_item_bin_top_blocks.clear();
+		texpos_item_bin_top_coal.clear();
+		texpos_item_bin_top_powders.clear();
+		texpos_item_bin_top_coins.clear();
+		texpos_item_bin_top_gems.clear();
+		texpos_item_bin_top_mechanisms.clear();
+		texpos_item_bin_top_bags.clear();
+		texpos_item_bin_top_books.clear();
+		texpos_item_bin_top_sheets.clear();
+		texpos_item_bin_top_chains.clear();
+		texpos_item_bin_top_ropes.clear();
+		texpos_item_bin_top_leather.clear();
+		texpos_item_bin_top_weapons.clear();
+		texpos_item_bin_top_trap_comps.clear();
+		texpos_item_bin_top_crafts.clear();
 	texpos_item_bag=0;
 		texpos_item_bag_empty=0;
 		texpos_item_bag_in_use=0;
@@ -9095,6 +9143,22 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_statue_vomit=0;
 	texpos_item_statue_water=0;
 	texpos_item_statue_mud=0;
+	texpos_item_statue_artifact.clear();
+	for(s=0;s<2;++s)
+		{
+		texpos_item_statue_generic_event[s]=0;
+		texpos_item_statue_generic_shape[s]=0;
+		texpos_item_statue_generic_duel[s]=0;
+		texpos_item_statue_generic_triumph[s]=0;
+		texpos_item_statue_generic_civilized[s]=0;
+		texpos_item_statue_generic_strike_down[s]=0;
+		texpos_item_statue_generic_shot[s]=0;
+		texpos_item_statue_generic_item_creation[s]=0;
+		texpos_item_statue_generic_tree[s]=0;
+		texpos_item_statue_generic_shrub[s]=0;
+		texpos_item_statue_generic_battle[s]=0;
+		texpos_item_statue_generic_site[s]=0;
+		}
 
 	texpos_item_bodypart_fat=0;
 	texpos_item_bodypart_eye=0;

@@ -10,13 +10,13 @@ template<class T, size_t N>
 class object_pool
 {
 	using pool_array=std::array<T,N>;
-	std::vector<std::unique_ptr<pool_array>> pool;
+	std::vector<pool_array*> pool;
 	std::set<size_t> unused_slots;
 	size_t get_next_slot()
 	{
 		if (unused_slots.empty())
 			{
-			pool.push_back(std::unique_ptr<pool_array>(new pool_array()));
+			pool.push_back(new pool_array());
 			const auto end=pool.size()*N;
 			auto it=unused_slots.begin();
 			for (auto i=end-N; i<end; i++)
@@ -80,8 +80,10 @@ public:
 		}
 	~object_pool()
 		{
-		pool.clear();
-		unused_slots.clear();
+		/*
+		* If you make one of these without a static lifetime at any point
+		* it will cause a leak, so don't do that please
+		*/
 		}
 };
 

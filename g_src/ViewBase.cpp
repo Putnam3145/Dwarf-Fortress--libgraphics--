@@ -1,10 +1,40 @@
+#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include "ViewBase.h"
 #include "interface.h"
 #include "init.h"
 
+
 using namespace widgets;
+
+bool standardscroll(std::set<InterfaceKey> &events,int32_t &scroll,const int32_t page_size) {
+	if (events.contains(INTERFACEKEY_STANDARDSCROLL_UP))
+		{
+		--scroll;
+		events.erase(INTERFACEKEY_STANDARDSCROLL_UP);
+		return true;
+		}
+	else if (events.contains(INTERFACEKEY_STANDARDSCROLL_DOWN))
+		{
+		++scroll;
+		events.erase(INTERFACEKEY_STANDARDSCROLL_DOWN);
+		return true;
+		}
+	else if (events.contains(INTERFACEKEY_STANDARDSCROLL_PAGEUP))
+		{
+		scroll-=page_size;
+		events.erase(INTERFACEKEY_STANDARDSCROLL_PAGEUP);
+		return true;
+		}
+	else if (events.contains(INTERFACEKEY_STANDARDSCROLL_PAGEDOWN))
+		{
+		scroll+=page_size;
+		events.erase(INTERFACEKEY_STANDARDSCROLL_PAGEDOWN);
+		return true;
+		}
+	return false;
+	}
 
 bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_position, bool& scrolling)
 {
@@ -403,8 +433,18 @@ void scrollbarst::render(int32_t mouse_x, int32_t mouse_y, int32_t bx, bool acti
 	}
 }
 
+void blank_anchors(int32_t sy,int32_t sx,int32_t ey,int32_t ex) {
+	for (auto px=sx; px<=ex; ++px)
+		{
+		for (auto py=sy; py<=ey; ++py)
+			{
+			gps.screentexpos_anchored[sx*gps.dimy + sy]=0;
+			}
+		}
+	}
+
 widget::widget() {
-	visibility_flags=WIDGET_VISIBILITY_ACTUALLY_VISIBLE;
+	flag=WIDGET_VISIBILITY_ACTUALLY_VISIBLE|WIDGET_CAN_KEY_ACTIVATE;
 	name = "";
 	tooltip="";
 	tooltip_type=TooltipType::NONE;
@@ -415,14 +455,51 @@ widget::widget() {
 
 void widget::move_to_anchor() {
 	// for the opinionated: the parens are for clarity, it changes no semantics, i know this
-	if (!parent) parent=gview.grab_lastscreen();
-	extentst parent_rect=parent->get_rect();
+	extentst parent_rect;
+	if (!(flag&WIDGET_GLOBAL_POSITIONING))
+		{
+		if (parent)
+			{
+			parent_rect=parent->get_rect();
+			}
+		else
+			{
+			parent_rect=gview.grab_lastscreen()->get_rect();
+			}
+		}
+	else
+		{
+		parent_rect.sx=0;
+		parent_rect.sy=0;
+		parent_rect.ex=::init.display.grid_x;
+		parent_rect.ey=::init.display.grid_y;
+		}
     rect.sx=parent_rect.sx+((parent_rect.ex-parent_rect.sx)*anchor_left)+offset_left;
 	rect.ex=parent_rect.sx+((parent_rect.ex-parent_rect.sx)*anchor_right)+offset_right;
     rect.sy=parent_rect.sy+((parent_rect.ey-parent_rect.sy)*anchor_top)+offset_top;
 	rect.ey=parent_rect.sy+((parent_rect.ey-parent_rect.sy)*anchor_bottom)+offset_bottom;
-	if (rect.w()<min_w) rect.ex=rect.sx+min_w-1;
-	if (rect.h()<min_h) rect.ey=rect.sy+min_h-1;
+	if (rect.w()<min_w)
+		{
+		if (anchor_left>0.5 && anchor_right>0.5)
+			{
+			rect.sx=rect.ex-min_w+1;
+			}
+		else
+			{
+			rect.ex=rect.sx+min_w-1;
+			}
+		}
+	if (rect.h()<min_h)
+		{
+		if (anchor_top>0.5 && anchor_bottom>0.5)
+			{
+			rect.sy=rect.ey-min_h+1;
+			}
+		else
+			{
+			rect.ey=rect.sy+min_h-1;
+			}
+		}
 }
 
 void widget::set_anchor(Side side,float n)
@@ -542,29 +619,121 @@ void widget::set_anchors_preset(LayoutPreset preset)
 			set_anchor(Side::LEFT,0.0);
 			set_anchor(Side::RIGHT,1.0);
 			set_anchor(Side::BOTTOM,0.0);
+			return;
 		case LayoutPreset::WIDE_BOTTOM:
 			set_anchor(Side::TOP,1.0);
 			set_anchor(Side::LEFT,0.0);
 			set_anchor(Side::RIGHT,1.0);
 			set_anchor(Side::BOTTOM,1.0);
+			return;
 		case LayoutPreset::WIDE_LEFT:
 			set_anchor(Side::TOP,0.0);
 			set_anchor(Side::LEFT,0.0);
 			set_anchor(Side::RIGHT,0.0);
 			set_anchor(Side::BOTTOM,1.0);
+			return;
 		case LayoutPreset::WIDE_RIGHT:
 			set_anchor(Side::TOP,0.0);
 			set_anchor(Side::LEFT,1.0);
 			set_anchor(Side::RIGHT,1.0);
 			set_anchor(Side::BOTTOM,1.0);
+			return;
 		case LayoutPreset::FULL:
 			set_anchor(Side::TOP,0.0);
 			set_anchor(Side::LEFT, 0.0);
 			set_anchor(Side::BOTTOM,1.0);
 			set_anchor(Side::RIGHT, 1.0);
 			return;
+		case LayoutPreset::HALF_LEFT:
+			set_anchor(Side::TOP,0.0);
+			set_anchor(Side::LEFT,0.0);
+			set_anchor(Side::BOTTOM,1.0);
+			set_anchor(Side::RIGHT,0.5);
+			return;
+		case LayoutPreset::HALF_RIGHT:
+			set_anchor(Side::TOP,0.0);
+			set_anchor(Side::LEFT,0.5);
+			set_anchor(Side::BOTTOM,1.0);
+			set_anchor(Side::RIGHT,1.0);
+			return;
+		case LayoutPreset::HALF_TOP:
+			set_anchor(Side::TOP,0.0);
+			set_anchor(Side::LEFT,0.0);
+			set_anchor(Side::BOTTOM,0.5);
+			set_anchor(Side::RIGHT,1.0);
+			return;
+		case LayoutPreset::HALF_BOTTOM:
+			set_anchor(Side::TOP,0.5);
+			set_anchor(Side::LEFT,0.0);
+			set_anchor(Side::BOTTOM,1.0);
+			set_anchor(Side::RIGHT,1.0);
+			return;
 		}
 	}
+
+void widget::set_layout_preset(LayoutPreset preset) {
+	set_anchors_preset(preset);
+	switch (preset)
+		{
+		case LayoutPreset::TOP_LEFT:
+		case LayoutPreset::TOP_RIGHT:
+		case LayoutPreset::BOTTOM_LEFT:
+		case LayoutPreset::BOTTOM_RIGHT:
+			set_offsets(0,0,0,0);
+			return;
+		case LayoutPreset::CENTER:
+			{
+			move_to_anchor();
+			const auto w=width()/2;
+			const auto h=height()/2;
+			set_offsets(-h,h,-w,w);
+			return;
+			}
+		case LayoutPreset::CENTER_TOP:
+		case LayoutPreset::CENTER_BOTTOM:
+			{
+			const auto w=width()/2;
+			move_to_anchor();
+			set_offsets(0,0,-w,w);
+			return;
+			}
+		case LayoutPreset::CENTER_LEFT:
+		case LayoutPreset::CENTER_RIGHT:
+			{
+			const auto h=height()/2;
+			move_to_anchor();
+			set_offsets(-h,h,0,0);
+			return;
+			}
+		case LayoutPreset::WIDE_TOP:
+		case LayoutPreset::WIDE_BOTTOM:
+			set_offsets(0,0,0,0);
+			min_w=0;
+			return;
+		case LayoutPreset::WIDE_LEFT:
+		case LayoutPreset::WIDE_RIGHT:
+			set_offsets(0,0,0,0);
+			min_h=0;
+			return;
+		case LayoutPreset::FULL:
+			set_offsets(0,0,0,0);
+			min_h=min_w=0;
+			return;
+		case LayoutPreset::HALF_LEFT:
+			set_offsets(0,0,0,0);
+			return;
+		case LayoutPreset::HALF_RIGHT:
+			set_offsets(0,0,1,0);
+			return;
+		case LayoutPreset::HALF_TOP:
+			set_offsets(0,0,0,0);
+			return;
+		case LayoutPreset::HALF_BOTTOM:
+			set_offsets(0,1,0,0);
+			return;
+		}
+	}
+
 
 extentst viewscreenst::get_rect()
 	{
@@ -580,43 +749,167 @@ void viewscreenst::feed(std::set<InterfaceKey> &ev)
 	return widgets.feed(ev);
 	}
 
-void draw_nineslice(int32_t* texpos, int sy, int sx, int ey, int ex, bool override) {
-    // corners
-    gps.locate(sy, sx);
-    gps.add_lower_tile(texpos[0]);
-    gps.locate(sy, ex);
-    gps.add_lower_tile(texpos[2]);
-    gps.locate(ey, sx);
-    gps.add_lower_tile(texpos[6]);
-    gps.locate(ey, ex);
-    gps.add_lower_tile(texpos[8]);
-    // top and bottom
-    for (auto bx = sx + 1; bx <= ex - 1; bx++) {
-        gps.locate(sy, bx);
-        gps.add_lower_tile(texpos[1]);
-        gps.locate(ey, bx);
-        gps.add_lower_tile(texpos[7]);
-    }
-    // sides and middle
-    for (auto by = sy + 1; by <= ey - 1; by++) {
-        gps.locate(by, sx);
-        gps.add_lower_tile(texpos[3]);
-        gps.locate(by, ex);
-        gps.add_lower_tile(texpos[5]);
-        for (auto bx = sx + 1; bx <= ex - 1; bx++) {
-            gps.locate(by, bx);
-            gps.add_lower_tile(texpos[4]);
-        }
-    }
-	if (override && ::init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS)) {
-		for (auto by = sy; by <= ey; by++) {
-			for (auto bx = sx; bx <= ex; bx++) {
-				gps.locate(by, bx);
-				gps.addchar(0);
+void draw_nineslice(int32_t *texpos,int sy,int sx,int ey,int ex,override_tile_type override) {
+	// corners
+	gps.locate(sy,sx);
+	gps.add_lower_tile(texpos[0]);
+	gps.locate(sy,ex);
+	gps.add_lower_tile(texpos[2]);
+	gps.locate(ey,sx);
+	gps.add_lower_tile(texpos[6]);
+	gps.locate(ey,ex);
+	gps.add_lower_tile(texpos[8]);
+	// top and bottom
+	for (auto bx=sx + 1; bx <= ex - 1; bx++)
+		{
+		gps.locate(sy,bx);
+		gps.add_lower_tile(texpos[1]);
+		gps.locate(ey,bx);
+		gps.add_lower_tile(texpos[7]);
+		}
+	// sides and middle
+	for (auto by=sy + 1; by <= ey - 1; by++)
+		{
+		gps.locate(by,sx);
+		gps.add_lower_tile(texpos[3]);
+		gps.locate(by,ex);
+		gps.add_lower_tile(texpos[5]);
+		for (auto bx=sx + 1; bx <= ex - 1; bx++)
+			{
+			gps.locate(by,bx);
+			gps.add_lower_tile(texpos[4]);
+			}
+		}
+	if (::init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))
+		{
+		gps.override_tiles(sy,sx,ey,ex,override);
+		}
+	}
+
+void draw_horizontal_nineslice(int32_t *texpos,int sy,int sx,int ey,int ex,override_tile_type override) {
+	// corners
+	gps.locate(sy,sx);
+	gps.add_lower_tile(texpos[0]);
+	gps.locate(sy,ex);
+	gps.add_lower_tile(texpos[6]);
+	gps.locate(ey,sx);
+	gps.add_lower_tile(texpos[2]);
+	gps.locate(ey,ex);
+	gps.add_lower_tile(texpos[8]);
+	// top and bottom
+	for (auto bx=sx + 1; bx <= ex - 1; bx++)
+		{
+		gps.locate(sy,bx);
+		gps.add_lower_tile(texpos[3]);
+		gps.locate(ey,bx);
+		gps.add_lower_tile(texpos[5]);
+		}
+	// sides and middle
+	for (auto by=sy + 1; by <= ey - 1; by++)
+		{
+		gps.locate(by,sx);
+		gps.add_lower_tile(texpos[1]);
+		gps.locate(by,ex);
+		gps.add_lower_tile(texpos[7]);
+		for (auto bx=sx + 1; bx <= ex - 1; bx++)
+			{
+			gps.locate(by,bx);
+			gps.add_lower_tile(texpos[4]);
+			}
+		}
+	if (::init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))
+		{
+		gps.override_tiles(sy,sx,ey,ex,override);
+		}
+	}
+
+void draw_sort_widget(int sy,int sx,int ey,int ex,bool active,bool ascending)
+	{
+	int32_t *texpos=NULL;
+	if (ascending)
+		{
+		texpos=(active)?(::init.texpos_sort_ascending_active):(::init.texpos_sort_ascending_inactive);
+		}
+	else
+		{
+		texpos=(active)?(::init.texpos_sort_descending_active):(::init.texpos_sort_descending_inactive);
+		}
+	if (texpos[0]==0)
+		{
+		gps.locate(sy,sx);
+		if (active)
+			{
+			gps.changecolor(7,0,1);
+			}
+		else
+			{
+			gps.changecolor(0,0,1);
+			}
+		if (ascending)
+			{
+			gps.addst(" ^ ");
+			}
+		else
+			{
+			gps.addst(" v ");
+			}
+		}
+	else
+		{
+		for (auto px=0; px<=3; ++px)
+			{
+			gps.locate(sy,sx+px);
+			gps.add_lower_tile(texpos[px]);
 			}
 		}
 	}
-}
+
+void draw_sort_widget(int sy,int sx,int ey,int ex,bool active,bool ascending, const string &name)
+	{
+	draw_sort_widget(sy,sx,ey,ex,active,ascending);
+	const auto print_thing=[sy](int32_t sx,int32_t ex,int32_t *texpos) {
+		gps.locate(sy,sx);
+		gps.add_lower_tile(texpos[0]);
+		for (auto px=sx+1; px<ex; ++px)
+			{
+			gps.locate(sy,px);
+			gps.add_lower_tile(texpos[1]);
+			}
+		gps.locate(sy,ex);
+		gps.add_lower_tile(texpos[2]);
+		};
+	if (::init.texpos_sort_text_active[0]==0)
+		{
+		if (active)
+			{
+			gps.changecolor(7,0,1);
+			}
+		else
+			{
+			gps.changecolor(0,0,1);
+			}
+		gps.addst(name);
+		}
+	else
+		{
+		if (active)
+			{
+			print_thing(sx+4,ex,::init.texpos_sort_text_active);
+			gps.locate(sy,sx+5);
+			if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))	gps.changecolor(0,0,0);
+			else gps.changecolor(7,0,1);
+			gps.addst(name);
+			}
+		else
+			{
+			print_thing(sx+4,ex,::init.texpos_sort_text_inactive);
+			gps.locate(sy,sx+5);
+			if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS)) gps.changecolor(0,0,1);
+			else gps.changecolor(0,0,1);
+			gps.addst(name);
+			}
+		}
+	}
 
 widget::~widget()
 	{
@@ -628,71 +921,177 @@ widget::~widget()
 		}
 	}
 
-void widget::render()
+bool widget::can_key_activate() {
+	return !!(flag & WIDGET_CAN_KEY_ACTIVATE);
+	}
+
+bool widget::set_can_key_activate(bool can, bool children_too) {
+	const auto old=can_key_activate();
+	if (can)
+		{
+		flag|=WIDGET_CAN_KEY_ACTIVATE;
+		}
+	else
+		{
+		flag&=~WIDGET_CAN_KEY_ACTIVATE;
+		}
+	if (children_too)
+		{
+		auto c=dynamic_cast<container *>(this);
+		if (c)
+			{
+			for (auto &child : c->children)
+				{
+				child->set_can_key_activate(can);
+				}
+			}
+		}
+	return old;
+	}
+
+// does nothing on its own! inheritors might want to call it for various reasons, though
+bool widget::activate() {
+	bool ret=false;
+	for (auto &f : custom_activated) 
+		{ 
+		if (f(this)) ret=true;
+		}
+	return ret;
+	}
+
+void widget::locate(int32_t offset_y, int32_t offset_x) {
+	gps.locate(rect.sy+offset_y,rect.sx+offset_x);
+	}
+
+void widget::render(uint32_t curtick)
 	{
-	if (tooltip_type!=TooltipType::NONE && !tooltip.empty()&&enabler.tracking_on)
+	for (auto &fn : custom_render)
+		{
+		fn(this, curtick);
+		}
+	if (enabler.tracking_on)
 		{
 		int32_t tmx=-1,tmy=-1;
 		gps.get_mouse_text_coords(tmx,tmy);
-		if (inside(tmy,tmx) && !displaying_tooltip)
+		if (inside(tmy,tmx))
 			{
-			displaying_tooltip=true;
-			auto tooltip_widget=gview.grab_lastscreen()->widgets.add_or_get_widget<container>("Tooltip");
-			tooltip_widget->set_parent(this);
-			tooltip_widget->set_active(true);
-			tooltip_widget->resize((int32_t)tooltip.length()/24+3,26);
-			auto slice=tooltip_widget->add_or_get_widget<nineslice>("Background",&init.texpos_border_nw);
-			slice->set_anchors_preset(LayoutPreset::FULL);
-			auto text=tooltip_widget->add_or_get_widget<text_multiline>("Text");
-			text->set_text(tooltip);
-			text->fg=7;
-			text->bright=1;
-			text->min_w=24;
-			text->set_offset(Side::LEFT,1);
-			text->set_offset(Side::TOP,1);
-			switch (tooltip_type)
+			if (tooltip_type!=TooltipType::NONE && std::holds_alternative<string>(tooltip))
 				{
-				case TooltipType::ABOVE:
+				auto &tooltip_str=std::get<string>(tooltip);
+				displaying_tooltip=true;
+				auto tooltip_widget=gview.grab_lastscreen()->widgets.add_or_get_widget<container>("Tooltip");
+				tooltip_widget->set_parent(this);
+				tooltip_widget->set_active(true);
+				tooltip_widget->resize((int32_t)tooltip_str.length()/24+3,26);
+				tooltip_widget->tooltip_type=tooltip_type;
+				auto slice=tooltip_widget->add_or_get_widget<nineslice>("Background",&init.texpos_border_nw);
+				slice->set_anchors_preset(LayoutPreset::FULL);
+				auto text=tooltip_widget->add_or_get_widget<text_multiline>("Text");
+				text->set_text(tooltip_str);
+				text->set_color(7,0,1);
+				text->set_layout_preset(LayoutPreset::WIDE_TOP);
+				text->set_offset(Side::LEFT,1);
+				text->set_offset(Side::TOP,1);
+				auto hotkeys=tooltip_widget->add_or_get_widget<columns_container>("Hotkeys");
+				hotkeys->clear();
+				hotkeys->set_anchors_preset(widgets::LayoutPreset::BOTTOM_LEFT);
+				hotkeys->offset_bottom=-2;
+				hotkeys->offset_left=1;
+				for (auto &key : activation_hotkeys)
 					{
-					tooltip_widget->set_anchors_preset(LayoutPreset::TOP_LEFT);
-					tooltip_widget->set_offset(Side::TOP,-1-tooltip_widget->min_h);
-					if (rect.sx>::init.display.grid_x/2) tooltip_widget->set_offset(Side::LEFT,-28);
-					break;
+					auto c=hotkeys->add_widget<widgets::columns_container>();
+					c->add_widget<widgets::text>("Hotkey: ");
+					c->add_widget<widgets::keybinding_display>(key);
 					}
-				case TooltipType::BELOW:
+				tooltip_widget->set_global_positioning(false); // want this by default...
+				switch (tooltip_type)
 					{
-					tooltip_widget->set_anchors_preset(LayoutPreset::BOTTOM_LEFT);
-					tooltip_widget->set_offset(Side::TOP,1);
-					if (rect.sx>::init.display.grid_x/2) tooltip_widget->set_offset(Side::LEFT,-28);
-					break;
+					case TooltipType::ABOVE:
+						{
+						tooltip_widget->set_anchors_preset(LayoutPreset::TOP_LEFT);
+						tooltip_widget->set_offset(Side::TOP,-1-tooltip_widget->min_h);
+						if (rect.sx>::init.display.grid_x/2) tooltip_widget->set_offset(Side::LEFT,-28);
+						break;
+						}
+					case TooltipType::BELOW:
+						{
+						tooltip_widget->set_anchors_preset(LayoutPreset::BOTTOM_LEFT);
+						tooltip_widget->set_offset(Side::TOP,1);
+						if (rect.sx>::init.display.grid_x/2) tooltip_widget->set_offset(Side::LEFT,-28);
+						break;
+						}
+					case TooltipType::REPLACE_MINIMAP:
+						{
+						//upper right
+						//*************************** TEXTURE SIZE DEPENDENCE
+						tooltip_widget->set_anchors_preset(LayoutPreset::TOP_RIGHT);
+						tooltip_widget->set_offsets(0,192/12+1,-192/8+1,0);
+						tooltip_widget->set_global_positioning(true); // but want it to be global for this, since minimap is
+						break;
+						}
 					}
-				case TooltipType::REPLACE_MINIMAP:
-					{
-					//upper right
-					//*************************** TEXTURE SIZE DEPENDENCE
-					tooltip_widget->set_anchors_preset(LayoutPreset::TOP_RIGHT);
-					tooltip_widget->set_parent(gview.grab_lastscreen());
-					tooltip_widget->set_offsets(0,192/12-1,-1-192/8+1,-1);
-					break;
-					}
+				tooltip_widget->set_visible(true);
+				tooltip_widget->arrange();
 				}
-			tooltip_widget->set_visible(true);
-			tooltip_widget->arrange();
+			else if(std::holds_alternative<std::function<void()>>(tooltip))
+				{
+				std::get<std::function<void()>>(tooltip)();
+				}
 			}
 		else if (displaying_tooltip && !inside(tmy,tmx))
 			{
 			auto tooltip_widget=gview.grab_lastscreen()->widgets.add_or_get_widget<container>("Tooltip");
 			tooltip_widget->set_active(false);
 			displaying_tooltip=false;
+			tooltip_widget->tooltip_type=TooltipType::NONE;
 			}
 		}
 	}
 
 void widget::feed(std::set<InterfaceKey> &ev)
 	{
-	if (custom_feed)
+	// click-to-activate is such a common thing it's part of the "default behavior" here--custom feeds happen **first** so
+	// that custom feed functions can completely intercept the activation, which is far more specialized
+	// (but still highly useful for e.g. certain containers that might want to be keyboard controlled)
+	for (auto &fn : custom_feed)
 		{
-		(*custom_feed)(ev);
+		fn(ev, this);
+		}
+	if (enabler.tracking_on && enabler.mouse_lbut)
+		{
+		int32_t mx=0,my=0;
+		gps.get_mouse_text_coords(mx,my);
+		if (inside(my,mx))
+			{
+			if (activate())
+				{
+				enabler.mouse_lbut=false;
+				}
+			}
+		}
+	if (can_key_activate())
+		{
+		static std::vector<InterfaceKey> inter;
+		inter.clear();
+		std::set_intersection(activation_hotkeys.begin(),activation_hotkeys.end(),ev.begin(),ev.end(),std::back_inserter(inter));
+		if (!inter.empty())
+			{
+			if (activate())
+				{
+				for (auto &i : inter)
+					{
+					ev.erase(i);
+					}
+				}
+			}
+		}
+	}
+
+void widget::logic() 
+	{
+	for (auto &fn : custom_logic)
+		{
+		fn(this);
 		}
 	}
 
@@ -719,36 +1118,51 @@ void widget::coords(int32_t& sy, int32_t& sx, int32_t& ey, int32_t& ex) {
 }
 
 bool widget::inside(int32_t y, int32_t x) {
-    return x >= rect.sx && x <= rect.ex && y >= rect.sy && y <= rect.ey;
+    return is_visible() && x >= rect.sx && x <= rect.ex && y >= rect.sy && y <= rect.ey;
 }
+
+template<typename T>
+bool set_flag_ret_old(T &flag,T which_flag, bool set) {
+	bool prev=!!(flag&which_flag);
+	if (set) flag|=which_flag;
+	else flag&=~which_flag;
+	return prev;
+	}
 
 bool widget::set_active(bool n)
 	{
-	bool prev=!!(visibility_flags&WIDGET_VISIBILITY_ACTIVE);
-	if (n) visibility_flags|=WIDGET_VISIBILITY_ACTIVE;
-	else visibility_flags&=~WIDGET_VISIBILITY_ACTIVE;
-	return prev;
+	return set_flag_ret_old(flag,WIDGET_VISIBILITY_ACTIVE,n);
 	}
 
 bool widget::set_visible(bool n)
 	{
-	bool prev=!!(visibility_flags&WIDGET_VISIBILITY_VISIBLE);
-	if (n) visibility_flags|=WIDGET_VISIBILITY_VISIBLE;
-	else visibility_flags&=~WIDGET_VISIBILITY_VISIBLE;
+	auto prev=set_flag_ret_old(flag,WIDGET_VISIBILITY_VISIBLE,n);
+	// Not done for set_active on purpose!
+	if (auto c=dynamic_cast<container *>(this); c)
+		{
+		for (auto &child : c->children)
+			{
+			child->set_visible(n);
+			}
+		}
 	return prev;
 	}
+
+bool widget::set_global_positioning(bool n) {
+	return set_flag_ret_old(flag,WIDGET_GLOBAL_POSITIONING,n);
+	}
+
+void widget::clear() {}
 
 
 folder::folder(std::shared_ptr<container> parent)
 	{
 	container_parent=parent;
-	open=button([this](button *b)
+	open=widget(); 
+	open.set_custom_activated([this](widget *w)
 		{
-		if (enabler.mouse_lbut)
-			{
-			this->controlled_visible=!this->controlled_visible;
-			enabler.mouse_lbut=false;
-			}
+		this->controlled_visible=!this->controlled_visible;
+		return true;
 		});
 	open.set_parent(this);
 	open.set_anchors_preset(LayoutPreset::WIDE_LEFT);
@@ -779,14 +1193,14 @@ void folder::arrange()
 	parent->arrange();
 	}
 
-void folder::render()
+void folder::render(uint32_t curtick)
 	{
-	widget::render();
+	widget::render(curtick);
 	int32_t sy,sx,ey,ex;
 	coords(sy,sx,ey,ex);
 	draw_nineslice(init.texpos_neutral_intro_button,sy,sx,ey,ex,true);
 	draw_nineslice(controlled_visible?init.texpos_down_arrow_button:init.texpos_up_arrow_button,sy,sx+1,ey,sx+3,false);
-	label.render();
+	label.render(curtick);
 	}
 
 void folder::feed(std::set<InterfaceKey> &ev) 
@@ -805,16 +1219,11 @@ filter::filter(std::shared_ptr<container> parent)
 	all_filter.label->fg=1;
 	all_filter.label->bg=0;
 	all_filter.label->bright=0;
-	all_filter.click_button=std::make_shared<button>([this](button *b)
+	all_filter.label->set_custom_activated([this](widget *b)
 		{
-		if (enabler.mouse_lbut)
-			{
-			this->set_filtered(-1);
-			enabler.mouse_lbut=false;
-			}
+		this->set_filtered(-1);
+		return true;
 		});
-	all_filter.click_button->set_parent(all_filter.label.get());
-	all_filter.click_button->set_anchors_preset(LayoutPreset::FULL);
 	}
 
 int32_t filter::get_filtered()
@@ -883,16 +1292,11 @@ void filter::add_new_filter(string name)
 	new_filter.label->fg=4;
 	new_filter.label->bg=0;
 	new_filter.label->bright=0;
-	new_filter.click_button=std::make_shared<button>([this,idx](button *b)
+	new_filter.label->set_custom_activated([this,idx](widget *b)
 		{
-		if (enabler.mouse_lbut)
-			{
 			this->set_filtered(idx);
-			enabler.mouse_lbut=false;
-			}
+			return true;
 		});
-	new_filter.click_button->set_parent(new_filter.label.get());
-	new_filter.click_button->set_anchors_preset(LayoutPreset::FULL);
 	}
 
 void filter::add_to_filter(string name,std::shared_ptr<widget> w)
@@ -939,31 +1343,29 @@ void filter::arrange()
 	for (auto &f:filters)
 		{
 		f.label->arrange();
-		f.click_button->arrange();
 		}
 	all_filter.label->arrange();
-	all_filter.click_button->arrange();
 	widget::arrange();
 	}
 
-void filter::render()
+void filter::render(uint32_t curtick)
 	{
-	widget::render();
+	widget::render(curtick);
 	for (auto &f:filters)
 		{
-		f.label->render();
+		f.label->render(curtick);
 		}
-	all_filter.label->render();
+	all_filter.label->render(curtick);
 	}
 
 
 void filter::feed(std::set<InterfaceKey> &ev)
 	{
 	widget::feed(ev);
-	all_filter.click_button->feed(ev);
+	all_filter.label->feed(ev);
 	for (auto &f:filters)
 		{
-		f.click_button->feed(ev);
+		f.label->feed(ev);
 		}
 	}
 
@@ -997,12 +1399,12 @@ void multifilter::arrange()
 	widget::arrange();
 	}
 
-void multifilter::render()
+void multifilter::render(uint32_t curtick)
 	{
-	widget::render();
+	widget::render(curtick);
 	for (auto &f:filters)
 		{
-		f->render();
+		f->render(curtick);
 		}
 	}
 
@@ -1044,11 +1446,11 @@ void container::logic() {
     }
 }
 
-void container::render() {
-	widget::render();
+void container::render(uint32_t curtick) {
+	widget::render(curtick);
     for (auto& child : children) {
         if (child->is_visible())
-            child->render();
+            child->render(curtick);
     }
 }
 
@@ -1061,6 +1463,25 @@ void container::arrange()
 		}
 }
 
+std::shared_ptr<widget> container::get_by_name(const std::string &s) {
+	for (auto &child : children)
+		{
+		if (child->name==s)
+			{
+			return child;
+			}
+		else if(auto c=std::dynamic_pointer_cast<container>(child); c)
+			{
+			auto maybe_child=c->get_by_name(s);
+			if (maybe_child)
+				{
+				return maybe_child;
+				}
+			}
+		}
+	return nullptr;
+	}
+
 int container::visible_children()
 	{
 	return std::count_if(children.begin(),children.end(),[](auto &c) { return c->is_visible(); });
@@ -1068,7 +1489,7 @@ int container::visible_children()
 
 int container::active_children()
 	{
-	return std::count_if(children.begin(),children.end(),[](auto &c) { return !!(c->visibility_flags&WIDGET_VISIBILITY_ACTIVE); });
+	return std::count_if(children.begin(),children.end(),[](auto &c) { return !!(c->flag&WIDGET_VISIBILITY_ACTIVE); });
 	}
 
 void container::remove_child(const string &id)
@@ -1089,8 +1510,58 @@ void container::remove_child(void *w)
 	std::erase_if(children_by_name,[&](auto &pair) { return pair.second.get()==w; });
 	}
 
+void widget_stack::deferred_replace(std::shared_ptr<widget> w) {
+	if (children.empty())
+		{
+		add_widget<widget>(w);
+		}
+	else
+		{
+		deferred_replacement=w;
+		}
+	}
+
+void widget_stack::do_replacements() {
+	if (deferred_replacement)
+		{
+		clear();
+		do_pop=false;
+		add_widget<widget>(deferred_replacement);
+		deferred_replacement.reset();
+		}
+	if (do_pop)
+		{
+		auto child=children.back();
+		children.pop_back();
+		if (!child->name.empty())
+			{
+			remove_child(child->name);
+			}
+		do_pop=false;
+		}
+	}
+
+void widget_stack::render(uint32_t curtick) {
+	if (children.empty()) return;
+	do_replacements();
+	children.back()->render();
+	widget::render();
+	}
+
+void widget_stack::arrange() {
+	if (children.empty()) return;
+	for (auto &child : children)
+		{
+		child->set_visible(false);
+		}
+	children.back()->set_visible(true);
+	container::arrange();
+	}
+
 void widget_stack::feed(std::set<InterfaceKey> &ev)
 	{
+	if (children.empty()) return;
+	do_replacements();
 	children.back()->feed(ev);
 	widget::feed(ev);
 	}
@@ -1099,11 +1570,13 @@ void rows_container::arrange() {
     int32_t y = 0;
     for (auto& child : children) {
 		child->set_anchor(Side::TOP,0.0);
-        if (child->is_visible()) {
+		child->arrange();
+		if (child->is_visible()) {
             child->offset_top=y;
             y += child->height()+padding;
         }
     }
+	min_h=y-padding; // if you want a custom min_h, you are using the wrong container
 	container::arrange();
 }
 
@@ -1111,38 +1584,17 @@ void columns_container::arrange() {
     int32_t x = 0;
     for (auto& child : children) {
 		child->set_anchor(Side::LEFT,0.0);
+		child->arrange();
         if (child->is_visible()) {
 			child->offset_left=x;
             x += child->width()+padding;
         }
     }
+	min_w=x-padding; // if you want a custom min_w, you are using the wrong container
 	container::arrange();
 }
 
-void scroll_rows::logic()
-{
-	if (scrolling)
-		{
-		if (enabler.tracking_on&&enabler.mouse_lbut_down)
-			{
-			int32_t tmx=-1,tmy=-1;
-			if (enabler.tracking_on)
-				{
-				gps.get_mouse_text_coords(tmx,tmy);
-				}
-			scrollbar.init(scroll,0,active_children()-1,num_visible,rect.sy,rect.ey);
-			scrollbar.set_select_on_mouse_y(tmy);
-			if(scroll!=scrollbar.sel)
-				{
-				scroll=scrollbar.sel;
-				arrange();
-				}
-			}
-		else scrolling=false;
-		}
-}
-
-void scroll_rows::feed(set<InterfaceKey>& events) {
+void scroll_rows::handle_scroll(set<InterfaceKey> &events) {
 	if (active_children()>num_visible)
 		{
 		int32_t tmx=-1,tmy=-1;
@@ -1150,10 +1602,14 @@ void scroll_rows::feed(set<InterfaceKey>& events) {
 			{
 			gps.get_mouse_text_coords(tmx,tmy);
 			}
-		scrollbar.init(scroll,0,active_children()-1,num_visible,rect.sy,rect.ey);
-		if (scrollbar.handle_events(events,scroll,scrolling))
+		scrollbar.init(scroll,0,active_children()-1,num_visible,rect.sy+1,rect.ey-1);
+		if (inside(tmy,tmx) && scrollbar.handle_events(events,scroll,scrolling))
 			{
 			arrange();
+			}
+		if (!enabler.mouse_lbut_down)
+			{
+			scrolling=false;
 			}
 		if (scrolling)
 			{
@@ -1169,28 +1625,41 @@ void scroll_rows::feed(set<InterfaceKey>& events) {
 			arrange();
 			return;
 			}
-		else if (enabler.mouse_lbut&&tmy>=rect.sy&&tmy<=rect.ey&&tmx==rect.ex||tmx==rect.ex+1)
+		else if (enabler.mouse_lbut&&tmy>=rect.sy&&tmy<=rect.ey&&tmx==rect.ex+1||tmx==rect.ex+2)
 			{
 			enabler.mouse_lbut=false;
 			scrollbar.handle_initial_click(tmy,scroll,scrolling);
 			arrange();
 			}
 		}
+	}
+
+void scroll_rows::feed(set<InterfaceKey>& events) {
+	handle_scroll(events);
 	rows_container::feed(events);
 }
 
-void scroll_rows::render() {
-	container::render();
+void scroll_rows::render(uint32_t curtick) {
+	container::render(curtick);
 	if (active_children() <= num_visible) return;
     int32_t tmx = -1, tmy = -1;
     if (enabler.tracking_on)
     {
         gps.get_mouse_text_coords(tmx, tmy);
     }
-    scrollbar.init(scroll, 0, active_children()-1,num_visible,rect.sy,rect.ey);
+	if (enabler.mouse_lbut_down)
+		{
+		auto dummy=std::set<InterfaceKey>();
+		handle_scroll(dummy);
+		}
+	else
+		{
+		scrolling=false;
+		}
+    scrollbar.init(scroll, 0, active_children()-1,num_visible,rect.sy+1,rect.ey-1);
 	//************************ DON'T ALWAYS USE BASIC SCROLL
 		//scrollbar needs to understand if custom/mod graphics are available (ie, we are in dwarf/adv/legends mode and have loaded them)
-    scrollbar.render(tmx, tmy, rect.ex, scrolling, SCROLLBAR_DISPLAY_FLAG_BASIC_SET);
+    scrollbar.render(tmx, tmy, rect.ex+1, scrolling,scrollbar_display_flags);
 }
 
 void scroll_rows::scroll_to_top()
@@ -1203,9 +1672,27 @@ void scroll_rows::scroll_to_bottom()
 	scroll=active_children()-num_visible;
 	}
 
+void scroll_rows::page_down() {
+	scroll=min(scroll+num_visible, active_children()-num_visible);
+	}
+
+void scroll_rows::page_up() {
+	scroll=max(scroll-num_visible,0);
+	}
+
+int32_t scroll_rows::page_size() {
+	return num_visible;
+	}
+
+void scroll_rows::scroll_to(int32_t idx) {
+	if (num_visible==0) scroll=0;
+	else if (idx < scroll) scroll=idx;
+	else if (idx >= scroll+num_visible) scroll=idx-num_visible+1;
+	}
+
 bool widget_is_active(std::shared_ptr<widgets::widget> &w)
 	{
-	return !!(w->visibility_flags&WIDGET_VISIBILITY_ACTIVE);
+	return !!(w->flag&WIDGET_VISIBILITY_ACTIVE);
 	}
 
 void scroll_rows::arrange() {
@@ -1213,34 +1700,134 @@ void scroll_rows::arrange() {
 	for (auto &child:children)
 		{
 		child->set_parent(this); // allows for multiple parents for e.g. announcement interface
-		child->set_visible(false);
+		child->set_visible(true);
 		}
 	if (scroll>=active_children()) scroll=0;
     int32_t sy = 0;
 	num_visible=0;
-	//for (auto &child:children|std::views::filter(&widget_is_active)|std::views::drop(scroll))
-	for(int32_t i=scroll;i<children.size();++i)
+	int32_t s=scroll;
+	for (auto &child:children)
 		{
-		auto &child=children[i];
-		if(!widget_is_active(children[i]))continue;
+		if (!widget_is_active(child))continue;
+		--s;
+		if (s>=0)
+			{
+			child->set_visible(false);
+			continue;
+			};
 		child->set_anchor(Side::TOP,0.0);
 		child->set_anchor(Side::BOTTOM,0.0);
-		child->move_to_anchor(); // need to do this to make sure it's the right size!
+		if (child->anchor_right==1.0) child->offset_right=-1; // this ensures it won't overlap the scroll bar
+		child->arrange(); // need to do this to make sure it's the right size!
 		const auto child_height=child->height();
-		if ((child_height+sy)<=height())
+		if ((child_height+sy)<height())
 			{
-			child->set_visible(true);
 			++num_visible;
 			child->offset_top=sy;
 			sy+=child_height+padding;
 			}
 		else
 			{
-			break;
+			child->set_visible(false);
 			}
         }
+	scroll_to(scroll); // Makes sure if we're out of range on scroll, we get back in range
 	container::arrange();
 }
+
+radio_rows::radio_rows() {
+	rows.set_parent(this);
+	selected=NULL;
+	rows.set_anchors_preset(widgets::LayoutPreset::FULL);
+	}
+
+std::shared_ptr<container> radio_rows::add_entry(const string &s,std::function<void(widget *)> f) {
+	auto row_idx=rows.children.size();
+	auto new_row=rows.add_widget<container>();
+	new_row->min_h=3;
+	new_row->set_anchors_preset(widgets::LayoutPreset::WIDE_TOP);
+	new_row->offset_right=-1;
+	auto t=new_row->add_or_get_widget<text>("Text",s);
+	t->set_anchors_preset(widgets::LayoutPreset::CENTER_LEFT);
+	t->offset_left=2;
+	auto n=new_row->add_or_get_widget<nineslice_horizontal>("Slice",(int32_t*)gps.texpos_button_category_rectangle);
+	n->set_anchors_preset(widgets::LayoutPreset::FULL);
+	std::weak_ptr<nineslice> n_wk=n;
+	select_callback[row_idx]=f;
+	new_row->set_custom_activated([this, row_idx, f](widgets::widget *w) {
+		this->set_selected((int32_t)row_idx);
+		return true;
+		});
+	if (row_idx==0)
+		{
+		set_selected(0);
+		}
+	return new_row;
+	}
+
+void radio_rows::rename_entry(const string &original,const string &s) {
+	for (auto &child:rows.children)
+		{
+		auto row=std::static_pointer_cast<container>(child);
+		auto t=row->add_or_get_widget<text>("Text",s);
+		if (t->get_text() == original)
+			{
+			t->set_text(s);
+			return;
+			}
+		}
+	}
+
+void radio_rows::set_selected(void *w) {
+	for (auto i=0; i<rows.children.size(); ++i)
+		{
+		if (rows.children[i].get()==w)
+			{
+			set_selected(i);
+			return;
+			}
+		}
+	}
+
+void radio_rows::set_selected(int32_t i) {
+	selected_idx=max(0,min((int32_t)(rows.children.size())-1,i));
+	selected=rows.children[selected_idx].get();
+	if (auto f=select_callback.find(selected_idx); f != select_callback.end())
+		{
+		f->second(selected);
+		}
+	rows.scroll_to(selected_idx);
+	refresh_selected();
+	}
+
+void radio_rows::refresh_selected() {
+	for (auto i=0;i<rows.children.size();++i)
+		{
+		auto &child=rows.children[i];
+		if (auto c=std::dynamic_pointer_cast<container>(child); c)
+			{
+			const auto slice=std::dynamic_pointer_cast<nineslice>(c->get_by_name("Slice"));
+			if (slice)
+				{
+				if (child.get()==selected)
+					{
+					selected_idx=i;
+					slice->set_texpos((int32_t *)(gps.texpos_button_category_rectangle_selected));
+					}
+				else
+					{
+					slice->set_texpos((int32_t *)(gps.texpos_button_category_rectangle));
+					}
+				}
+			}
+		}
+	}
+
+void radio_rows::feed(std::set<InterfaceKey> &events) {
+	if(can_key_activate() && standardscroll(events,selected_idx,rows.page_size())) set_selected(selected_idx);
+	widget::feed(events);
+	rows.feed(events);
+	}
 
 table::table()
 	{
@@ -1252,20 +1839,80 @@ table::table()
 	entries->set_anchors_preset(LayoutPreset::FULL);
 	entries->set_offsets(2,-5,2,-1);
 	entries->padding=1;
+	key_row=key_col=0;
+	key_display=add_widget<widget>();
+//	key_display->set_custom_render([](widgets::widget *w) {}); // TODO: some display of some sort
+	key_display->set_visible(false);
+	}
+
+void table::feed(set<InterfaceKey> &events)
+	{
+	if (!entries->children.empty() && keyboard_controlled)
+		{
+		if (events.contains(INTERFACEKEY_STANDARDSCROLL_RIGHT))
+			{
+			key_col=min(key_col+1,(int32_t)labels->children.size()-1);
+			key_display->set_visible(true);
+			events.erase(INTERFACEKEY_STANDARDSCROLL_RIGHT);
+			}
+		if (events.contains(INTERFACEKEY_STANDARDSCROLL_LEFT))
+			{
+			key_col=max(key_col-1,0);
+			key_display->set_visible(true);
+			events.erase(INTERFACEKEY_STANDARDSCROLL_LEFT);
+			}
+		if (standardscroll(events,key_row,entries->page_size()))
+			{
+			key_row=min(key_row,(int32_t)(entries->children.size())-1);
+			key_row=max(key_row,0);
+			key_display->set_visible(true);
+			}
+		auto &w=entries->children[key_row];
+		if (auto c=std::dynamic_pointer_cast<container>(w); c)
+			{
+			key_display->set_parent(c->children[key_col].get());
+			}
+		else
+			{
+			key_display->set_parent(w.get());
+			}
+		key_display->move_to_anchor();
+		if (events.contains(INTERFACEKEY_SELECT))
+			{
+			
+			if (w->activate())
+				{
+				events.erase(INTERFACEKEY_SELECT);
+				}
+			else if (auto c=std::dynamic_pointer_cast<container>(w); c && c->children[key_col]->activate())
+				{
+				events.erase(INTERFACEKEY_SELECT);
+				}
+			}
+		}
+	container::feed(events);
 	}
 
 void table::arrange()
 	{
 	if (!labels||!entries) return;
+	if (children.empty()) // can happen if cleaned
+	{
+		add_widget(labels); // these won't be deleted, since they still have a strong ref
+		add_widget(entries);
+	}
 	move_to_anchor();
 	for (auto i=0; i<labels->children.size(); ++i)
 		{
 		int this_w=labels->children[i]->min_w;
 		for (auto &container_widget:entries->children)
 			{
-			if (!container_widget->is_container()) continue;
-			auto entry=std::static_pointer_cast<container>(container_widget);
-			this_w=max(this_w,entry->children[i]->width());
+			auto entry=std::dynamic_pointer_cast<container>(container_widget);
+			if (entry)
+				{
+				entry->arrange();
+				if (entry->children.size()>i) this_w=max(this_w,entry->children[i]->width());
+				}
 			}
 		labels->children[i]->min_w=this_w;
 		}
@@ -1274,16 +1921,24 @@ void table::arrange()
 	for (auto &container_widget:entries->children)
 		{
 		max_x=max(container_widget->width(),max_x);
-		if (!container_widget->is_container()) continue;
-		auto entry=std::static_pointer_cast<container>(container_widget);
-		for (auto i=0; i<labels->children.size(); ++i)
+		auto entry=std::dynamic_pointer_cast<container>(container_widget);
+		if (entry)
 			{
-			entry->children[i]->offset_left=labels->children[i]->offset_left;
-			auto cur_x=entry->children[i]->width()+entry->children[i]->offset_left;
-			max_x=max(cur_x,max_x);
+			for (auto i=0; i<labels->children.size(); ++i)
+				{
+				if (entry->children.size()<=i) continue;
+				entry->children[i]->offset_left=labels->children[i]->offset_left;
+				auto cur_x=entry->children[i]->width()+entry->children[i]->offset_left;
+				max_x=max(cur_x,max_x);
+				}
 			}
 		}
-	min_w=max_x;
+	for (auto &widget:entries->children)
+		{
+		widget->min_w=max_x;
+		}
+	min_w=max(max_x, min_w);
+	entries->min_w=max(max_x, min_w);
 	container::arrange();
 	}
 
@@ -1322,8 +1977,22 @@ bool tabs::switch_tab(const string &s)
 
 void tabs::feed(set<InterfaceKey>& events) {
 	widget::feed(events);
-	if(cur_idx<children.size())
+	if (cur_idx<children.size())
+		{
 		children[cur_idx]->feed(events);
+		}
+	if (tab_labels.size()==0)
+		{
+		return;
+		}
+	if (events.contains(INTERFACEKEY_CHANGETAB))
+		{
+		if(switch_tab((cur_idx+1)%children.size())) events.erase(INTERFACEKEY_CHANGETAB);
+		}
+	if (events.contains(INTERFACEKEY_SEC_CHANGETAB))
+		{
+		if(cur_idx>0 && switch_tab(cur_idx-1)) events.erase(INTERFACEKEY_SEC_CHANGETAB);
+		}
     if (enabler.tracking_on && enabler.mouse_lbut) {
         int32_t tab_sx, tab_ex, tab_sy;
         tab_sx = rect.sx;
@@ -1335,7 +2004,7 @@ void tabs::feed(set<InterfaceKey>& events) {
 			for (auto i=row.first; i<=row.second; ++i)
 				{
 				bool can_switch_to_tab=true;
-				if (i<children.size()&&!(children[i]->visibility_flags&WIDGET_VISIBILITY_ACTIVE))
+				if (i<children.size()&&!(children[i]->flag&WIDGET_VISIBILITY_ACTIVE))
 					{
 					can_switch_to_tab=false;
 					}
@@ -1358,26 +2027,25 @@ void tabs::feed(set<InterfaceKey>& events) {
     }
 }
 
-void tabs::render() {
-	widget::render();
+void tabs::render(uint32_t curtick) {
+	widget::render(curtick);
     int32_t tab_sx, tab_ex,tab_sy;
     tab_sx = rect.sx;
 	tab_sy=rect.sy;
-	auto &tab_unselected=init.texpos_tab_unselected;
-	auto &tab_selected=init.texpos_tab_selected;
+	std::array<std::array<std::array<int32_t,2>,5>,2> tab_pair;
 	switch (tab_type)
 		{
+		default: // tabs::TabType::DEFAULT, but don't want potential uninitialized values or similar mucking things up
+			tab_pair={ init.texpos_tab_unselected, init.texpos_tab_selected };
+			break;
 		case tabs::TabType::SHORT:
-			tab_unselected=gps.texpos_short_tab;
-			tab_selected=gps.texpos_short_tab_selected;
+			tab_pair={ gps.texpos_short_tab, gps.texpos_short_tab_selected };
 			break;
 		case tabs::TabType::SHORT_SUB:
-			tab_unselected=gps.texpos_short_subtab;
-			tab_selected=gps.texpos_short_subtab_selected;
+			tab_pair={ gps.texpos_short_subtab, gps.texpos_short_subtab_selected };
 			break;
 		case tabs::TabType::SHORT_SUBSUB:
-			tab_unselected=gps.texpos_short_subsubtab;
-			tab_selected=gps.texpos_short_subsubtab_selected;
+			tab_pair={ gps.texpos_short_subsubtab, gps.texpos_short_subsubtab_selected };
 			break;
 		}
 	for (auto &row:rows)
@@ -1385,7 +2053,7 @@ void tabs::render() {
 		for (auto i=row.first; i<=row.second; ++i)
 			{
 			tab_ex=tab_sx+(int32_t)tab_labels[i].length()+3;
-			auto &texpos=cur_idx==i?tab_selected:tab_unselected;
+			auto texpos=tab_pair[cur_idx==i?1:0];
 			// left border
 			gps.locate(tab_sy,tab_sx);
 			gps.add_lower_tile(texpos[0][0]);
@@ -1412,11 +2080,10 @@ void tabs::render() {
 				gps.locate(tab_sy+1,px);
 				gps.add_lower_tile(texpos[2][1]);
 				}
-
 			bool is_active=true;
 			if (i<children.size())
 				{
-				is_active=!!(children[i]->visibility_flags&WIDGET_VISIBILITY_ACTIVE);
+				is_active=!!(children[i]->flag&WIDGET_VISIBILITY_ACTIVE);
 				}
 
 				// labels
@@ -1461,7 +2128,9 @@ void tabs::render() {
 		tab_sx=rect.sx;
 		}
 	if (cur_idx < children.size())
-		children[cur_idx]->render();
+		{
+		children[cur_idx]->render(curtick);
+		}
 }
 
 void tabs::arrange() {
@@ -1503,21 +2172,6 @@ void tabs::arrange() {
 	cur_tab->arrange();// arranging this one last gives it "priority", to solve various issues--arranging something twice in one frame should never cause problems
 }
 
-button::button(std::function<void(button*)> c) : widget() {
-    callback = c;
-}
-
-void button::feed(set<InterfaceKey>& events) {
-    if (enabler.tracking_on) {
-        int32_t mx = 0, my = 0;
-        gps.get_mouse_text_coords(mx, my);
-        if (inside(my, mx)) {
-            callback(this);
-        }
-    }
-	widget::feed(events);
-}
-
 better_button::better_button() : widget() {
 	display_string = NULL;
 	texpos = NULL;
@@ -1548,19 +2202,17 @@ better_button::better_button(bool* b) : widget() {
 }
 
 void better_button::feed(std::set<InterfaceKey>& events) {
-	if (enabler.tracking_on) {
-		int32_t mx = 0, my = 0;
-		gps.get_mouse_text_coords(mx, my);
-		if (inside(my, mx) && enabler.mouse_lbut) {
-			callback();
-			enabler.mouse_lbut = false;
-			return;
+	if (custom_activated.empty())
+		{
+		custom_activated.emplace_back([this](widgets::widget *_) {
+			this->callback();
+			return true;
+			});
 		}
-	}
 	widget::feed(events);
 }
-void better_button::render() {
-	widget::render();
+void better_button::render(uint32_t curtick) {
+	widget::render(curtick);
 	int32_t sy, sx, ey, ex;
 	coords(sy, sx, ey, ex);
 	int32_t* tex = texpos();
@@ -1577,16 +2229,46 @@ void better_button::render() {
 		}
 }
 
-void interface_main_button::render()
+void interface_main_button::render(uint32_t curtick)
 	{
-	widget::render();
+	widget::render(curtick);
 	int32_t sy,sx,ey,ex;
 	coords(sy,sx,ey,ex);
-	for (int py=sy; py<sy+3; ++py)
+	for (int py=0; py<3; ++py)
 		{
-		for (int px=sx; px<sx+4; ++px)
+		for (int px=0; px<4; ++px)
 			{
+			gps.locate(py+sy,px+sx);
 			gps.add_tile(gps.texpos_button_main[which_button][px][py],0);
+			}
+		}
+	}
+
+void interface_small_button::render(uint32_t curtick)
+{
+	widget::render(curtick);
+	int32_t sy,sx,ey,ex;
+	coords(sy,sx,ey,ex);
+	for (int py=0; py<2; ++py)
+		{
+		for (int px=0; px<2; ++px)
+			{
+			gps.locate(py+sy,px+sx);
+			gps.add_tile(gps.texpos_button_small[which_button][px][py],0);
+			}
+		}
+}
+
+void interface_pets_livestock_button::render(uint32_t curtick) {
+	widget::render(curtick);
+	int32_t sy,sx,ey,ex;
+	coords(sy,sx,ey,ex);
+	for (int py=0; py<3; ++py)
+		{
+		for (int px=0; px<3; ++px)
+			{
+			gps.locate(py+sy,px+sx);
+			gps.add_tile(gps.texpos_button_pets_livestock[which_button][px][py],0);
 			}
 		}
 	}
@@ -1600,67 +2282,139 @@ textbox::textbox(int len, uint32_t flag) : widget() {
     bright = 1;
     min_w = len + 6;
     min_h = 3;
-	input = false;
-    toggle = button([this](button* b) {
-        if (enabler.mouse_lbut) {
-            this->input = !this->input;
-            enabler.mouse_lbut = false;
-        }
-        });
     set_callback([](auto _) {});
 }
 
+void textbox::take_focus() {
+	gview.cur_textbox=this;
+	}
+void textbox::remove_focus() {
+	if (gview.cur_textbox==this) gview.cur_textbox=NULL;
+	}
+bool textbox::is_focused() {
+	return gview.cur_textbox==this;
+	}
+
+bool textbox::do_input(set<InterfaceKey> &events) {
+	if (!is_visible())
+		{
+		return false;
+		}
+	else if (standardstringentry(str,maxlen,flags,events))
+		{
+		callback(this);
+		return true;
+		}
+	else
+		{
+		return false;
+		}
+	}
+
 void textbox::feed(set<InterfaceKey> &events) {
 	widget::feed(events);
-    toggle.feed(events);
-    if (input) {
-        if (standardstringentry(str, maxlen, flags, events)) {
-			callback(this);
+	if (can_key_activate())
+		{
+		static std::vector<InterfaceKey> inter;
+		inter.clear();
+		std::set_intersection(activation_hotkeys.begin(),activation_hotkeys.end(),events.begin(),events.end(),std::back_inserter(inter));
+		if (!inter.empty())
+			{
+			take_focus();
+			for (auto &i : inter)
+				{
+				events.erase(i);
+				}
+			}
 		}
-    }
+	if (enabler.tracking_on && enabler.mouse_lbut)
+		{
+		int32_t tmx=-1,tmy=-1;
+		gps.get_mouse_text_coords(tmx,tmy);
+		if (inside(tmy,tmx))
+			{
+			take_focus();
+			}
+		else
+			{
+			remove_focus();
+			}
+		}
 }
 
-void textbox::render() {
+void textbox::render(uint32_t curtick) {
   // We need to do some kind of line-breaking for multi-line text
   // entry boxes. This shall be implemented at need, and there is none
   // yet.
-	widget::render();
+	widget::render(curtick);
     int sy, sx, ey, ex;
     coords(sy, sx, ey, ex);
-    for (auto by = sy; by <= ey; ++by)
-    {
-        gps.locate(by, sx);
-        gps.add_lower_tile(::init.texpos_button_filter[0][by - sy]);
-        gps.locate(by, ex - 3);
-        gps.add_lower_tile(::init.texpos_button_filter_name[0][by - sy]);
-        gps.locate(by, ex - 2);
-        gps.add_lower_tile(::init.texpos_button_filter_name[1][by - sy]);
-        gps.locate(by, ex - 1);
-        gps.add_lower_tile(::init.texpos_button_filter_name[2][by - sy]);
-        gps.locate(by, ex);
-        gps.add_lower_tile(::init.texpos_button_filter_name[3][by - sy]);
-        for (auto bx = sx + 1; bx <= ex - 4; ++bx)
-        {
-            //text
-            gps.locate(by, bx);
-            gps.add_lower_tile(::init.texpos_button_filter[1][by - sy]);
-            if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))gps.addchar(0);//clear out drawborder
-        }
-    }
+	switch (textbox_type)
+		{
+		case TextboxType::FILTER:
+			{
+			for (auto by=sy; by <= ey; ++by)
+				{
+				gps.locate(by,sx);
+				gps.add_lower_tile(::init.texpos_button_filter[0][by - sy]);
+				gps.locate(by,ex - 3);
+				gps.add_lower_tile(::init.texpos_button_filter[2][by - sy]);
+				gps.locate(by,ex - 2);
+				gps.add_lower_tile(::init.texpos_button_filter[3][by - sy]);
+				gps.locate(by,ex - 1);
+				gps.add_lower_tile(::init.texpos_button_filter[4][by - sy]);
+				gps.locate(by,ex);
+				gps.add_lower_tile(::init.texpos_button_filter[5][by - sy]);
+				for (auto bx=sx + 1; bx <= ex - 4; ++bx)
+					{
+					//text
+					gps.locate(by,bx);
+					gps.add_lower_tile(::init.texpos_button_filter[1][by - sy]);
+					if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))gps.addchar(0);//clear out drawborder
+					}
+				}
+			break;
+			}
+		case TextboxType::NAME:
+			{
+			for (auto by=sy; by <= ey; ++by)
+				{
+				gps.locate(by,sx);
+				gps.add_lower_tile(::init.texpos_button_filter[0][by - sy]);
+				gps.locate(by,ex - 3);
+				gps.add_lower_tile(::init.texpos_button_filter_name[0][by - sy]);
+				gps.locate(by,ex - 2);
+				gps.add_lower_tile(::init.texpos_button_filter_name[1][by - sy]);
+				gps.locate(by,ex - 1);
+				gps.add_lower_tile(::init.texpos_button_filter_name[2][by - sy]);
+				gps.locate(by,ex);
+				gps.add_lower_tile(::init.texpos_button_filter_name[3][by - sy]);
+				for (auto bx=sx + 1; bx <= ex - 4; ++bx)
+					{
+					//text
+					gps.locate(by,bx);
+					gps.add_lower_tile(::init.texpos_button_filter[1][by - sy]);
+					if (init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))gps.addchar(0);//clear out drawborder
+					}
+				}
+			break;
+			}
+		}
 
     gps.locate(sy + 1, sx + 2);
     gps.changecolor(fg, bg, bright);
     string display_str = str;
-    if (input && GetTickCount() % 1000 < 500)display_str += "_";
+    if (is_focused() && curtick % 1000 < 500)display_str+="_";
     gps.addst(display_str);
     return;
 }
 
-void textbox::arrange()
+void character::render(uint32_t curtick)
 	{
-	toggle.set_anchors_preset(LayoutPreset::WIDE_RIGHT);
-	toggle.offset_left=-4;
-	widget::arrange();
+	widget::render(curtick);
+	gps.locate(rect.sy,rect.sx);
+	gps.changecolor(fg,bg,bright);
+	gps.addchar_flag(c,1,flag);
 	}
 
 text::text(const string& s) {
@@ -1678,52 +2432,160 @@ text::text(string &&s)
     set_text(s);
 	}
 
-void text::render() {
-	widget::render();
+void text::render(uint32_t curtick) {
+	widget::render(curtick);
     gps.locate(rect.sy, rect.sx);
     gps.changecolor(fg, bg, bright);
-    gps.addst(str);
+	gps.addst_flag(str, just, space, flag);
 }
+
+void text_truncated::arrange()
+	{
+	widget::arrange();
+	auto done_flags=truncate_mode_flags;
+	str=original_str;
+	while (width()<str.length())
+		{
+		if (done_flags&TRUNCATE_MODE_ABBREVIATE)
+			{
+			done_flags&=~TRUNCATE_MODE_ABBREVIATE;
+			abbreviate_string(str,width());
+			}
+		else if ((done_flags&TRUNCATE_MODE_ELLIPSES) && width()>3)
+			{
+			done_flags&=~TRUNCATE_MODE_ELLIPSES;
+			truncate_string(str,width());
+			}
+		else
+			{
+			str.resize(width());
+			}
+		}
+	}
 
 void text_multiline::arrange()
 	{
-	if (min_w>str.length()) min_h=((int32_t)str.length()/min_w)+1;
+	move_to_anchor();
+	auto w=width();
+	if (w>0 && w<str.length()) min_h=((int32_t)str.length()/w)+1;
+	else min_h=1;
 	widget::arrange();
 	}
 
-void text_multiline::render()
+void text_multiline::render(uint32_t curtick)
 	{
-	widget::render();
-	separate_string(str,strs,min_w);
+	widget::render(curtick);
+	separate_string(str,strs,width());
 	for (int i=0; i<strs.size(); ++i)
 		{
 		gps.locate(rect.sy+i,rect.sx);
 		gps.changecolor(fg,bg,bright);
-		gps.addst(strs[i]);
+		gps.addst_flag(strs[i], just, space, flag);
 		}
 	}
 
-void nineslice::render() {
-	widget::render();
+void nineslice::render(uint32_t curtick) {
+	widget::render(curtick);
     int32_t sy, sx, ey, ex;
     coords(sy, sx, ey, ex);
-    draw_nineslice(selected_texpos, sy, sx, ey, ex, true);
+    draw_nineslice(selected_texpos, sy, sx, ey, ex, flag);
 }
+
+void nineslice_horizontal::render(uint32_t curtick) {
+	widget::render(curtick);
+	int32_t sy,sx,ey,ex;
+	coords(sy,sx,ey,ex);
+	draw_horizontal_nineslice(selected_texpos,sy,sx,ey,ex);
+	}
+
+void widgets::display_picture_box(widget *w) {
+	int32_t sy,sx,ey,ex;
+	w->coords(sy,sx,ey,ex);
+	for (auto py=sy; py<sy+3; ++py)
+		{
+		const auto n=py-sy;
+		auto px=sx;
+		gps.locate(py,px);
+		gps.add_lower_tile(gps.texpos_button_picture_box[0][n]);
+		for (px=sx+1; px<=sx+3; ++px)
+			{
+			gps.locate(py,px);
+			gps.add_lower_tile(gps.texpos_button_picture_box[1][n]);
+			}
+		gps.locate(py,sx+4);
+		gps.add_lower_tile(gps.texpos_button_picture_box[2][n]);
+		for (px=sx+5; px<ex; ++px)
+			{
+			gps.locate(py,px);
+			gps.add_lower_tile(gps.texpos_button_rectangle[2][n]);
+			}
+		gps.locate(py,ex);
+		gps.add_lower_tile(gps.texpos_button_rectangle[1][n]);
+		/*
+		if(selected[i])
+			{
+			if(px==list_sx)gps.add_lower_tile(gps.texpos_button_picture_box_highlighted[0][py-y]);
+			else if(px==list_sx+1)gps.add_lower_tile(gps.texpos_button_picture_box_highlighted[1][py-y]);
+			else if(px==list_sx+2)gps.add_lower_tile(gps.texpos_button_picture_box_highlighted[1][py-y]);
+			else if(px==list_sx+3)gps.add_lower_tile(gps.texpos_button_picture_box_highlighted[1][py-y]);
+			else if(px==list_sx+4)gps.add_lower_tile(gps.texpos_button_picture_box_highlighted[2][py-y]);
+			//else if(px==list_sx+5)gps.add_lower_tile(gps.texpos_button_rectangle[0][py-y]);
+			else if(px==list_ex)gps.add_lower_tile(gps.texpos_button_rectangle[2][py-y]);
+			else gps.add_lower_tile(gps.texpos_button_rectangle[1][py-y]);
+			}
+		else
+			{*/
+			//}
+		if (::init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))gps.addchar(0);
+		}
+	}
+
+void anchored_tile::render(uint32_t curtick){
+	widget::render(curtick);
+	int32_t sy,sx,ey,ex;
+	coords(sy,sx,ey,ex);
+	locate();
+	gps.add_anchored_tile(texp,offset_x,offset_y,ex-sx,ey-sy,use_color);
+	}
+
+void keybinding_display::arrange() {
+	min_w=(int32_t)enabler.GetKeyDisplay(binding).size();
+	widget::arrange();
+	}
+
+void keybinding_display::render(uint32_t curtick) {
+	widget::render(curtick);
+	locate();
+	gview.print_interface_token(binding);
+	}
+
+std::shared_ptr<widget> graphics_switcher::current_widget()
+	{
+	if (::init.display.flag.has_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS))
+		{
+		return graphics_widget;
+		}
+	else
+		{
+		return ascii_widget;
+		}
+	}
 
 dropdown::dropdown() : widget() {
     cur_selected = 0;
 	min_h=3;
-    set_callback([](auto& s) {}); // no-op, not sure if null std::functions crash
+    set_callback([](auto i, auto j) {});
 }
 
 dropdown::dropdown(std::initializer_list<string> new_options) : widget() {
     cur_selected = 0;
     min_h = 3;
+	options.resize(new_options.size());
     std::copy(new_options.begin(), new_options.end(), options.begin());
     for (auto& s : options) {
         min_w = max(min_w, (int32_t)s.length() + 4);
     }
-    set_callback([](auto& s) {});
+    set_callback([](auto i, auto j) {});
 }
 
 void dropdown::add_option(std::string& s) {
@@ -1731,32 +2593,93 @@ void dropdown::add_option(std::string& s) {
     min_w = max(min_w, (int32_t)s.length() + 4);
 }
 
+void dropdown::select_option(int32_t i) {
+	cur_selected=i;
+	if (cur_selected > (int32_t)(options.size())-1)
+		{
+		cur_selected=(int32_t)(options.size())-1;
+		}
+	if (cur_selected < 0)
+		{
+		cur_selected=0;
+		}
+	callback(i, this);
+	open=false;
+	}
+
+void dropdown::select_option(string &s) {
+	for (auto i=0; i<options.size(); ++i)
+		{
+		if (options[i]==s)
+			{
+			select_option(i);
+			return;
+			}
+		}
+	}
+
 void dropdown::feed(set<InterfaceKey>& events) {
-	// TODO TODO DON'T FORGET THIS WOW
-	// whoops
+	widget::feed(events);
+	int32_t sx,ex,sy,ey;
+	coords(sy,sx,ey,ex);
+	int32_t tmx=-1,tmy=-1;
+	gps.get_mouse_text_coords(tmx,tmy);
+	if (enabler.mouse_lbut)
+		{
+		if (open)
+			{
+			int32_t by=sy;
+			for (int i=0; i < options.size(); i++)
+				{
+				if (tmx>=sx+1 && tmx <= ex && tmy>=by && tmy<=by+2)
+					{
+					select_option(i);
+					enabler.mouse_lbut=false;
+					return;
+					}
+				by+=3;
+				}
+			}
+		else if (inside(tmy,tmx))
+			{
+			open=!open;
+			enabler.mouse_lbut=false;
+			}
+		else
+			{
+			open=false;
+			}
+		}
 }
 
-void dropdown::render() {
-	widget::render();
+void dropdown::render(uint32_t curtick) {
+	widget::render(curtick);
     int32_t sx, ex, sy, ey;
     coords(sy, sx, ey, ex);
     //draw what we have
-    gps.locate(sy + 1, sx);
-    gps.addst(options[cur_selected]);
-    // draw the button
-    draw_nineslice(init.texpos_open_list_button, sy, ex - 2, ey, ex);
-    if (open) {
-        int by = sy;
-        for (int i = 0; i < options.size(); i++) {
-            if (i == cur_selected) {
-                draw_nineslice(init.texpos_selected_intro_button, by, sx + 1, by + 2, ex);
-            }
-            else {
-                draw_nineslice(init.texpos_unselected_intro_button, by, sx + 1, by + 2, ex);
-            }
-            gps.locate(by + 1, ex - (int32_t)options[i].size() - 1);
-            gps.addst(options[i]);
-            by += 3;
-        }
-    }
+	if (open)
+		{
+		int by=sy;
+		for (int i=0; i < options.size(); i++)
+			{
+			if (i == cur_selected)
+				{
+				draw_nineslice(init.texpos_selected_intro_button,by,sx + 1,by + 2,ex);
+				}
+			else
+				{
+				draw_nineslice(init.texpos_unselected_intro_button,by,sx + 1,by + 2,ex);
+				}
+			gps.locate(by + 1,ex - (int32_t)options[i].size() - 1);
+			gps.addst(options[i]);
+			by+=3;
+			}
+		}
+	else
+		{
+		gps.locate(sy + 1,sx);
+		gps.addst(options[cur_selected]);
+		// draw the button
+		draw_nineslice(init.texpos_open_list_button,sy,ex - 2,ey,ex);
+		}
 }

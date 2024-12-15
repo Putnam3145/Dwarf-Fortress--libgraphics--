@@ -1048,6 +1048,7 @@ void enablerst::eventLoop_SDL()
     if (paused_loop)
       unpause_async_loop();
 
+    hooks_sdl_loop_fn();
     do_frame();
 
 #ifndef NO_FMOD
@@ -1060,7 +1061,7 @@ int enablerst::loop(string cmdline) {
   command_line = cmdline;
 #ifdef WIN32
   glaiel::crashlogs::set_crashlog_folder("crashlogs");
-
+  glaiel::crashlogs::set_crashlog_header_message("Crashed before main menu. Yikes!");
   glaiel::crashlogs::begin_monitoring();
 #endif
   // Initialize the tick counters
@@ -1233,6 +1234,10 @@ void enablerst::set_gfps(int gfps) {
 
 void enablerst::set_listen_to_text(bool listen) 
 {
+	if (listen && !listening_to_text)
+		{
+		SDL_StartTextInput();
+		}
 	listening_to_text=listen;
 }
 
@@ -1259,7 +1264,7 @@ int main (int argc, char* argv[]) {
   // Report failure?
   if (retval != 0) {
     report_error("SDL initialization failure", SDL_GetError());
-    return false;
+    return 0;
   }
   enabler.renderer_threadid = SDL_ThreadID();
 
@@ -1280,7 +1285,7 @@ int main (int argc, char* argv[]) {
   retval = SDL_InitSubSystem(init.display.flag.has_flag(INIT_DISPLAY_FLAG_TEXT) ? 0 : SDL_INIT_VIDEO);
   if (retval != 0) {
     report_error("SDL initialization failure", SDL_GetError());
-    return false;
+    return 0;
   }
 
 #ifdef WIN32

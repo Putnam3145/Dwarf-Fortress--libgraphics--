@@ -194,7 +194,7 @@ void viewscreen_movieplayerst::logic()
 		}
 }
 
-void viewscreen_movieplayerst::render()
+void viewscreen_movieplayerst::render(uint32_t curtick)
 {
 	if(breakdownlevel!=INTERFACE_BREAKDOWN_NONE)return;
 	
@@ -760,6 +760,7 @@ interfacest::interfacest()
 	shutdown_interface_for_ms=0;
 	shutdown_interface_tickcount=0;
 	flag=0;
+	cur_textbox=NULL;
 #ifdef CURSES_MOVIES
 	supermovie_on=0;
 	supermovie_pos=0;
@@ -878,6 +879,13 @@ char interfacest::loop() {
         break;
       } else {
         set<InterfaceKey> era = enabler.get_input(now);
+		if (cur_textbox != NULL)
+			{
+			if(!cur_textbox->is_visible() || !cur_textbox->do_input(era) && !enabler.listening_to_text)
+				{
+				cur_textbox=NULL;
+				}
+			}
         if (era.size() == 0) {
           if(enabler.mouse_lbut || enabler.mouse_rbut || enabler.mouse_mbut || enabler.get_text_input()[0] != '\0') currentscreen->feed(era);
           break;
@@ -1420,6 +1428,12 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 		if(events.count(INTERFACEKEY_SELECT)||events.count(INTERFACEKEY_LEAVESCREEN)||enabler.mouse_rbut) 
 			{
 			enabler.set_listen_to_text(false);
+			if ((flag & STRINGENTRY_REMOVEKEYS))
+				{
+				events.erase(INTERFACEKEY_SELECT);
+				events.erase(INTERFACEKEY_LEAVESCREEN);
+				enabler.mouse_rbut=false;
+				}
 			return 0;
 			}
 		events.clear();

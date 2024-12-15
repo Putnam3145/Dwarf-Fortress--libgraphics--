@@ -60,3 +60,15 @@ void textlinesst::load_raw_to_lines(const char *filename)
 		}
 	fseed.close();
 }
+void textlinesst::save_lines_to_raw(const char *filename) 
+{
+	std::ofstream fseed(filename);
+	if (fseed.is_open())
+		{
+		for (auto &line : text.str)
+			{
+			fseed<<line->dat<<std::endl;
+			}
+		}
+	fseed.close();
+}

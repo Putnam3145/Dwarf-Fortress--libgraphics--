@@ -140,6 +140,10 @@ class stringvectst
 			else str.push_back(newp);
 			}
 
+		stringvectst() {
+			str.clear();
+			}
+
 		~stringvectst()
 			{
 			clean();
@@ -238,7 +242,8 @@ class flagarrayst
 			{
 			if(flagnum<=0)return;
 
-			set_size(((flagnum-1)>>3)+1);
+			const long newsize=((flagnum-1)>>3)+1;
+			set_size(newsize<=0 ? 1 : newsize);
 			}
 
 		void set_size(long newsize)
@@ -637,8 +642,8 @@ struct texture_fullid {
   float r, g, b;
   float br, bg, bb;
   uint32_t flag;
-
-
+  texture_fullid()=default;
+  texture_fullid(int texpos, float r, float g, float b, float br, float bg, float bb, uint32_t flag) : texpos(texpos), r(r), g(g), b(b), br(br), bg(bg), bb(bb), flag(flag) {}
   auto operator<=> (const struct texture_fullid &other) const=default;
 };
 
@@ -662,7 +667,8 @@ struct texture_fullid {
   float r, g, b;
   float br, bg, bb;
   uint32_t flag;
-
+  texture_fullid()=default;
+  texture_fullid(int texpos,float r,float g,float b,float br,float bg,float bb,uint32_t flag) : texpos(texpos),r(r),g(g),b(b),br(br),bg(bg),bb(bb),flag(flag) {}
 
   auto operator<=> (const struct texture_fullid &other) const=default;
 };

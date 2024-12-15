@@ -25,7 +25,7 @@ class viewscreen_movieplayerst : viewscreenst
 		static viewscreen_movieplayerst *create(char pushtype,viewscreenst *scr=NULL);
 		virtual void feed(std::set<InterfaceKey> &events);
 		virtual void logic();
-		virtual void render();
+		virtual void render(uint32_t curtick=0);
 		virtual char movies_okay(){return 0;}
 		void clearfilelist();
 		void force_play(const string &file);
@@ -77,6 +77,8 @@ class interfacest
   int original_fps;
 	friend class viewscreen_movieplayerst;
 
+	friend class widgets::textbox;
+
 	public:
 		viewscreenst view;
 		unsigned int flag;
@@ -118,7 +120,7 @@ class interfacest
 		char first_movie_write;
 		string movie_file;
 #endif
-
+		widgets::textbox *cur_textbox;
 		void insertscreen_as_parent(viewscreenst *scr,viewscreenst *child);
 		void insertscreen_as_child(viewscreenst *scr,viewscreenst *parent);
 		void insertscreen_at_back(viewscreenst *scr);
@@ -147,6 +149,7 @@ char secondaryscrolling(std::set<InterfaceKey> &events,int32_t &scroll,int32_t m
 #define STRINGENTRY_CAPS BIT4
 #define STRINGENTRY_SYMBOLS BIT5
 #define STRINGENTRY_FILENAME BIT6
+#define STRINGENTRY_REMOVEKEYS BIT7
 char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);
 char standardstringentry(string& str, int maxlen, unsigned int flag, std::set<InterfaceKey>& events, const char* text_entry);
 char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events);

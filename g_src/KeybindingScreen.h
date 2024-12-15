@@ -38,7 +38,7 @@ class KeybindingScreen : public viewscreenst {
 public:
   KeybindingScreen(); 
   virtual void feed(std::set<InterfaceKey> &events);
-  virtual void render();
+  virtual void render(uint32_t curtick=0);
   virtual void logic();
 };
 #endif
@@ -50,7 +50,7 @@ class MacroScreenLoad : public viewscreenst {
  public:
   MacroScreenLoad();
   virtual void logic();
-  virtual void render();
+  virtual void render(uint32_t curtick=0);
   virtual void feed(std::set<InterfaceKey> &events);
 };
 
@@ -59,7 +59,7 @@ class MacroScreenSave : public viewscreenst {
 public:
   MacroScreenSave();
   virtual void logic();
-  virtual void render();
+  virtual void render(uint32_t curtick=0);
   virtual void feed(std::set<InterfaceKey> &events);
 };
 

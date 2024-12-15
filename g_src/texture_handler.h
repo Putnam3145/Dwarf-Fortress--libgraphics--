@@ -3,6 +3,20 @@
 
 #include "textlines.h"
 
+struct palette_rowst
+{
+	Uint8 *row;
+
+	palette_rowst()
+		{
+		row=NULL;
+		}
+	~palette_rowst()
+		{
+		if(row!=NULL)delete[] row;
+		}
+};
+
 struct palette_pagest
 {
 	string token;
@@ -16,10 +30,22 @@ struct palette_pagest
 	stringvectst color_token;
 		svector<int32_t> color_row;//linked
 
+	//used by layer sets
+	svector<palette_rowst *> row;
+	int32_t row_width;
+
 
 	palette_pagest()
 		{
 		default_row=-1;
+		row_width=0;
+		}
+	~palette_pagest()
+		{
+		auto r_s=row.begin();
+		auto r_e=row.end();
+		for(;r_s<r_e;++r_s)delete *r_s;
+		row.clear();
 		}
 };
 

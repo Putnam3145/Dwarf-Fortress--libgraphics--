@@ -4017,8 +4017,6 @@ void do_blank_screen_fill()
       dimx = MIN(MAX(w / dispx, MIN_GRID_X), MAX_GRID_X);
       dimy = MIN(MAX(h / dispy, MIN_GRID_Y), MAX_GRID_Y);
       cout << "Resizing grid to " << dimx << "x" << dimy << endl;
-	  this->dimx=dimx;
-	  this->dimy=dimy;
       grid_resize(w, h);
     }
     // Calculate zoomed tile size

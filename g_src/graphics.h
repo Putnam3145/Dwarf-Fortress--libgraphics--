@@ -555,10 +555,197 @@ enum PCGLayeringType
 	PCG_LAYERING_WEREBEAST_WOMBAT,
 	PCG_LAYERING_WEREBEAST_ZEBRA,
 
+	PCG_LAYERING_EXPERIMENT_HUMANOID_SHADOW,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_MOUTH,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_MANDIBLES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TRUNK,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_ANTENNAE,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_ONE,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_TWO,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_THREE,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_EXTERNAL_RIBS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_FOOT_LEFT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_FOOT_RIGHT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HAND_LEFT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HAND_RIGHT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_LEG_LEFT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_LEG_RIGHT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_ARM_LEFT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_ARM_RIGHT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_LACY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_FEATHERED,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_BAT,
+
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_EXTERNAL_RIBS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FUR,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FEATHERS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SCALES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKIN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE_SKINLESS,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_LONG,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_SHORT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_FAT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_TWISTING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_CURLING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_KNOBBY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_LONG,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_FAN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SPINDLY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SQUAT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_BRANCHING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_KNOBBING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_LONG,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_FAN,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SPINDLY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SQUAT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_BRANCHING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_KNOBBING,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_LACY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_FEATHERED,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_BAT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_LACY,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_FEATHERED,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_BAT,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_1,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_2,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_3,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_4,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_5,
+	PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_5,
+
 	PCG_LAYERINGNUM,
 	PCG_LAYERING_NONE=-1
 };
 typedef int32_t PCGLayering;
+
+enum PCGLayeringModifierType
+{
+	PCG_LAYERING_MODIFIER_HORN_COUNT_1,
+	PCG_LAYERING_MODIFIER_HORN_COUNT_2,
+	PCG_LAYERING_MODIFIER_HORN_COUNT_3,
+	PCG_LAYERING_MODIFIER_HORN_COUNT_4,
+
+	PCG_LAYERING_MODIFIER_HORN_LONG_SPIRAL,
+	PCG_LAYERING_MODIFIER_HORN_LONG_CURVING,
+	PCG_LAYERING_MODIFIER_HORN_SHORT,
+	PCG_LAYERING_MODIFIER_HORN_STUBBY,
+	PCG_LAYERING_MODIFIER_HORN_BROAD,
+	PCG_LAYERING_MODIFIER_HORN_LONG_STRAIGHT,
+
+	PCG_LAYERING_MODIFIER_ANTENNA_LONG,
+	PCG_LAYERING_MODIFIER_ANTENNA_FAN,
+	PCG_LAYERING_MODIFIER_ANTENNA_SPINDLY,
+	PCG_LAYERING_MODIFIER_ANTENNA_SQUAT,
+	PCG_LAYERING_MODIFIER_ANTENNA_BRANCHING,
+	PCG_LAYERING_MODIFIER_ANTENNA_KNOBBING,
+
+	PCG_LAYERING_MODIFIER_TRUNK_LONG,
+	PCG_LAYERING_MODIFIER_TRUNK_SHORT,
+	PCG_LAYERING_MODIFIER_TRUNK_FAT,
+	PCG_LAYERING_MODIFIER_TRUNK_TWISTING,
+	PCG_LAYERING_MODIFIER_TRUNK_CURLING,
+	PCG_LAYERING_MODIFIER_TRUNK_KNOBBY,
+
+	PCG_LAYERING_MODIFIER_SURFACE_FUR,
+	PCG_LAYERING_MODIFIER_SURFACE_FEATHERS,
+	PCG_LAYERING_MODIFIER_SURFACE_SCALES,
+	PCG_LAYERING_MODIFIER_SURFACE_SKIN,
+	PCG_LAYERING_MODIFIER_SURFACE_SKINLESS,
+
+	PCG_LAYERING_MODIFIER_EXTERNAL_RIBS,
+
+	PCG_LAYERING_MODIFIERNUM,
+	PCG_LAYERING_MODIFIERNONE=-1
+};
+typedef int32_t PCGLayeringModifier;
 
 enum UnitStatusType
 {
@@ -2236,6 +2423,9 @@ enum InterfaceButtonMainType
 	INTERFACE_BUTTON_MAIN_ARENA_WEATHER,
 	INTERFACE_BUTTON_MAIN_ARENA_CREATE_TREE,
 	INTERFACE_BUTTON_MAIN_ARENA_ENTER_AMOUNT,
+	INTERFACE_BUTTON_MAIN_CONTRACT_LIST,
+	INTERFACE_BUTTON_MAIN_EXPAND_LIST,
+	INTERFACE_BUTTON_MAIN_SELECT_ALL,
 	INTERFACE_BUTTON_MAINNUM,
 	INTERFACE_BUTTON_MAIN_NONE=-1
 };
@@ -2670,6 +2860,9 @@ struct interface_setst
 	int32_t texpos_grid_cell_inactive[3][3];
 	int32_t texpos_grid_cell_active[3][3];
 	int32_t texpos_grid_cell_button[3][3];
+	int32_t texpos_type_filter_left[3];
+	int32_t texpos_type_filter_right[3];
+	int32_t texpos_type_filter_text[3];
 
 	int32_t texpos_button_announcement_open_all_announcements[3][3];
 	int32_t texpos_button_announcement_not_pausing_on_new_report[3*3];
@@ -2865,6 +3058,9 @@ struct interface_setst
 		memset(texpos_sort_descending_inactive,0,sizeof(int32_t)*4);
 		memset(texpos_sort_text_active,0,sizeof(int32_t)*3);
 		memset(texpos_sort_text_inactive,0,sizeof(int32_t)*3);
+		memset(texpos_type_filter_left,0,sizeof(int32_t)*3);
+		memset(texpos_type_filter_right,0,sizeof(int32_t)*3);
+		memset(texpos_type_filter_text,0,sizeof(int32_t)*3);
 
 		memset(texpos_tab,0,sizeof(int32_t)*5*3);
 		memset(texpos_tab_selected,0,sizeof(int32_t)*5*3);
@@ -3010,6 +3206,22 @@ struct texblitst {
 };
 
 #include <array>
+
+using override_tile_type=uint8_t;
+
+constexpr override_tile_type OVERRIDE_CHAR=BIT1;
+
+constexpr override_tile_type OVERRIDE_TILE=BIT2;
+
+constexpr override_tile_type OVERRIDE_TOP_TILE=BIT3;
+
+constexpr override_tile_type OVERRIDE_LOWER_TILE=BIT4;
+
+constexpr override_tile_type OVERRIDE_TOP_LOWER_TILE=BIT5;
+
+constexpr override_tile_type OVERRIDE_ANCHORED_TILE=BIT6;
+
+constexpr override_tile_type OVERRIDE_TOP_ANCHORED_TILE=BIT7;
 
 class graphicst
 {
@@ -3613,12 +3825,12 @@ class graphicst
 		int32_t texpos_slider_hover[2][3];
 		int32_t texpos_tab[5][3];
 		int32_t texpos_tab_selected[5][3];
-		std::array<std::array<int32_t,2>,5> texpos_short_tab;
-		std::array<std::array<int32_t,2>,5> texpos_short_tab_selected;
-		std::array<std::array<int32_t,2>,5> texpos_short_subtab;
-		std::array<std::array<int32_t,2>,5> texpos_short_subtab_selected;
-		std::array<std::array<int32_t,2>,5> texpos_short_subsubtab;
-		std::array<std::array<int32_t,2>,5> texpos_short_subsubtab_selected;
+		array_2d<int32_t,5,2> texpos_short_tab;
+		array_2d<int32_t,5,2> texpos_short_tab_selected;
+		array_2d<int32_t,5,2> texpos_short_subtab;
+		array_2d<int32_t,5,2> texpos_short_subtab_selected;
+		array_2d<int32_t,5,2> texpos_short_subsubtab;
+		array_2d<int32_t,5,2> texpos_short_subsubtab_selected;
 		int32_t texpos_interface_background;
 		int32_t texpos_button_main[INTERFACE_BUTTON_MAINNUM][4][3];
 		int32_t texpos_button_small[INTERFACE_BUTTON_SMALLNUM][2][2];
@@ -3645,6 +3857,9 @@ class graphicst
 		int32_t texpos_grid_cell_inactive[3][3];
 		int32_t texpos_grid_cell_active[3][3];
 		int32_t texpos_grid_cell_button[3][3];
+		int32_t texpos_type_filter_left[3];
+		int32_t texpos_type_filter_right[3];
+		int32_t texpos_type_filter_text[3];
 
 		int32_t texpos_button_announcement_open_all_announcements[3][3];
 		int32_t texpos_button_announcement_not_pausing_on_new_report[3*3];
@@ -3710,6 +3925,22 @@ class graphicst
 		int32_t texpos_announcement_alert[ANNOUNCEMENT_ALERTNUM];
 
 		int32_t texpos_unit_status[UNIT_STATUSNUM];
+
+		int32_t texpos_default_portrait_background;
+		int32_t texpos_chosen_portrait_frame;
+		int32_t texpos_hero_portrait_frame;
+		int32_t texpos_default_portrait_frame;
+		int32_t texpos_portrait_chosen;
+		int32_t texpos_portrait_hero;
+		int32_t texpos_portrait_ordinary;
+		int32_t texpos_portrait_chosen_selected;
+		int32_t texpos_portrait_hero_selected;
+		int32_t texpos_portrait_ordinary_selected;
+		int32_t texpos_default_portrait_background_selected;
+		int32_t texpos_portrait_left;
+		int32_t texpos_portrait_right;
+		int32_t texpos_portrait_add_active;
+		int32_t texpos_portrait_add_inactive;
 
 		int32_t workshop_carpenter_texpos[4][3][4];//many of these use upper row for stuff that sticks up
 		int32_t workshop_farmer_texpos[4][3][4];
@@ -5282,6 +5513,13 @@ class graphicst
 		int32_t texpos_liquid_for_barrel_metal;
 		int32_t texpos_item_barrel_wood_item;
 		int32_t texpos_item_barrel_metal_item;
+		svector<int32_t> texpos_item_barrel_top_plant;
+		svector<int32_t> texpos_item_barrel_top_plant_subterranean;
+		svector<int32_t> texpos_item_barrel_top_meal;
+		svector<int32_t> texpos_item_barrel_top_cheese;
+		svector<int32_t> texpos_item_barrel_top_meat;
+		svector<int32_t> texpos_item_barrel_top_fish;
+		svector<int32_t> texpos_item_barrel_top_bag;
 
 		int32_t texpos_food_container_top_liquid;
 		int32_t texpos_food_container_top_bag;
@@ -5349,6 +5587,27 @@ class graphicst
 			int32_t texpos_item_bin_metal_empty;
 			int32_t texpos_item_bin_wood_in_use;
 			int32_t texpos_item_bin_metal_in_use;
+			svector<int32_t> texpos_item_bin_top_ammo;
+			svector<int32_t> texpos_item_bin_top_cloth;
+			svector<int32_t> texpos_item_bin_top_clothing;
+			svector<int32_t> texpos_item_bin_top_armor_leather;
+			svector<int32_t> texpos_item_bin_top_armor_metal;
+			svector<int32_t> texpos_item_bin_top_bars;
+			svector<int32_t> texpos_item_bin_top_blocks;
+			svector<int32_t> texpos_item_bin_top_coal;
+			svector<int32_t> texpos_item_bin_top_powders;
+			svector<int32_t> texpos_item_bin_top_coins;
+			svector<int32_t> texpos_item_bin_top_gems;
+			svector<int32_t> texpos_item_bin_top_mechanisms;
+			svector<int32_t> texpos_item_bin_top_bags;
+			svector<int32_t> texpos_item_bin_top_books;
+			svector<int32_t> texpos_item_bin_top_sheets;
+			svector<int32_t> texpos_item_bin_top_chains;
+			svector<int32_t> texpos_item_bin_top_ropes;
+			svector<int32_t> texpos_item_bin_top_leather;
+			svector<int32_t> texpos_item_bin_top_weapons;
+			svector<int32_t> texpos_item_bin_top_trap_comps;
+			svector<int32_t> texpos_item_bin_top_crafts;
 		int32_t texpos_item_bag;
 			int32_t texpos_item_bag_empty;
 			int32_t texpos_item_bag_in_use;
@@ -5513,6 +5772,19 @@ class graphicst
 		int32_t texpos_item_statue_vomit;
 		int32_t texpos_item_statue_water;
 		int32_t texpos_item_statue_mud;
+		svector<int32_t> texpos_item_statue_artifact;
+		int32_t texpos_item_statue_generic_event[2];
+		int32_t texpos_item_statue_generic_shape[2];
+		int32_t texpos_item_statue_generic_duel[2];
+		int32_t texpos_item_statue_generic_triumph[2];
+		int32_t texpos_item_statue_generic_civilized[2];
+		int32_t texpos_item_statue_generic_strike_down[2];
+		int32_t texpos_item_statue_generic_shot[2];
+		int32_t texpos_item_statue_generic_item_creation[2];
+		int32_t texpos_item_statue_generic_tree[2];
+		int32_t texpos_item_statue_generic_shrub[2];
+		int32_t texpos_item_statue_generic_battle[2];
+		int32_t texpos_item_statue_generic_site[2];
 
 		int32_t texpos_item_bodypart_fat;
 		int32_t texpos_item_bodypart_eye;
@@ -7678,6 +7950,28 @@ class graphicst
 		use_old_16_colors=false;
 		}
 
+	void override_tiles(int sy,int sx,int ey,int ex,override_tile_type flag) {
+		if (flag==0) return;
+		for (auto bx=sx; bx <= ex; bx++)
+			{
+			for (auto by=sy; by <= ey; by++)
+				{
+				const auto pos=bx*dimy + by;
+				if (flag&OVERRIDE_CHAR)
+					{
+					locate(by,bx);
+					addchar(0);
+					}
+				if (flag&OVERRIDE_TILE)screentexpos[pos]=0;
+				if (flag&OVERRIDE_TOP_TILE)screentexpos_top[pos]=0;
+				if (flag&OVERRIDE_LOWER_TILE)screentexpos_lower[pos]=0;
+				if (flag&OVERRIDE_TOP_LOWER_TILE)screentexpos_top_lower[pos]=0;
+				if (flag&OVERRIDE_ANCHORED_TILE)screentexpos_anchored[pos]=0;
+				if (flag&OVERRIDE_TOP_ANCHORED_TILE)screentexpos_top_anchored[pos]=0;
+				}
+			}
+		}
+
 	void addchar(unsigned char c,char advance=1)
 		{
         /* assert (screen_limit == screen + dimy * dimx * 8); */
@@ -7929,11 +8223,20 @@ class graphicst
 				}
 			}
 		}
-
+#ifdef WIN32
+#define ATTR_NOINLINE [[msvc::noinline]]
+#else
+#define ATTR_NOINLINE [[gnu::noinline]]
+#endif
+	ATTR_NOINLINE
 	void addcoloredst(const char *str,const char *colorstr);
+	ATTR_NOINLINE
 	void addst(const string &str, justification just = justify_left, int space=0);
+	ATTR_NOINLINE
 	void addst_flag(const string &str_orig, justification just, int space=0, uint32_t sflag=0);
+	ATTR_NOINLINE
 	void top_addst(const string &str, justification just = justify_left, int space=0);
+	ATTR_NOINLINE
 	void top_addst_flag(const string &str_orig, justification just, int space=0, uint32_t sflag=0);
 	void erasescreen_clip();
 	void erasescreen();

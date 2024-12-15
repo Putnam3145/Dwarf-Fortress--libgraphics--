@@ -6,6 +6,7 @@
 #endif
 #include <string>
 #include <vector>
+#include <array>
 using std::string;
 
 #ifndef BITS
@@ -103,10 +104,12 @@ void convert_ulong64_to_string(uint64_t n,string &str);
 void lower_case_string(string &str);
 void upper_case_string(string &str);
 void simplify_string(string &str);
+string simplified_string(string str);
 void capitalize_string_words(string &str);
 void capitalize_string_first_word(string &str);
 void abbreviate_string(string &str,int32_t len);
 void separate_string(const string &str,std::vector<string> &separated,int32_t len);
+void truncate_string(string &str,int32_t len);
 
 void get_number(int32_t number,string &str);
 void get_ordinal(int32_t number,string &str,bool shorten);
@@ -547,5 +550,11 @@ enum justification : unsigned char {
 };
 
 extern int charmap[256];
+
+template<typename T,size_t a,size_t b>
+using array_2d=std::array<std::array<T,b>,a>;
+
+template<typename T, size_t a, size_t b, size_t c>
+using array_3d=std::array<std::array<std::array<T,c>,b>,a>;
 
 #endif

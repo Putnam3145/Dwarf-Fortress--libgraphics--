@@ -88,45 +88,63 @@ void errorlog_string(const string &str)
 }
 #else
 
+std::mutex gamelog_mutex;
+
+std::mutex errorlog_mutex;
+
 void errorlog_string(const string &str)
 {
-	if(str.empty())return;
-	if (!error_file.is_open()) error_file.open("errorlog.txt",std::ios::out|std::ios::app);
+	if (str.empty())return;
+
+	std::scoped_lock lk(errorlog_mutex);
+
 	//SAVE AN ERROR TO THE LOG FILE
-	std::osyncstream fseed(error_file);
-	if(!errorlog_prefix.empty())
+	std::ofstream fseed("errorlog.txt",std::ios::out | std::ios::app);
+	if (fseed.is_open())
 		{
-		fseed<<errorlog_prefix.c_str()<<std::endl;
-		errorlog_prefix.clear();
+		if (!errorlog_prefix.empty())
+			{
+			fseed<<errorlog_prefix.c_str()<<std::endl;
+			errorlog_prefix.clear();
+			}
+		fseed<<str.c_str()<<std::endl;
 		}
-	fseed<<str.c_str()<<std::endl;
+	fseed.close();
 }
 #endif
 
 void gamelog_string(const string &str)
 {
-	if(str.empty())return;
+	if (str.empty())return;
 
-	if(!gamelog_file.is_open()) gamelog_file.open("gamelog.txt",std::ios::out|std::ios::app);
-
-	std::osyncstream fseed(gamelog_file);
-
-	fseed<<str.c_str()<<std::endl;
+	std::scoped_lock lk(gamelog_mutex);
+	//SAVE AN ERROR TO THE LOG FILE
+	std::ofstream fseed("gamelog.txt",std::ios::out | std::ios::app);
+	if (fseed.is_open())
+		{
+		fseed<<str.c_str()<<std::endl;
+		}
+	fseed.close();
 }
 
 void errorlog_string(const char *ptr)
 {
-	if(ptr==NULL)return;
-	if (!error_file.is_open()) error_file.open("errorlog.txt",std::ios::out|std::ios::app);
+	if (ptr==NULL)return;
+
+	std::scoped_lock lk(errorlog_mutex);
 
 	//SAVE AN ERROR TO THE LOG FILE
-	std::osyncstream fseed(error_file);
-	if(!errorlog_prefix.empty())
+	std::ofstream fseed("errorlog.txt",std::ios::out | std::ios::app);
+	if (fseed.is_open())
 		{
-		fseed<<errorlog_prefix.c_str()<<std::endl;
-		errorlog_prefix.clear();
+		if (!errorlog_prefix.empty())
+			{
+			fseed<<errorlog_prefix.c_str()<<std::endl;
+			errorlog_prefix.clear();
+			}
+		fseed<<ptr<<std::endl;
 		}
-	fseed<<ptr<<std::endl;
+	fseed.close();
 }
 
 int32_t convert_string_to_long(const string &str)
@@ -263,7 +281,7 @@ bool grab_token_string(string &dest,string &source,char compc)
 	dest.erase();
 	if(source.length()==0)return false;
 
-	//GO UNTIL YOU HIT A :, ], or the end
+	//GO UNTIL YOU HIT A compc, ], or the end
 	auto s=source.begin(),e=source.end();
 	for(;s<e;++s)
 		{
@@ -279,7 +297,7 @@ bool grab_token_string_pos(string &dest,string &source,int32_t pos,char compc)
 	if(source.length()==0)return false;
 	if(pos>source.length())return false;
 
-	//GO UNTIL YOU HIT A :, ], or the end
+	//GO UNTIL YOU HIT A compc, ], or the end
 	auto s=source.begin(),e=source.end();
 	s+=pos;
 	for(;s<e;++s)
@@ -296,7 +314,7 @@ bool grab_token_string(string &dest,const char *source,char compc)
 	int32_t sz=(int32_t)strlen(source);
 	if(sz==0)return false;
 
-	//GO UNTIL YOU HIT A :, ], or the end
+	//GO UNTIL YOU HIT A compc, ], or the end
 	int32_t s;
 	for(s=0;s<sz;s++)
 		{
@@ -387,6 +405,11 @@ void simplify_string(string &str)
 			}
 		}
 }
+
+string simplified_string(string s) {
+	simplify_string(s); // implicitly copied for argument
+	return s;
+	}
 
 void lower_case_string(string &str)
 {
@@ -626,7 +649,7 @@ void abbreviate_string(string &str, int32_t len)
 void separate_string(const string &str,std::vector<string> &separated,int32_t len)
 	{
 	separated.clear();
-	if (str.size()>len)
+	if (str.size()>len && len>0)
 		{
 		for (int i=0; i<str.size();)
 			{
@@ -645,6 +668,15 @@ void separate_string(const string &str,std::vector<string> &separated,int32_t le
 		separated.push_back(str);
 		}
 	}
+
+void truncate_string(string &str,int32_t len) 
+{
+	if (str.size()>len)
+		{
+		str.resize(len);
+		str.replace(str.size()-3,3,3,'.');
+		}
+}
 
 void get_number(int32_t number,string &str)
 {

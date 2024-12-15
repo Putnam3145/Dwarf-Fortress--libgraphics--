@@ -9,6 +9,8 @@ struct textlinesst
 
 	void load_raw_to_lines(const char *filename);
 
+	void save_lines_to_raw(const char *filename);
+
 	void clean_lines()
 		{
 		text.clean();

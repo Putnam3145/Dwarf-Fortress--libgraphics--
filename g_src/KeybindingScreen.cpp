@@ -304,7 +304,7 @@ void KeybindingScreen::render_main() {
   main.render(6, init.display.grid_x - 3, 3, init.display.grid_y - 4);
 }
 
-void KeybindingScreen::render() {
+void KeybindingScreen::render(uint32_t curtick) {
   switch(mode) {
   case mode_main: render_main(); break;
   case mode_keyL: case mode_keyR: render_key(); break;
@@ -356,8 +356,8 @@ void MacroScreenLoad::feed(set<InterfaceKey> &input) {
 void MacroScreenLoad::logic() {
 }
 
-void MacroScreenLoad::render() {
-  if (parent) parent->render();
+void MacroScreenLoad::render(uint32_t curtick) {
+  if (parent) parent->render(curtick);
   const int x1 = MAX(init.display.grid_x/2 - ((width + 2) / 2), 0);
   const int x2 = MIN(x1+width+1, init.display.grid_x-1);
   const int y1 = MAX(init.display.grid_y/2 - ((height + 2) / 2), 0);
@@ -370,7 +370,8 @@ void MacroScreenLoad::render() {
 
 MacroScreenSave::MacroScreenSave() : id(48, 0) {
   enabler.flag |= ENABLERFLAG_RENDER;
-  id.input=true;
+  id.textbox_type=widgets::TextboxType::NAME;
+  id.take_focus();
   id.set_parent(this);
 }
 
@@ -381,25 +382,27 @@ void MacroScreenSave::logic() {
 
 void MacroScreenSave::feed(set<InterfaceKey> &input) {
   enabler.flag|=ENABLERFLAG_RENDER;
+  if (input.count(INTERFACEKEY_SELECT))
+      {
+      string n=id.get_text();
+      if (n.length())
+          enabler.save_macro(n);
+      breakdownlevel=INTERFACE_BREAKDOWN_STOPSCREEN;
+      return;
+      }
+  if (input.count(INTERFACEKEY_OPTIONS))
+      {
+      breakdownlevel=INTERFACE_BREAKDOWN_STOPSCREEN;
+      }
   id.feed(input);
-  if (input.count(INTERFACEKEY_SELECT)) {
-    string n = id.get_text();
-    if (n.length())
-      enabler.save_macro(n);
-    breakdownlevel = INTERFACE_BREAKDOWN_STOPSCREEN;
-    return;
-  }
-  if (input.count(INTERFACEKEY_OPTIONS)) {
-    breakdownlevel = INTERFACE_BREAKDOWN_STOPSCREEN;
-  }
 }
 
-void MacroScreenSave::render() {
-  if (parent) parent->render();
+void MacroScreenSave::render(uint32_t curtick) {
+  if (parent) parent->render(curtick);
   id.set_anchors(0.5,0.5,0.0,1.0);
   id.set_offsets(-1,1,3,-7);
   id.move_to_anchor();
   id.arrange();
-  id.render();
+  id.render(curtick);
   // gps.renewscreen();
 }

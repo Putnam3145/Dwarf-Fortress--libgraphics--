@@ -173,15 +173,22 @@ void initst::begin()
 						{
 						std::unordered_map<std::string,int32_t> modes = {
 								{"SOFTWARE", INIT_DISPLAY_FLAG_SOFTWARE},
-								{"AUTO", 0},
+								{"AUTO", -INIT_DISPLAY_FLAG_SOFTWARE},
 								{"2D", INIT_DISPLAY_FLAG_SOFTWARE},
-								{"STANDARD", 0},
+								{"STANDARD", -INIT_DISPLAY_FLAG_SOFTWARE},
 								{"TEXT", INIT_DISPLAY_FLAG_TEXT}
 								};
 						auto it=modes.find(token2);
 						if(it!=modes.end()) 
 							{
-							display.flag.add_flag(it->second);
+							if (it->second<0)
+								{
+								display.flag.remove_flag(-it->second);
+								}
+							else
+								{
+								display.flag.add_flag(it->second);
+								}
 							}
 						}
 					if(token=="FPS")
@@ -815,6 +822,29 @@ void initst::begin()
 		texpos_tab_selected[2][1]=tabs_texpos[7+1*10];
 		texpos_tab_selected[3][1]=tabs_texpos[8+1*10];
 		texpos_tab_selected[4][1]=tabs_texpos[9+1*10];
+	enabler.textures.load_multi_pdim("data/art/sort.png",sort_texpos,11,2,true,&d3,&d4);
+		texpos_sort_ascending_inactive[0]=sort_texpos[0+0*11];
+		texpos_sort_ascending_inactive[1]=sort_texpos[1+0*11];
+		texpos_sort_ascending_inactive[2]=sort_texpos[2+0*11];
+		texpos_sort_ascending_inactive[3]=sort_texpos[3+0*11];
+		texpos_sort_descending_inactive[0]=sort_texpos[4+0*11];
+		texpos_sort_descending_inactive[1]=sort_texpos[5+0*11];
+		texpos_sort_descending_inactive[2]=sort_texpos[6+0*11];
+		texpos_sort_descending_inactive[3]=sort_texpos[7+0*11];
+		texpos_sort_text_inactive[0]=sort_texpos[8+0*11];
+		texpos_sort_text_inactive[1]=sort_texpos[9+0*11];
+		texpos_sort_text_inactive[2]=sort_texpos[10+0*11];
+		texpos_sort_ascending_active[0]=sort_texpos[0+1*11];
+		texpos_sort_ascending_active[1]=sort_texpos[1+1*11];
+		texpos_sort_ascending_active[2]=sort_texpos[2+1*11];
+		texpos_sort_ascending_active[3]=sort_texpos[3+1*11];
+		texpos_sort_descending_active[0]=sort_texpos[4+1*11];
+		texpos_sort_descending_active[1]=sort_texpos[5+1*11];
+		texpos_sort_descending_active[2]=sort_texpos[6+1*11];
+		texpos_sort_descending_active[3]=sort_texpos[7+1*11];
+		texpos_sort_text_active[0]=sort_texpos[8+1*11];
+		texpos_sort_text_active[1]=sort_texpos[9+1*11];
+		texpos_sort_text_active[2]=sort_texpos[10+1*11];
 
 		classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURE_LEFT_FULL]=convert_raw_to_ascii_texpos('[',7,0,1);
 		classic_load_bar_texpos[INIT_LOAD_BAR_TEXTURE_MID_FULL]=convert_raw_to_ascii_texpos(254,7,0,1);
@@ -1075,6 +1105,29 @@ void initst::begin()
 		classic_texpos_tab_selected[4][0]=convert_raw_to_ascii_texpos(' ',6,0,1);
 		classic_texpos_tab_selected[4][1]=convert_raw_to_ascii_texpos('\\',6,0,1);
 
+		classic_texpos_sort_ascending_inactive[0]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_ascending_inactive[1]=convert_raw_to_ascii_texpos(31,0,7,0);
+		classic_texpos_sort_ascending_inactive[2]=convert_raw_to_ascii_texpos(31,0,7,0);
+		classic_texpos_sort_ascending_inactive[3]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_ascending_active[0]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_ascending_active[1]=convert_raw_to_ascii_texpos(31,7,7,1);
+		classic_texpos_sort_ascending_active[2]=convert_raw_to_ascii_texpos(31,7,7,1);
+		classic_texpos_sort_ascending_active[3]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_descending_inactive[0]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_descending_inactive[1]=convert_raw_to_ascii_texpos(30,0,7,0);
+		classic_texpos_sort_descending_inactive[2]=convert_raw_to_ascii_texpos(30,0,7,0);
+		classic_texpos_sort_descending_inactive[3]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_descending_active[0]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_descending_active[1]=convert_raw_to_ascii_texpos(30,7,7,1);
+		classic_texpos_sort_descending_active[2]=convert_raw_to_ascii_texpos(30,7,7,1);
+		classic_texpos_sort_descending_active[3]=convert_raw_to_ascii_texpos(' ',0,7,0);
+		classic_texpos_sort_text_active[0]=convert_raw_to_ascii_texpos(' ',0,0,0);
+		classic_texpos_sort_text_active[1]=convert_raw_to_ascii_texpos(' ',0,0,0);
+		classic_texpos_sort_text_active[2]=convert_raw_to_ascii_texpos(' ',0,0,0);
+		classic_texpos_sort_text_inactive[0]=convert_raw_to_ascii_texpos(' ',0,0,0);
+		classic_texpos_sort_text_inactive[1]=convert_raw_to_ascii_texpos(' ',0,0,0);
+		classic_texpos_sort_text_inactive[2]=convert_raw_to_ascii_texpos(' ',0,0,0);
+
 	font.create_derived_font_textures();
 
 	//************************************ MOVE BLACK BACKGROUND TO RAWS
@@ -1313,5 +1366,17 @@ void initst::swap_basic_sets()
 			swap_int32_t(texpos_tab_unselected[l][k],classic_texpos_tab_unselected[l][k]);
 			swap_int32_t(texpos_tab_selected[l][k],classic_texpos_tab_selected[l][k]);
 			}
+		}
+	for(l=0;l<4;++l)
+		{
+		swap_int32_t(texpos_sort_ascending_active[l],classic_texpos_sort_ascending_active[l]);
+		swap_int32_t(texpos_sort_ascending_inactive[l],classic_texpos_sort_ascending_inactive[l]);
+		swap_int32_t(texpos_sort_descending_active[l],classic_texpos_sort_descending_active[l]);
+		swap_int32_t(texpos_sort_descending_inactive[l],classic_texpos_sort_descending_inactive[l]);
+		}
+	for(l=0;l<3;++l)
+		{
+		swap_int32_t(texpos_sort_text_active[l],classic_texpos_sort_text_active[l]);
+		swap_int32_t(texpos_sort_text_inactive[l],classic_texpos_sort_text_inactive[l]);
 		}
 }

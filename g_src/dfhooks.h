@@ -26,3 +26,6 @@ bool hooks_sdl_event(void* event);
 // If true is returned then the key has been consumed and further
 // processing shouldn't happen
 bool hooks_ncurses_key(int key);
+
+// Called right before do_frame in eventLoop_SDL.
+void hooks_sdl_loop_fn();
