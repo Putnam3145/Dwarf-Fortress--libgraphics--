@@ -53,6 +53,7 @@ using std::string;
 #include "files.h"
 #include "enabler.h"
 #include "find_files.h"
+#include "init.h"
 
 inline void CHECK_ERR(int err, const char* msg)
 {
@@ -363,6 +364,25 @@ char file_compressorst::open_file(const string &filename,char existing_only)
 	else return 0;
 }
 
+char file_compressorst::open_file(const filest &file,char existing_only,bool read_only) {
+	if (read_only)
+		{
+		auto p=file.any_location();
+		if (p)
+			{
+			return open_file(p.value().string(),existing_only);
+			}
+		else
+			{
+			return false;
+			}
+		}
+	else
+		{
+		return open_file(file.canon_location().string(),existing_only);
+		}
+	}
+
 file_compressorst::file_compressorst(char *new_in_buffer,long new_in_buffersize,
 									 char *new_out_buffer,long new_out_buffersize)
 {
@@ -412,12 +432,12 @@ file_compressorst::file_compressorst()
 	f.clear();
 }
 
-std::string_view get_base_path_str()
+const char8_t *get_base_path_str()
 {
-	static char *base_folder;
+	static char8_t *base_folder;
 	if(!base_folder)
 		{
-		base_folder=SDL_GetBasePath();
+		base_folder=(char8_t *)SDL_GetBasePath();
 		}
 	return base_folder;
 }
@@ -427,17 +447,18 @@ std::filesystem::path get_base_path()
 	return std::filesystem::path(get_base_path_str());
 	}
 
-void copy_file(const string &src,const string &dst)
-{
-	std::ifstream in_stream(src.c_str(),std::ios_base::binary);
-	std::ofstream out_stream(dst.c_str(),std::ios_base::binary);
-	if(in_stream.is_open()&&out_stream.is_open())
+const char8_t* get_pref_path_str() {
+	static char8_t *pref_folder;
+	if (!pref_folder)
 		{
-		out_stream<<in_stream.rdbuf();
+		pref_folder=(char8_t*)SDL_GetPrefPath("Bay 12 Games","Dwarf Fortress");
 		}
-	in_stream.close();
-	out_stream.close();
-}
+	return pref_folder;
+	}
+
+std::filesystem::path get_pref_path() {
+	return std::filesystem::path(get_pref_path_str());
+	}
 
 void replace_file(const string &src, const string &dst) {
 #ifdef WIN32
@@ -445,3 +466,205 @@ void replace_file(const string &src, const string &dst) {
 #endif
   rename(src.c_str(), dst.c_str());
 }
+
+std::filesystem::path filest::base_location() const {
+	return 	(get_base_path() / path).lexically_normal().make_preferred();
+	}
+
+std::filesystem::path filest::pref_location() const {
+	return (get_pref_path() / path).lexically_normal().make_preferred();
+	}
+
+std::filesystem::path filest::canon_location() const {
+	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+		{
+		return base_location();
+		}
+	else
+		{
+		return pref_location();
+		}
+	}
+
+std::filesystem::path filest::non_canon_location() const {
+	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+		{
+		return pref_location();
+		}
+	else
+		{
+		return base_location();
+		}
+	}
+
+std::optional<std::filesystem::path> filest::any_location() const {
+	auto canon=canon_location();
+	std::error_code ec;
+	if (std::filesystem::exists(canon,ec))
+		{
+		return canon;
+		}
+	else
+		{
+		auto non_canon=non_canon_location();
+		if (std::filesystem::exists(non_canon,ec))
+			{
+			return non_canon;
+			}
+		else
+			{
+			return std::nullopt;
+			}
+		}
+	}
+
+std::filesystem::path filest::any_location_unchecked() const {
+	return any_location().value_or(canon_location());
+	}
+
+std::array<std::filesystem::path,2> filest::both_locations() const {
+	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+		{
+		return {base_location(),pref_location()};
+		}
+	else
+		{
+		return {pref_location(),base_location()};
+		}
+	}
+
+std::array<std::pair<bool,std::filesystem::path>,2> filest::both_locations_tagged() const {
+	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+		{
+		return {std::make_pair(true,base_location()),std::make_pair(false,pref_location())};
+		}
+	else
+		{
+		return {std::make_pair(false,pref_location()),std::make_pair(true,base_location())};
+		}
+	}
+
+std::ofstream filest::to_ofstream(std::ios_base::openmode mode) const {
+	return std::ofstream(canon_location());
+	}
+
+std::ifstream filest::to_ifstream(std::ios_base::openmode mode) const {
+	auto loc=any_location();
+	if (loc)
+		{
+		return std::ifstream(loc.value(),mode);
+		}
+	else
+		{
+		return std::ifstream(); // is not open, cannot be opened, should be fine
+		}
+	}
+
+void filest::canonize(std::filesystem::copy_options copy_options) const {
+	auto nc=non_canon_location();
+	std::error_code ec;
+	if (std::filesystem::exists(nc,ec))
+		{
+		auto c=canon_location();
+		auto nc_str=nc.string();
+		auto c_str=c.string();
+		log_file_error(ec,"Could not determine existence of file "+nc.string()+": ");
+		std::filesystem::copy(nc,c,copy_options,ec);
+		log_file_error(ec,"Failed to copy file " + nc_str + " to "+ c_str+": ")
+		}
+	}
+
+bool copy_file(const filest &src,const filest &dst,std::filesystem::copy_options copy_options) {
+	auto src_dir=src.any_location();
+	auto dst_dir=dst.canon_location();
+	if (src_dir)
+		{
+		return std::filesystem::copy_file(src_dir.value(),dst_dir,copy_options);
+		}
+	else
+		{
+		string s="File not found: ";
+		s+=src.path.string();
+		errorlog_string(s);
+		return false;
+		}
+	}
+
+bool copy_file_or_dir(const filest &src,const filest &dst,std::filesystem::copy_options copy_options) {
+	auto src_dir=src.any_location();
+	auto dst_dir=dst.canon_location();
+	std::error_code ec;
+	if (src_dir)
+		{
+		std::filesystem::copy(src_dir.value(),dst_dir,copy_options,ec);
+		log_file_error(ec,"Could not copy file "+src_dir.value().string()+": ");
+		return true;
+		}
+	else
+		{
+		string s="File not found: ";
+		s+=src.path.string();
+		errorlog_string(s);
+		return false;
+		}
+	}
+
+bool copy_file_or_dir(const std::filesystem::path &src,const filest &dst,std::filesystem::copy_options copy_options) {
+	std::error_code ec;
+	if (std::filesystem::exists(src,ec))
+		{
+		auto dst_dir=dst.canon_location();
+		std::filesystem::copy(src,dst_dir,copy_options,ec);
+		log_file_error(ec,"Could not copy file "+src.string()+": ");
+		return true;
+		}
+	else
+		{
+		string s="File not found: ";
+		s+=src.string();
+		errorlog_string(s);
+		log_file_error(ec,s);
+		return false;
+		}
+	}
+
+void replace_file(const filest &src,const filest &dst) {
+	auto src_dir=src.any_location();
+	auto dst_dir=dst.canon_location();
+	std::error_code ec;
+	if (src_dir)
+		{
+		std::filesystem::remove(dst_dir,ec);
+		log_file_error(ec,"Failed to remove file "+dst_dir.string()+": ");
+		std::filesystem::rename(src_dir.value(),dst_dir,ec);
+		display_file_error(ec,"Failed to copy "+src_dir.value().string()+" to "+dst_dir.string()+": ");
+		}
+	else
+		{
+		string s="File not found: ";
+		s+=src.path.string();
+		errorlog_string(s);
+		}
+	}
+
+bool remove_file(const filest &src) {
+	std::error_code ec;
+	bool deleted=std::filesystem::remove_all(src.canon_location(),ec);
+	deleted=std::filesystem::remove_all(src.non_canon_location(),ec) || deleted;
+	return deleted;
+	}
+
+void create_directory(const filest &src) {
+	std::error_code ec;
+	std::filesystem::create_directories(src.canon_location(),ec);
+	display_file_error(ec,"Failed to create directory "+src.canon_location().string()+": ");
+	}
+
+bool display_file_error(const std::error_code &ec,const std::string &message) {
+	if (ec)
+		{
+		MessageBox(NULL,(message+ec.message()).c_str(),"File error",MB_OK);
+		return true;
+		}
+	return false;
+	}

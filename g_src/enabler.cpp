@@ -11,6 +11,7 @@
 #endif
 #ifndef NO_FMOD
 extern musicsoundst musicsound;
+extern adv_music_statest adv_music_state;
 #endif
 
 #ifdef unix
@@ -384,6 +385,7 @@ void renderer::display()
 						gps.main_map_port->screentexpos_river[off]!=gps.main_map_port->screentexpos_river_old[off]||
 						gps.main_map_port->screentexpos_road[off]!=gps.main_map_port->screentexpos_road_old[off]||
 						gps.main_map_port->screentexpos_site[off]!=gps.main_map_port->screentexpos_site_old[off]||
+						gps.main_map_port->screentexpos_army[off]!=gps.main_map_port->screentexpos_army_old[off]||
 						gps.main_map_port->screentexpos_interface[off]!=gps.main_map_port->screentexpos_interface_old[off]||
 						gps.main_map_port->screentexpos_detail_to_n[off]!=gps.main_map_port->screentexpos_detail_to_n_old[off]||
 						gps.main_map_port->screentexpos_detail_to_s[off]!=gps.main_map_port->screentexpos_detail_to_s_old[off]||
@@ -392,7 +394,9 @@ void renderer::display()
 						gps.main_map_port->screentexpos_detail_to_nw[off]!=gps.main_map_port->screentexpos_detail_to_nw_old[off]||
 						gps.main_map_port->screentexpos_detail_to_ne[off]!=gps.main_map_port->screentexpos_detail_to_ne_old[off]||
 						gps.main_map_port->screentexpos_detail_to_sw[off]!=gps.main_map_port->screentexpos_detail_to_sw_old[off]||
-						gps.main_map_port->screentexpos_detail_to_se[off]!=gps.main_map_port->screentexpos_detail_to_se_old[off])refresh=true;
+						gps.main_map_port->screentexpos_detail_to_se[off]!=gps.main_map_port->screentexpos_detail_to_se_old[off]||
+						gps.main_map_port->screentexpos_site_to_s[off]!=gps.main_map_port->screentexpos_site_to_s_old[off]||
+						gps.main_map_port->screentexpos_cloud_bits[off]!=gps.main_map_port->screentexpos_cloud_bits_old[off])refresh=true;
 					if (refresh)update_map_port_tile(gps.main_map_port,x2,y2);
 					}
 				}
@@ -652,6 +656,9 @@ void renderer::swap_arrays() {
 		sw_i32=vp->screentexpos_site;
 			vp->screentexpos_site=vp->screentexpos_site_old;
 			vp->screentexpos_site_old=sw_i32;
+		sw_i32=vp->screentexpos_army;
+			vp->screentexpos_army=vp->screentexpos_army_old;
+			vp->screentexpos_army_old=sw_i32;
 		sw_i32=vp->screentexpos_interface;
 			vp->screentexpos_interface=vp->screentexpos_interface_old;
 			vp->screentexpos_interface_old=sw_i32;
@@ -679,6 +686,12 @@ void renderer::swap_arrays() {
 		sw_i32=vp->screentexpos_detail_to_se;
 			vp->screentexpos_detail_to_se=vp->screentexpos_detail_to_se_old;
 			vp->screentexpos_detail_to_se_old=sw_i32;
+		sw_i32=vp->screentexpos_site_to_s;
+			vp->screentexpos_site_to_s=vp->screentexpos_site_to_s_old;
+			vp->screentexpos_site_to_s_old=sw_i32;
+		sw_ui64=vp->screentexpos_cloud_bits;
+			vp->screentexpos_cloud_bits=vp->screentexpos_cloud_bits_old;
+			vp->screentexpos_cloud_bits_old=sw_ui64;
 	}
 }
 
@@ -1206,8 +1219,7 @@ void enablerst::set_fps(int fps) {
     async_frombox.write(m);
     async_fromcomplete.acquire();
   } else {
-    if (fps == 0)
-      fps = 1048576;
+    if (fps <= 0) fps = 1048576;
     this->fps = fps;
     fps_per_gfps = fps / gfps;
     struct async_cmd cmd;

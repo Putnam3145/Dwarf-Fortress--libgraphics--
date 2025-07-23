@@ -56,6 +56,7 @@ enum InitDisplayFlag
         INIT_DISPLAY_FLAG_NOT_RESIZABLE,
 //        INIT_DISPLAY_FLAG_ARB_SYNC,
 	INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH,
+	INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS,
 	INIT_DISPLAY_FLAGNUM
 };
 
@@ -104,7 +105,7 @@ class init_displayst
 enum InitMediaFlag
 {
 	INIT_MEDIA_FLAG_SOUND_OFF,
-	INIT_MEDIA_FLAG_UNUSED_01_02,
+	INIT_MEDIA_FLAG_PORTABLE_MODE,
 	INIT_MEDIA_FLAG_COMPRESS_SAVES,
 	INIT_MEDIA_FLAGNUM
 };
@@ -114,20 +115,27 @@ class init_mediast
 	public:
 		flagarrayst flag;
 		int32_t volume_master;
-		int32_t volume_music;
-		int32_t volume_ambience;
-		int32_t volume_sfx;
-		int32_t time_between_songs;
+		int32_t volume_music_fort;
+		int32_t volume_ambience_fort;
+		int32_t volume_sfx_fort;
+		int32_t time_between_songs_fort;
+		int32_t volume_music_adv;
+		int32_t volume_ambience_adv;
+		int32_t volume_sfx_adv;
+		string title_music_str;
 
 
 		init_mediast()
 			{
 			flag.set_size_on_flag_num(INIT_MEDIA_FLAGNUM);
 			volume_master=255;
-			volume_music=255;
-			volume_ambience=220;
-			volume_sfx=255;
-			time_between_songs=240;
+			volume_music_fort=255;
+			volume_ambience_fort=230;
+			volume_sfx_fort=204;
+			time_between_songs_fort=240;
+			volume_music_adv=255;
+			volume_ambience_adv=255;
+			volume_sfx_adv=255;
 			}
 };
 

@@ -975,6 +975,345 @@ public:
 						SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
 						}
 				}
+			if(vp->screentexpos_site_to_s[x + y * vp->dim_x]!=0)
+				{
+				int32_t tp=vp->screentexpos_site_to_s[x + y * vp->dim_x];
+
+				texture_fullid background_tex;
+					background_tex.texpos=tp;
+					background_tex.r=1.0f;
+					background_tex.g=1.0f;
+					background_tex.b=1.0f;
+					background_tex.br=0;
+					background_tex.bg=0;
+					background_tex.bb=0;
+					background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+				  tex = tile_cache_lookup(background_tex);
+					if(tex!=NULL)
+						{
+						//SDL_SetSurfaceAlphaMod(tex, 0);
+						SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+						}
+				}
+			if(vp->screentexpos_cloud_bits[x + y * vp->dim_x]!=0)
+				{
+				uint64_t cloud_bits=vp->screentexpos_cloud_bits[x + y * vp->dim_x];
+
+				//fog
+				int32_t fog_tp=0;
+				switch(cloud_bits & MAP_PORT_CLOUD_BITS_FOG)
+					{
+					case MAP_PORT_CLOUD_BITS_FOG_THICK:fog_tp=gps.texpos_world_fog_thick;break;
+					case MAP_PORT_CLOUD_BITS_FOG_NORMAL:fog_tp=gps.texpos_world_fog_normal;break;
+					case MAP_PORT_CLOUD_BITS_FOG_MIST:fog_tp=gps.texpos_world_fog_mist;break;
+					}
+				if(fog_tp!=0)
+					{
+					texture_fullid background_tex;
+						background_tex.texpos=fog_tp;
+						background_tex.r=1.0f;
+						background_tex.g=1.0f;
+						background_tex.b=1.0f;
+						background_tex.br=0;
+						background_tex.bg=0;
+						background_tex.bb=0;
+						background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+					  tex = tile_cache_lookup(background_tex);
+						if(tex!=NULL)
+							{
+							//SDL_SetSurfaceAlphaMod(tex, 0);
+							SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+							}
+					}
+
+				//cumulus
+				int32_t cumulus_tp=0;
+				switch(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS)
+					{
+					case MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS:cumulus_tp=gps.texpos_world_cumulus_nimbus[1+1*3];break;
+					case MAP_PORT_CLOUD_BITS_CUMULUS_MULTI:cumulus_tp=gps.texpos_world_cumulus_multi;break;
+					case MAP_PORT_CLOUD_BITS_CUMULUS_MED:cumulus_tp=gps.texpos_world_cumulus_med;break;
+					}
+				if(cumulus_tp!=0)
+					{
+					texture_fullid background_tex;
+						background_tex.texpos=cumulus_tp;
+						background_tex.r=1.0f;
+						background_tex.g=1.0f;
+						background_tex.b=1.0f;
+						background_tex.br=0;
+						background_tex.bg=0;
+						background_tex.bb=0;
+						background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+					  tex = tile_cache_lookup(background_tex);
+						if(tex!=NULL)
+							{
+							//SDL_SetSurfaceAlphaMod(tex, 0);
+							SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+							}
+					}
+
+				//cumulus corners
+				int32_t c;
+				for(c=0;c<9;++c)
+					{
+					if(c==4)continue;
+					cumulus_tp=0;
+					switch(c)
+						{
+						case 0:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_NW)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 1:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_N)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 2:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_NE)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 3:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_W)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 5:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_E)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 6:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_SW)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 7:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_S)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						case 8:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CUMULUS_NIMBUS_SE)cumulus_tp=gps.texpos_world_cumulus_nimbus[c];break;
+							break;
+						}
+					if(cumulus_tp!=0)
+						{
+						texture_fullid background_tex;
+							background_tex.texpos=cumulus_tp;
+							background_tex.r=1.0f;
+							background_tex.g=1.0f;
+							background_tex.b=1.0f;
+							background_tex.br=0;
+							background_tex.bg=0;
+							background_tex.bb=0;
+							background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+						  tex = tile_cache_lookup(background_tex);
+							if(tex!=NULL)
+								{
+								//SDL_SetSurfaceAlphaMod(tex, 0);
+								SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+								}
+						}
+					}
+
+				//center strat/cirrus)
+				int32_t strat_tp=0;
+				switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS)
+					{
+					case MAP_PORT_CLOUD_BITS_STRATUS_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[1+1*3];break;
+					case MAP_PORT_CLOUD_BITS_STRATUS_PROPER:strat_tp=gps.texpos_world_stratus_proper[1+1*3];break;
+					case MAP_PORT_CLOUD_BITS_STRATUS_ALTO:strat_tp=gps.texpos_world_stratus_alto[1+1*3];break;
+					}
+				if(strat_tp!=0)
+					{
+					texture_fullid background_tex;
+						background_tex.texpos=strat_tp;
+						background_tex.r=1.0f;
+						background_tex.g=1.0f;
+						background_tex.b=1.0f;
+						background_tex.br=0;
+						background_tex.bg=0;
+						background_tex.bb=0;
+						background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+					  tex = tile_cache_lookup(background_tex);
+						if(tex!=NULL)
+							{
+							//SDL_SetSurfaceAlphaMod(tex, 0);
+							SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+							}
+					}
+				//strat corners
+				for(c=0;c<9;++c)
+					{
+					if(c==4)continue;
+					strat_tp=0;
+					switch(c)
+						{
+						case 0:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_NW)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_NW_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_NW_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_NW_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 1:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_N)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_N_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_N_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_N_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 2:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_NE)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_NE_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_NE_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_NE_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 3:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_W)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_W_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_W_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_W_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 5:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_E)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_E_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_E_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_E_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 6:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_SW)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_SW_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_SW_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_SW_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 7:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_S)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_S_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_S_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_S_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						case 8:
+							switch(cloud_bits & MAP_PORT_CLOUD_BITS_STRATUS_SE)
+								{
+								case MAP_PORT_CLOUD_BITS_STRATUS_SE_NIMBUS:strat_tp=gps.texpos_world_stratus_nimbus[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_SE_PROPER:strat_tp=gps.texpos_world_stratus_proper[c];break;
+								case MAP_PORT_CLOUD_BITS_STRATUS_SE_ALTO:strat_tp=gps.texpos_world_stratus_alto[c];break;
+								}
+							break;
+						}
+					if(strat_tp!=0)
+						{
+						texture_fullid background_tex;
+							background_tex.texpos=strat_tp;
+							background_tex.r=1.0f;
+							background_tex.g=1.0f;
+							background_tex.b=1.0f;
+							background_tex.br=0;
+							background_tex.bg=0;
+							background_tex.bb=0;
+							background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+						  tex = tile_cache_lookup(background_tex);
+							if(tex!=NULL)
+								{
+								//SDL_SetSurfaceAlphaMod(tex, 0);
+								SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+								}
+						}
+					}
+				int32_t cirrus_tp=0;
+				if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS)cirrus_tp=gps.texpos_world_cirrus[1+1*3];
+				if(cirrus_tp!=0)
+					{
+					texture_fullid background_tex;
+						background_tex.texpos=cirrus_tp;
+						background_tex.r=1.0f;
+						background_tex.g=1.0f;
+						background_tex.b=1.0f;
+						background_tex.br=0;
+						background_tex.bg=0;
+						background_tex.bb=0;
+						background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+					  tex = tile_cache_lookup(background_tex);
+						if(tex!=NULL)
+							{
+							//SDL_SetSurfaceAlphaMod(tex, 0);
+							SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+							}
+					}
+				for(c=0;c<9;++c)
+					{
+					if(c==4)continue;
+					cirrus_tp=0;
+					switch(c)
+						{
+						case 0:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_NW)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 1:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_N)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 2:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_NE)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 3:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_W)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 5:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_E)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 6:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_SW)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 7:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_S)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						case 8:
+							if(cloud_bits & MAP_PORT_CLOUD_BITS_CIRRUS_SE)cirrus_tp=gps.texpos_world_cirrus[c];break;
+							break;
+						}
+					if(cirrus_tp!=0)
+						{
+						texture_fullid background_tex;
+							background_tex.texpos=cirrus_tp;
+							background_tex.r=1.0f;
+							background_tex.g=1.0f;
+							background_tex.b=1.0f;
+							background_tex.br=0;
+							background_tex.bg=0;
+							background_tex.bb=0;
+							background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+						  tex = tile_cache_lookup(background_tex);
+							if(tex!=NULL)
+								{
+								//SDL_SetSurfaceAlphaMod(tex, 0);
+								SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+								}
+						}
+					}
+				}
+			if(vp->screentexpos_army[x + y * vp->dim_x]!=0)
+				{
+				int32_t tp=vp->screentexpos_army[x + y * vp->dim_x];
+
+				texture_fullid background_tex;
+					background_tex.texpos=tp;
+					background_tex.r=1.0f;
+					background_tex.g=1.0f;
+					background_tex.b=1.0f;
+					background_tex.br=0;
+					background_tex.bg=0;
+					background_tex.bb=0;
+					background_tex.flag=TEXTURE_FULLID_FLAG_TRANSPARENT_BACKGROUND;
+				  tex = tile_cache_lookup(background_tex);
+					if(tex!=NULL)
+						{
+						//SDL_SetSurfaceAlphaMod(tex, 0);
+						SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
+						}
+				}
 
 			if(vp->screentexpos_interface[x + y * vp->dim_x]!=0)
 				{
@@ -1732,6 +2071,7 @@ else
 
 					texture_fullid background_tex;
 						if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][1];
+						else if(type==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][1];
 						else if(type==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][1];
 						else if(type==EDGING_SOIL_SAND)background_tex.texpos=gps.texpos_floor_sand[0][1];
 						else if(type==EDGING_SOIL_SAND_YELLOW)background_tex.texpos=gps.texpos_floor_sand_yellow[0][1];
@@ -1765,6 +2105,7 @@ else
 
 					texture_fullid background_tex;
 						if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][5];
+						else if(type==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][5];
 						else if(type==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][5];
 						else if(type==EDGING_SOIL_SAND)background_tex.texpos=gps.texpos_floor_sand[0][5];
 						else if(type==EDGING_SOIL_SAND_YELLOW)background_tex.texpos=gps.texpos_floor_sand_yellow[0][5];
@@ -1798,6 +2139,7 @@ else
 
 					texture_fullid background_tex;
 						if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][3];
+						else if(type==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][3];
 						else if(type==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][3];
 						else if(type==EDGING_SOIL_SAND)background_tex.texpos=gps.texpos_floor_sand[0][3];
 						else if(type==EDGING_SOIL_SAND_YELLOW)background_tex.texpos=gps.texpos_floor_sand_yellow[0][3];
@@ -1831,6 +2173,7 @@ else
 
 					texture_fullid background_tex;
 						if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][7];
+						else if(type==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][7];
 						else if(type==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][7];
 						else if(type==EDGING_SOIL_SAND)background_tex.texpos=gps.texpos_floor_sand[0][7];
 						else if(type==EDGING_SOIL_SAND_YELLOW)background_tex.texpos=gps.texpos_floor_sand_yellow[0][7];
@@ -1868,6 +2211,8 @@ else
 						background_tex.texpos=0;
 						if(type_s==EDGING_STONE&&
 							type_w==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][2];
+						else if(type_s==EDGING_PEBBLES&&
+							type_w==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][2];
 						else if(type_s==EDGING_SOIL&&
 							type_w==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][2];
 						else if(type_s==EDGING_SOIL_SAND&&
@@ -1919,6 +2264,8 @@ else
 						background_tex.texpos=0;
 						if(type_s==EDGING_STONE&&
 							type_e==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][0];
+						else if(type_s==EDGING_PEBBLES&&
+							type_e==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][0];
 						else if(type_s==EDGING_SOIL&&
 							type_e==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][0];
 						else if(type_s==EDGING_SOIL_SAND&&
@@ -1970,6 +2317,8 @@ else
 						background_tex.texpos=0;
 						if(type_n==EDGING_STONE&&
 							type_w==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][8];
+						else if(type_n==EDGING_PEBBLES&&
+							type_w==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][8];
 						else if(type_n==EDGING_SOIL&&
 							type_w==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][8];
 						else if(type_n==EDGING_SOIL_SAND&&
@@ -2021,6 +2370,8 @@ else
 						background_tex.texpos=0;
 						if(type_n==EDGING_STONE&&
 							type_e==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][6];
+						else if(type_n==EDGING_PEBBLES&&
+							type_e==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][6];
 						else if(type_n==EDGING_SOIL&&
 							type_e==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][6];
 						else if(type_n==EDGING_SOIL_SAND&&
@@ -3292,6 +3643,8 @@ else
 						SDL_RenderCopy(sdl_renderer, tex, NULL, &dst);
 						}
 				}
+			//**************************** VISION SHADOW
+				//print right here
 			if(vp->screentexpos_right_creature[x * vp->dim_y + y]!=0)
 				{
 				texture_fullid background_tex;
@@ -3749,14 +4102,15 @@ void do_blank_screen_fill()
 	  int window_w, window_h;
 	  SDL_GetWindowSize(window, &window_w, &window_h);
 	  SDL_Rect dst;
-	  if(gps.display_background)
+	  if(gps.display_background!=TEXTURE_NONE)
 		{
 		//SDL_SetSurfaceAlphaMod(tex, 0);
 		dst.x = /*dispx_z * x +*/ origin_x + (window_w) / 2 - 1920 / 2;
 		dst.y = /*dispx_z * x +*/ origin_y + (window_h) / 2 - 1080 / 2;
-		gps.tex[TEXTURE_TITLE_BACKGROUND].get_size(dst.w, dst.h);
+
+		gps.tex[gps.display_background].get_size(dst.w, dst.h);
 		SDL_GetDisplayBounds(0, &dst);
-		SDL_RenderCopy(sdl_renderer, gps.tex[TEXTURE_TITLE_BACKGROUND].get_texture(), NULL, &dst);
+		SDL_RenderCopy(sdl_renderer, gps.tex[gps.display_background].get_texture(), NULL, &dst);
 		}
 	if(gps.display_title)
 		{

@@ -76,6 +76,7 @@ init_displayst::init_displayst()
 	flag.set_size_on_flag_num(INIT_DISPLAY_FLAGNUM);
 		flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
 		flag.add_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
+		flag.add_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS);
 
 	interface_scaling_desired_width=170;
 	interface_scaling_desired_height=64;
@@ -99,12 +100,17 @@ void initst::begin()
 	string small_font="data/art/curses_640x300.png";
 	string large_font="data/art/curses_640x300.png";
 
-	int32_t fl;
-	for(fl=0;fl<2;++fl)
+	if ((filest(PORTABLE_FILENAME).any_location()))
 		{
-		std::ifstream fseed;
-		if(fl==0)fseed.open("data/init/init_default.txt");
-		else fseed.open("prefs/init.txt");
+		media.flag.add_flag(INIT_MEDIA_FLAG_PORTABLE_MODE);
+		}
+	else
+		{
+		media.flag.remove_flag(INIT_MEDIA_FLAG_PORTABLE_MODE);
+		}
+	for(auto &f : {filest("data/init/init_default.txt"),filest("prefs/init.txt")})
+		{
+		std::ifstream fseed=f.to_ifstream();
 		if(fseed.is_open())
 			{
 			string str;
@@ -279,21 +285,33 @@ void initst::begin()
 						}
 					if(!token.compare("MUSIC_VOLUME"))
 						{
-						media.volume_music=convert_string_to_long(token2);
+						media.volume_music_fort=convert_string_to_long(token2);
 						}
 					if(!token.compare("AMBIENCE_VOLUME"))
 						{
-						media.volume_ambience=convert_string_to_long(token2);
+						media.volume_ambience_fort=convert_string_to_long(token2);
 						}
 					if(!token.compare("SFX_VOLUME"))
 						{
-						media.volume_sfx=convert_string_to_long(token2);
+						media.volume_sfx_fort=convert_string_to_long(token2);
 						}
 					if(!token.compare("AVERAGE_TIME_BETWEEN_SONGS"))
 						{
-						media.time_between_songs=convert_string_to_long(token2);
-						if(media.time_between_songs<10)media.time_between_songs=10;
-						if(media.time_between_songs>600)media.time_between_songs=600;
+						media.time_between_songs_fort=convert_string_to_long(token2);
+						if(media.time_between_songs_fort<10)media.time_between_songs_fort=10;
+						if(media.time_between_songs_fort>600)media.time_between_songs_fort=600;
+						}
+					if(!token.compare("MUSIC_VOLUME_ADV"))
+						{
+						media.volume_music_adv=convert_string_to_long(token2);
+						}
+					if(!token.compare("AMBIENCE_VOLUME_ADV"))
+						{
+						media.volume_ambience_adv=convert_string_to_long(token2);
+						}
+					if(!token.compare("SFX_VOLUME_ADV"))
+						{
+						media.volume_sfx_adv=convert_string_to_long(token2);
 						}
 					if(!token.compare("KEY_HOLD_MS"))
 						{
@@ -344,13 +362,25 @@ void initst::begin()
 							}
 						else display.flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
 						}
+					if(token=="TITLE_SHOW_GRAPHICS_LOGOS")
+						{
+						if(token2=="YES")
+							{
+							display.flag.add_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS);
+							}
+						else display.flag.remove_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS);
+						}
+					if(token=="TITLE_MUSIC")
+						{
+						media.title_music_str=token2;
+						}
 					}
 				}
 			}
 		fseed.close();
 		}
 
-	std::ifstream fseed2("data/init/colors.txt");
+	std::ifstream fseed2=filest("data/init/colors.txt").to_ifstream();
 	if(fseed2.is_open())
 		{
 		string str;
@@ -652,7 +682,6 @@ void initst::begin()
           else enabler.fullscreen_state = 0;
         }
 #endif
-        
 
 	enabler.textures.load_multi_pdim(basic_font,font.basic_font_texpos,16,16,true,&font.basic_font_dispx,&font.basic_font_dispy);
 	enabler.textures.load_multi_pdim(small_font,font.small_font_texpos,16,16,true,&font.small_font_dispx,&font.small_font_dispy);
@@ -665,18 +694,22 @@ void initst::begin()
 		font.small_font_dispy=12;
 #endif
 
-#ifndef CLASSIC_VERSION
-	gps.tex[TEXTURE_MOUSE]=enabler.textures.load("data/art/mouse.png", true);
-	gps.tex[TEXTURE_PUBLISHER]=enabler.textures.load("data/art/pixel_kf.png", true);
-	gps.tex[TEXTURE_PUBLISHER_SMALL]=enabler.textures.load("data/art/pixel_kf_small.png", true);
-	gps.tex[TEXTURE_PUBLISHER_TINY]=enabler.textures.load("data/art/pixel_kf_tiny.png", true);
-	gps.tex[TEXTURE_TITLE]=enabler.textures.load("data/art/df_logo.png", true);
-	gps.tex[TEXTURE_TITLE_BACKGROUND]=enabler.textures.load("data/art/title_background.png", true);
-	gps.tex[TEXTURE_DEVELOPER]=enabler.textures.load("data/art/bay12.png", true);
-	gps.tex[TEXTURE_DEVELOPER_SMALL]=enabler.textures.load("data/art/bay12_small.png", true);
-	gps.tex[TEXTURE_DEVELOPER_TINY]=enabler.textures.load("data/art/bay12_tiny.png", true);
-	gps.tex[TEXTURE_SOUND_SYSTEM]=enabler.textures.load("data/art/fmod.png", true);
-#endif
+	if(init.display.flag.has_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS))
+		{
+		gps.tex[TEXTURE_MOUSE]=enabler.textures.load("data/art/mouse.png", true);
+		gps.tex[TEXTURE_PUBLISHER]=enabler.textures.load("data/art/pixel_kf.png", true);
+		gps.tex[TEXTURE_PUBLISHER_SMALL]=enabler.textures.load("data/art/pixel_kf_small.png", true);
+		gps.tex[TEXTURE_PUBLISHER_TINY]=enabler.textures.load("data/art/pixel_kf_tiny.png", true);
+		gps.tex[TEXTURE_TITLE]=enabler.textures.load("data/art/df_logo.png", true);
+		gps.tex[TEXTURE_TITLE_BACKGROUND]=enabler.textures.load("data/art/title_background.png", true);
+		gps.tex[TEXTURE_TITLE_ADV]=enabler.textures.load("data/art/title_adv.png", true);
+		gps.tex[TEXTURE_DEVELOPER]=enabler.textures.load("data/art/bay12.png", true);
+		gps.tex[TEXTURE_DEVELOPER_SMALL]=enabler.textures.load("data/art/bay12_small.png", true);
+		gps.tex[TEXTURE_DEVELOPER_TINY]=enabler.textures.load("data/art/bay12_tiny.png", true);
+		gps.tex[TEXTURE_SOUND_SYSTEM]=enabler.textures.load("data/art/fmod.png", true);
+		}
+
+	gps.last_display_background=TEXTURE_TITLE_BACKGROUND;
 
 	long d3,d4;
 	enabler.textures.load_multi_pdim("data/art/load_bar.png",load_bar_texpos,6,1,true,&d3,&d4);

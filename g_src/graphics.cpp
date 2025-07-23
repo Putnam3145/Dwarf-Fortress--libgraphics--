@@ -98,7 +98,141 @@ extern int32_t cinematic_start_scrollx;
 extern int32_t cinematic_start_scrolly;
 #endif
 
-void process_object_lines(textlinesst &lines,const string &chktype,const string &graphics_dir);
+const unordered_bimap<string,Sphere> SPHERESTRINGS={
+	{"AGRICULTURE",SPHERE_AGRICULTURE},
+	{"ANIMALS",SPHERE_ANIMALS},
+	{"ART",SPHERE_ART},
+	{"BALANCE",SPHERE_BALANCE},
+	{"BEAUTY",SPHERE_BEAUTY},
+	{"BIRTH",SPHERE_BIRTH},
+	{"BLIGHT",SPHERE_BLIGHT},
+	{"BOUNDARIES",SPHERE_BOUNDARIES},
+	{"CAVERNS",SPHERE_CAVERNS},
+	{"CHAOS",SPHERE_CHAOS},
+	{"CHARITY",SPHERE_CHARITY},
+	{"CHILDREN",SPHERE_CHILDREN},
+	{"COASTS",SPHERE_COASTS},
+	{"CONSOLATION",SPHERE_CONSOLATION},
+	{"COURAGE",SPHERE_COURAGE},
+	{"CRAFTS",SPHERE_CRAFTS},
+	{"CREATION",SPHERE_CREATION},
+	{"DANCE",SPHERE_DANCE},
+	{"DARKNESS",SPHERE_DARKNESS},
+	{"DAWN",SPHERE_DAWN},
+	{"DAY",SPHERE_DAY},
+	{"DEATH",SPHERE_DEATH},
+	{"DEFORMITY",SPHERE_DEFORMITY},
+	{"DEPRAVITY",SPHERE_DEPRAVITY},
+	{"DISCIPLINE",SPHERE_DISCIPLINE},
+	{"DISEASE",SPHERE_DISEASE},
+	{"DREAMS",SPHERE_DREAMS},
+	{"DUSK",SPHERE_DUSK},
+	{"DUTY",SPHERE_DUTY},
+	{"EARTH",SPHERE_EARTH},
+	{"FAMILY",SPHERE_FAMILY},
+	{"FAME",SPHERE_FAME},
+	{"FATE",SPHERE_FATE},
+	{"FERTILITY",SPHERE_FERTILITY},
+	{"FESTIVALS",SPHERE_FESTIVALS},
+	{"FIRE",SPHERE_FIRE},
+	{"FISH",SPHERE_FISH},
+	{"FISHING",SPHERE_FISHING},
+	{"FOOD",SPHERE_FOOD},
+	{"FORGIVENESS",SPHERE_FORGIVENESS},
+	{"FORTRESSES",SPHERE_FORTRESSES},
+	{"FREEDOM",SPHERE_FREEDOM},
+	{"GAMBLING",SPHERE_GAMBLING},
+	{"GAMES",SPHERE_GAMES},
+	{"GENEROSITY",SPHERE_GENEROSITY},
+	{"HAPPINESS",SPHERE_HAPPINESS},
+	{"HEALING",SPHERE_HEALING},
+	{"HOSPITALITY",SPHERE_HOSPITALITY},
+	{"HUNTING",SPHERE_HUNTING},
+	{"INSPIRATION",SPHERE_INSPIRATION},
+	{"JEALOUSY",SPHERE_JEALOUSY},
+	{"JEWELS",SPHERE_JEWELS},
+	{"JUSTICE",SPHERE_JUSTICE},
+	{"LABOR",SPHERE_LABOR},
+	{"LAKES",SPHERE_LAKES},
+	{"LAWS",SPHERE_LAWS},
+	{"LIES",SPHERE_LIES},
+	{"LIGHT",SPHERE_LIGHT},
+	{"LIGHTNING",SPHERE_LIGHTNING},
+	{"LONGEVITY",SPHERE_LONGEVITY},
+	{"LOVE",SPHERE_LOVE},
+	{"LOYALTY",SPHERE_LOYALTY},
+	{"LUCK",SPHERE_LUCK},
+	{"LUST",SPHERE_LUST},
+	{"MARRIAGE",SPHERE_MARRIAGE},
+	{"MERCY",SPHERE_MERCY},
+	{"METALS",SPHERE_METALS},
+	{"MINERALS",SPHERE_MINERALS},
+	{"MISERY",SPHERE_MISERY},
+	{"MIST",SPHERE_MIST},
+	{"MOON",SPHERE_MOON},
+	{"MOUNTAINS",SPHERE_MOUNTAINS},
+	{"MUCK",SPHERE_MUCK},
+	{"MURDER",SPHERE_MURDER},
+	{"MUSIC",SPHERE_MUSIC},
+	{"NATURE",SPHERE_NATURE},
+	{"NIGHT",SPHERE_NIGHT},
+	{"NIGHTMARES",SPHERE_NIGHTMARES},
+	{"OATHS",SPHERE_OATHS},
+	{"OCEANS",SPHERE_OCEANS},
+	{"ORDER",SPHERE_ORDER},
+	{"PAINTING",SPHERE_PAINTING},
+	{"PEACE",SPHERE_PEACE},
+	{"PERSUASION",SPHERE_PERSUASION},
+	{"PLANTS",SPHERE_PLANTS},
+	{"POETRY",SPHERE_POETRY},
+	{"PREGNANCY",SPHERE_PREGNANCY},
+	{"RAIN",SPHERE_RAIN},
+	{"RAINBOWS",SPHERE_RAINBOWS},
+	{"REBIRTH",SPHERE_REBIRTH},
+	{"REVELRY",SPHERE_REVELRY},
+	{"REVENGE",SPHERE_REVENGE},
+	{"RIVERS",SPHERE_RIVERS},
+	{"RULERSHIP",SPHERE_RULERSHIP},
+	{"RUMORS",SPHERE_RUMORS},
+	{"SACRIFICE",SPHERE_SACRIFICE},
+	{"SALT",SPHERE_SALT},
+	{"SCHOLARSHIP",SPHERE_SCHOLARSHIP},
+	{"SEASONS",SPHERE_SEASONS},
+	{"SILENCE",SPHERE_SILENCE},
+	{"SKY",SPHERE_SKY},
+	{"SONG",SPHERE_SONG},
+	{"SPEECH",SPHERE_SPEECH},
+	{"STARS",SPHERE_STARS},
+	{"STORMS",SPHERE_STORMS},
+	{"STRENGTH",SPHERE_STRENGTH},
+	{"SUICIDE",SPHERE_SUICIDE},
+	{"SUN",SPHERE_SUN},
+	{"THEFT",SPHERE_THEFT},
+	{"THRALLDOM",SPHERE_THRALLDOM},
+	{"THUNDER",SPHERE_THUNDER},
+	{"TORTURE",SPHERE_TORTURE},
+	{"TRADE",SPHERE_TRADE},
+	{"TRAVELERS",SPHERE_TRAVELERS},
+	{"TREACHERY",SPHERE_TREACHERY},
+	{"TREES",SPHERE_TREES},
+	{"TRICKERY",SPHERE_TRICKERY},
+	{"TRUTH",SPHERE_TRUTH},
+	{"TWILIGHT",SPHERE_TWILIGHT},
+	{"VALOR",SPHERE_VALOR},
+	{"VICTORY",SPHERE_VICTORY},
+	{"VOLCANOS",SPHERE_VOLCANOS},
+	{"VOLCANOES",SPHERE_VOLCANOS}, // This is allowed, SPHERESTRINGS.maybe_get(SPHERE_VOLCANOS).value() ought to return "VOLCANOS" this way
+	{"WAR",SPHERE_WAR},
+	{"WATER",SPHERE_WATER},
+	{"WEALTH",SPHERE_WEALTH},
+	{"WEATHER",SPHERE_WEATHER},
+	{"WIND",SPHERE_WIND},
+	{"WISDOM",SPHERE_WISDOM},
+	{"WRITING",SPHERE_WRITING},
+	{"YOUTH",SPHERE_YOUTH},
+	};
+
+void process_object_lines(textlinesst &lines,const string &chktype,const std::filesystem::path &graphics_dir);
 
 // Add, then increment to the (possible) PBO alignment requirement
 static void align(size_t &sz, off_t inc) {
@@ -173,7 +307,8 @@ void graphicst::reshape_viewports(int32_t zoom_factor)
 													//also: need to be more careful about this cutoff -- perc introduces some error
 														//so at certain zooms it is way off (the -16 is a cludge around this)
 		main_map_port->top_left_corner_x=gps.screen_pixel_x-(px+15)/16*16-16;
-		main_map_port->top_left_corner_y=32;//*********************** TEXTURE SIZE DEPENDENCE
+		//main_map_port->top_left_corner_y=32;//*********************** TEXTURE SIZE DEPENDENCE
+		main_map_port->top_left_corner_y=12*8+8;//this doesn't work when the top portraits etc. are interface-scaled
 		if(main_map_port->pixel_perc_x==100)main_map_port->top_left_corner_x=0;
 		if(main_map_port->pixel_perc_y==100)main_map_port->top_left_corner_y=0;
 
@@ -688,91 +823,75 @@ void graphicst::color_square(long x,long y,unsigned char f,unsigned char b,unsig
 		}
 }
 
-void graphicst::prepare_graphics(const string &src_dir)
+void graphicst::prepare_graphics(const std::filesystem::path &src_dir)
 {
 	//GET READY TO LOAD
-	svector<char *> processfilename;
-	long f;
 	textlinesst setuplines;
-	char str[400];
 
 	//LOAD THE OBJECT FILES UP INTO MEMORY
 		//MUST INSURE THAT THEY ARE LOADED IN THE PROPER ORDER, IN CASE THEY REFER TO EACH OTHER
-	{string chk=src_dir;
-	chk+="graphics/tile_page_*";
-#ifdef WIN32
-	chk+=".*";
-#endif
-	find_files_by_pattern_with_exception(chk.c_str(),processfilename,"text");
+	{
 
+	auto dir=filest(src_dir).any_location().value_or(filest(src_dir).canon_location())/"graphics";
+	if (!std::filesystem::exists(dir)) return;
+	std::vector<std::filesystem::path> tile_page_files;
+	std::vector<std::filesystem::path> graphics_files;
+	std::vector<std::filesystem::path> palette_files;
+	for (auto &dir_entry : std::filesystem::recursive_directory_iterator(dir))
+		{
+		auto path=dir_entry.path();
+		if (!(dir_entry.is_regular_file() && path.extension()==".txt")) continue;
+		auto filename=path.filename().string();
+		if (filename.starts_with("tile_page_"))
+			{
+			tile_page_files.push_back(path);
+			}
+		if (filename.starts_with("graphics_"))
+			{
+			graphics_files.push_back(path);
+			}
+		if (filename.starts_with("palette_"))
+			{
+			palette_files.push_back(path);
+			}
+		}
 	string chktype="TILE_PAGE";
-	for(f=0;f<processfilename.size();f++)
+	for (auto &tile_page_file : tile_page_files)
 		{
-		strcpy(str,src_dir.c_str());
-		strcat(str,"graphics/");
-		strcat(str,processfilename[f]);
-		setuplines.load_raw_to_lines(str);
+		auto str=tile_page_file.string();
+		setuplines.load_raw_to_lines(str.c_str());
 
 		errorlog_prefix="*** Error(s) found in the file \"";
 		errorlog_prefix+=str;
 		errorlog_prefix+='\"';
 		process_object_lines(setuplines,chktype,src_dir);
 		errorlog_prefix.clear();
-
-		delete[] processfilename[f];
 		}
-	processfilename.clear();}
-
-	{string chk=src_dir;
-	chk+="graphics/graphics_*";
-#ifdef WIN32
-	chk+=".*";
-#endif
-	find_files_by_pattern_with_exception(chk.c_str(),processfilename,"text");
-
-	string chktype="GRAPHICS";
-	for(f=0;f<processfilename.size();f++)
+	chktype="GRAPHICS";
+	for (auto &graphics_file : graphics_files)
 		{
-		strcpy(str,src_dir.c_str());
-		strcat(str,"graphics/");
-		strcat(str,processfilename[f]);
-		setuplines.load_raw_to_lines(str);
+		auto str=graphics_file.string();
+		setuplines.load_raw_to_lines(str.c_str());
 
 		errorlog_prefix="*** Error(s) found in the file \"";
 		errorlog_prefix+=str;
 		errorlog_prefix+='\"';
 		process_object_lines(setuplines,chktype,src_dir);
 		errorlog_prefix.clear();
-
-		delete[] processfilename[f];
 		}
-	processfilename.clear();}
-
-	{string chk=src_dir;
-	chk+="graphics/palette_*";
-#ifdef WIN32
-	chk+=".*";
-#endif
-	find_files_by_pattern_with_exception(chk.c_str(),processfilename,"text");
-
-	string chktype="PALETTE";
-	for(f=0;f<processfilename.size();f++)
+	chktype="PALETTE";
+	for (auto &palette_file : palette_files)
 		{
-		strcpy(str,src_dir.c_str());
-		strcat(str,"graphics/");
-		strcat(str,processfilename[f]);
-		setuplines.load_raw_to_lines(str);
+		auto str=palette_file.string();
+		setuplines.load_raw_to_lines(str.c_str());
 
 		errorlog_prefix="*** Error(s) found in the file \"";
 		errorlog_prefix+=str;
 		errorlog_prefix+='\"';
 		process_object_lines(setuplines,chktype,src_dir);
 		errorlog_prefix.clear();
-
-
-		delete[] processfilename[f];
 		}
-	processfilename.clear();}
+	}
 
 	//reset_textures called later, as there are still universe-specific textures to derive
 }
@@ -1127,7 +1246,7 @@ void render_things()
     gps.changecolor(0,3,0);
     //static gps_locator fps_locator(init.display.grid_y-1, 40);
     //fps_locator(fps.size());
-	gps.locate(init.display.grid_y-1, 40);
+	gps.locate(init.display.grid_y-gps.frame_display_dy, gps.frame_display_sx);
     gps.addst(fps);
   }
 
@@ -1524,6 +1643,7 @@ void graphic_map_portst::clear_screen()
 	memset(screentexpos_river,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_road,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_site,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_army,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_interface,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_n,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_s,0,sizeof(int32_t)*dim_x*dim_y);
@@ -1533,6 +1653,8 @@ void graphic_map_portst::clear_screen()
 	memset(screentexpos_detail_to_ne,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_sw,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_se,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_site_to_s,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_cloud_bits,0,sizeof(uint64_t)*dim_x*dim_y);
 }
 
 int32_t graphicst::create_alpha_texture(int32_t texpos,Uint8 alpha_level)
@@ -1565,6 +1687,7 @@ int32_t graphicst::create_alpha_texture(int32_t texpos,Uint8 alpha_level)
 
 void graphicst::copy_pixel_data_with_alpha_mask(SDL_Surface *src,SDL_Surface *alpha_src,SDL_Surface *dst)
 {
+	//assumes all surfaces are locked, same dimensions for src/dst
 	Uint8 *pixel_src,*pixel_alpha_src,*pixel_dst;
 	int x,y;
 	for(y=0;y<src->h;y++)
@@ -1731,6 +1854,28 @@ void graphicst::copy_transformed_pixel_data(SDL_Surface *src,SDL_Surface *dst,in
 		}
 }
 
+void graphicst::copy_pixel_data_nonzero_only_no_blend(SDL_Surface *src,SDL_Surface *dst)
+{
+	//assumes all surfaces are locked, same dimensions for src/dst
+	Uint8 *pixel_src,*pixel_dst;
+	int x,y;
+	for(y=0;y<src->h;y++)
+		{
+		pixel_src=((Uint8*)src->pixels)+(y*src->pitch);
+		pixel_dst=((Uint8*)dst->pixels)+(y*dst->pitch);
+		for(x=0;x<src->w;++x,pixel_src+=4,pixel_dst+=4)
+			{
+			if(pixel_src[3]!=0)
+				{
+				pixel_dst[0]=pixel_src[0];
+				pixel_dst[1]=pixel_src[1];
+				pixel_dst[2]=pixel_src[2];
+				pixel_dst[3]=pixel_src[3];
+				}
+			}
+		}
+}
+
 void graphic_map_portst::add_base_tile(long texp)
 {
 	if(screen_x>=clipx[0]&&screen_x<=clipx[1]&&
@@ -1809,6 +1954,15 @@ void graphic_map_portst::add_site_tile(long texp)
 		screen_y>=clipy[0]&&screen_y<=clipy[1])
 		{
 		screentexpos_site[screen_x + screen_y*dim_x]=texp;
+		}
+}
+
+void graphic_map_portst::add_army_tile(long texp)
+{
+	if(screen_x>=clipx[0]&&screen_x<=clipx[1]&&
+		screen_y>=clipy[0]&&screen_y<=clipy[1])
+		{
+		screentexpos_army[screen_x + screen_y*dim_x]=texp;
 		}
 }
 
@@ -1893,6 +2047,24 @@ void graphic_map_portst::add_detail_to_se_tile(long texp)
 		}
 }
 
+void graphic_map_portst::add_site_to_s_tile(long texp)
+{
+	if(screen_x>=clipx[0]&&screen_x<=clipx[1]&&
+		screen_y>=clipy[0]&&screen_y<=clipy[1])
+		{
+		screentexpos_site_to_s[screen_x + screen_y*dim_x]=texp;
+		}
+}
+
+void graphic_map_portst::add_cloud_bits(uint64_t cloud_bits)
+{
+	if(screen_x>=clipx[0]&&screen_x<=clipx[1]&&
+		screen_y>=clipy[0]&&screen_y<=clipy[1])
+		{
+		screentexpos_cloud_bits[screen_x + screen_y*dim_x]|=cloud_bits;
+		}
+}
+
 void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 {
 	clean_arrays();
@@ -1912,6 +2084,7 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	screentexpos_river=new int32_t[dim_x*dim_y];
 	screentexpos_road=new int32_t[dim_x*dim_y];
 	screentexpos_site=new int32_t[dim_x*dim_y];
+	screentexpos_army=new int32_t[dim_x*dim_y];
 	screentexpos_interface=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_n=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_s=new int32_t[dim_x*dim_y];
@@ -1921,6 +2094,8 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	screentexpos_detail_to_ne=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_sw=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_se=new int32_t[dim_x*dim_y];
+	screentexpos_site_to_s=new int32_t[dim_x*dim_y];
+	screentexpos_cloud_bits=new uint64_t[dim_x*dim_y];
 
 	clear_screen();
 
@@ -1935,6 +2110,7 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	screentexpos_river_old=new int32_t[dim_x*dim_y];
 	screentexpos_road_old=new int32_t[dim_x*dim_y];
 	screentexpos_site_old=new int32_t[dim_x*dim_y];
+	screentexpos_army_old=new int32_t[dim_x*dim_y];
 	screentexpos_interface_old=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_n_old=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_s_old=new int32_t[dim_x*dim_y];
@@ -1944,6 +2120,8 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	screentexpos_detail_to_ne_old=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_sw_old=new int32_t[dim_x*dim_y];
 	screentexpos_detail_to_se_old=new int32_t[dim_x*dim_y];
+	screentexpos_site_to_s_old=new int32_t[dim_x*dim_y];
+	screentexpos_cloud_bits_old=new uint64_t[dim_x*dim_y];
 
 	memset(screentexpos_base_old,0,sizeof(int32_t)*dim_x*dim_y);
 	for(ei=0;ei<8;++ei)
@@ -1956,6 +2134,7 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	memset(screentexpos_river_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_road_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_site_old,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_army_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_interface_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_n_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_s_old,0,sizeof(int32_t)*dim_x*dim_y);
@@ -1965,6 +2144,8 @@ void graphic_map_portst::set_dims_and_allocate(int32_t ndx,int32_t ndy)
 	memset(screentexpos_detail_to_ne_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_sw_old,0,sizeof(int32_t)*dim_x*dim_y);
 	memset(screentexpos_detail_to_se_old,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_site_to_s_old,0,sizeof(int32_t)*dim_x*dim_y);
+	memset(screentexpos_cloud_bits_old,0,sizeof(uint64_t)*dim_x*dim_y);
 
 	edge_biome_data=new int32_t[dim_x*dim_y];
 	edge_type_n=new int32_t[dim_x*dim_y];
@@ -2593,7 +2774,7 @@ void graphicst::create_derived_textures()
 
 	//small world map corner cutups
 	{int32_t i,var_num;
-	for(i=0;i<55;++i)
+	for(i=0;i<57;++i)
 		{
 		if(i<25)var_num=REGION_SQUARE_MOUNTAIN_NUM;
 		else var_num=REGION_SQUARE_FOREST_NUM;
@@ -2658,6 +2839,8 @@ void graphicst::create_derived_textures()
 				case 52:src_tx=&texpos_forest_taiga_evilsav[v];break;
 				case 53:src_tx=&texpos_forest_taiga_good[v];break;
 				case 54:src_tx=&texpos_forest_taiga_goodsav[v];break;
+				case 55:src_tx=&texpos_site_map_crops[v];break;
+				case 56:src_tx=&texpos_site_map_orchard[v];break;
 				}
 			if(src_tx==NULL)continue;
 			if(*src_tx==0)continue;
@@ -2726,6 +2909,8 @@ void graphicst::create_derived_textures()
 					case 52:dst_tx=&texpos_forest_taiga_evilsav_c[v][c];break;
 					case 53:dst_tx=&texpos_forest_taiga_good_c[v][c];break;
 					case 54:dst_tx=&texpos_forest_taiga_goodsav_c[v][c];break;
+					case 55:dst_tx=&texpos_site_map_crops_c[v][c];break;
+					case 56:dst_tx=&texpos_site_map_orchard_c[v][c];break;
 					}
 				if(dst_tx==NULL)continue;
 				*dst_tx=enabler.textures.create_texture(src->w/2,src->h/2);
@@ -2809,7 +2994,7 @@ void graphicst::create_derived_textures()
 	int32_t siv,bm,sv;
 	for(sv=0;sv<REGION_SQUARE_VARIANT_NUM;++sv)
 		{
-		for(bm=0;bm<33;++bm)
+		for(bm=0;bm<35;++bm)
 			{
 			int32_t *tp;
 			switch(bm)
@@ -2847,6 +3032,8 @@ void graphicst::create_derived_textures()
 				case 30:tp=&texpos_beach_good[0];break;
 				case 31:tp=&texpos_glacier_evilsav[0];break;
 				case 32:tp=&texpos_glacier_goodsav[0];break;
+				case 33:tp=&texpos_site_muddy[0];break;
+				case 34:tp=&texpos_site_grassy[0];break;
 				}
 			if(*tp==0)continue;
 
@@ -4327,6 +4514,90 @@ void graphicst::create_derived_textures()
 							case 36:tpp=&texpos_edge_glacier_goodsav_thin_corner_transition_se_e[sv];break;
 							}
 						break;
+					case 33:
+						switch(siv)
+							{
+							case 0:tpp=&texpos_edge_site_muddy_straight_n[sv];break;
+							case 1:tpp=&texpos_edge_site_muddy_straight_s[sv];break;
+							case 2:tpp=&texpos_edge_site_muddy_straight_w[sv];break;
+							case 3:tpp=&texpos_edge_site_muddy_straight_e[sv];break;
+							case 4:tpp=&texpos_edge_site_muddy_thick_corner_nw[sv];break;
+							case 5:tpp=&texpos_edge_site_muddy_thick_corner_ne[sv];break;
+							case 6:tpp=&texpos_edge_site_muddy_thick_corner_sw[sv];break;
+							case 7:tpp=&texpos_edge_site_muddy_thick_corner_se[sv];break;
+							case 8:tpp=&texpos_edge_site_muddy_thin_corner_nw[sv];break;
+							case 9:tpp=&texpos_edge_site_muddy_thin_corner_ne[sv];break;
+							case 10:tpp=&texpos_edge_site_muddy_thin_corner_sw[sv];break;
+							case 11:tpp=&texpos_edge_site_muddy_thin_corner_se[sv];break;
+							case 12:tpp=&texpos_edge_site_muddy_tiny_corner_nw[sv];break;
+							case 13:tpp=&texpos_edge_site_muddy_tiny_corner_ne[sv];break;
+							case 14:tpp=&texpos_edge_site_muddy_tiny_corner_sw[sv];break;
+							case 15:tpp=&texpos_edge_site_muddy_tiny_corner_se[sv];break;
+							case 16:tpp=&texpos_edge_site_muddy_inlet_nsw[sv];break;
+							case 17:tpp=&texpos_edge_site_muddy_inlet_nse[sv];break;
+							case 18:tpp=&texpos_edge_site_muddy_inlet_nwe[sv];break;
+							case 19:tpp=&texpos_edge_site_muddy_inlet_swe[sv];break;
+							case 20:tpp=&texpos_edge_site_muddy_surround[sv];break;
+							case 21:tpp=&texpos_edge_site_muddy_thinning_n_w[sv];break;
+							case 22:tpp=&texpos_edge_site_muddy_thinning_n_e[sv];break;
+							case 23:tpp=&texpos_edge_site_muddy_thinning_s_w[sv];break;
+							case 24:tpp=&texpos_edge_site_muddy_thinning_s_e[sv];break;
+							case 25:tpp=&texpos_edge_site_muddy_thinning_w_n[sv];break;
+							case 26:tpp=&texpos_edge_site_muddy_thinning_w_s[sv];break;
+							case 27:tpp=&texpos_edge_site_muddy_thinning_e_n[sv];break;
+							case 28:tpp=&texpos_edge_site_muddy_thinning_e_s[sv];break;
+							case 29:tpp=&texpos_edge_site_muddy_thin_corner_transition_nw_n[sv];break;
+							case 30:tpp=&texpos_edge_site_muddy_thin_corner_transition_nw_w[sv];break;
+							case 31:tpp=&texpos_edge_site_muddy_thin_corner_transition_ne_n[sv];break;
+							case 32:tpp=&texpos_edge_site_muddy_thin_corner_transition_ne_e[sv];break;
+							case 33:tpp=&texpos_edge_site_muddy_thin_corner_transition_sw_s[sv];break;
+							case 34:tpp=&texpos_edge_site_muddy_thin_corner_transition_sw_w[sv];break;
+							case 35:tpp=&texpos_edge_site_muddy_thin_corner_transition_se_s[sv];break;
+							case 36:tpp=&texpos_edge_site_muddy_thin_corner_transition_se_e[sv];break;
+							}
+						break;
+					case 34:
+						switch(siv)
+							{
+							case 0:tpp=&texpos_edge_site_grassy_straight_n[sv];break;
+							case 1:tpp=&texpos_edge_site_grassy_straight_s[sv];break;
+							case 2:tpp=&texpos_edge_site_grassy_straight_w[sv];break;
+							case 3:tpp=&texpos_edge_site_grassy_straight_e[sv];break;
+							case 4:tpp=&texpos_edge_site_grassy_thick_corner_nw[sv];break;
+							case 5:tpp=&texpos_edge_site_grassy_thick_corner_ne[sv];break;
+							case 6:tpp=&texpos_edge_site_grassy_thick_corner_sw[sv];break;
+							case 7:tpp=&texpos_edge_site_grassy_thick_corner_se[sv];break;
+							case 8:tpp=&texpos_edge_site_grassy_thin_corner_nw[sv];break;
+							case 9:tpp=&texpos_edge_site_grassy_thin_corner_ne[sv];break;
+							case 10:tpp=&texpos_edge_site_grassy_thin_corner_sw[sv];break;
+							case 11:tpp=&texpos_edge_site_grassy_thin_corner_se[sv];break;
+							case 12:tpp=&texpos_edge_site_grassy_tiny_corner_nw[sv];break;
+							case 13:tpp=&texpos_edge_site_grassy_tiny_corner_ne[sv];break;
+							case 14:tpp=&texpos_edge_site_grassy_tiny_corner_sw[sv];break;
+							case 15:tpp=&texpos_edge_site_grassy_tiny_corner_se[sv];break;
+							case 16:tpp=&texpos_edge_site_grassy_inlet_nsw[sv];break;
+							case 17:tpp=&texpos_edge_site_grassy_inlet_nse[sv];break;
+							case 18:tpp=&texpos_edge_site_grassy_inlet_nwe[sv];break;
+							case 19:tpp=&texpos_edge_site_grassy_inlet_swe[sv];break;
+							case 20:tpp=&texpos_edge_site_grassy_surround[sv];break;
+							case 21:tpp=&texpos_edge_site_grassy_thinning_n_w[sv];break;
+							case 22:tpp=&texpos_edge_site_grassy_thinning_n_e[sv];break;
+							case 23:tpp=&texpos_edge_site_grassy_thinning_s_w[sv];break;
+							case 24:tpp=&texpos_edge_site_grassy_thinning_s_e[sv];break;
+							case 25:tpp=&texpos_edge_site_grassy_thinning_w_n[sv];break;
+							case 26:tpp=&texpos_edge_site_grassy_thinning_w_s[sv];break;
+							case 27:tpp=&texpos_edge_site_grassy_thinning_e_n[sv];break;
+							case 28:tpp=&texpos_edge_site_grassy_thinning_e_s[sv];break;
+							case 29:tpp=&texpos_edge_site_grassy_thin_corner_transition_nw_n[sv];break;
+							case 30:tpp=&texpos_edge_site_grassy_thin_corner_transition_nw_w[sv];break;
+							case 31:tpp=&texpos_edge_site_grassy_thin_corner_transition_ne_n[sv];break;
+							case 32:tpp=&texpos_edge_site_grassy_thin_corner_transition_ne_e[sv];break;
+							case 33:tpp=&texpos_edge_site_grassy_thin_corner_transition_sw_s[sv];break;
+							case 34:tpp=&texpos_edge_site_grassy_thin_corner_transition_sw_w[sv];break;
+							case 35:tpp=&texpos_edge_site_grassy_thin_corner_transition_se_s[sv];break;
+							case 36:tpp=&texpos_edge_site_grassy_thin_corner_transition_se_e[sv];break;
+							}
+						break;
 					}
 				if(*tpp!=0)continue;
 
@@ -4767,6 +5038,87 @@ void graphicst::create_derived_textures()
 			}
 		}
 		*/
+
+	int32_t sh;
+	for(sh=0;sh<29;++sh)
+		{
+		int32_t *dst=NULL;
+		int32_t src[4],src_num=0;
+		switch(sh)
+			{
+			case 0:dst=&texpos_vision_shadow_n_sw;src_num=2;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_sw;break;
+			case 1:dst=&texpos_vision_shadow_n_se;src_num=2;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_se;break;
+			case 2:dst=&texpos_vision_shadow_s_nw;src_num=2;src[0]=texpos_vision_shadow_s;src[1]=texpos_vision_shadow_nw;break;
+			case 3:dst=&texpos_vision_shadow_s_ne;src_num=2;src[0]=texpos_vision_shadow_s;src[1]=texpos_vision_shadow_ne;break;
+			case 4:dst=&texpos_vision_shadow_w_ne;src_num=2;src[0]=texpos_vision_shadow_w;src[1]=texpos_vision_shadow_ne;break;
+			case 5:dst=&texpos_vision_shadow_w_se;src_num=2;src[0]=texpos_vision_shadow_w;src[1]=texpos_vision_shadow_se;break;
+			case 6:dst=&texpos_vision_shadow_e_nw;src_num=2;src[0]=texpos_vision_shadow_e;src[1]=texpos_vision_shadow_nw;break;
+			case 7:dst=&texpos_vision_shadow_e_sw;src_num=2;src[0]=texpos_vision_shadow_e;src[1]=texpos_vision_shadow_sw;break;
+			case 8:dst=&texpos_vision_shadow_n_w_se;src_num=3;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_w;src[2]=texpos_vision_shadow_se;break;
+			case 9:dst=&texpos_vision_shadow_n_e_sw;src_num=3;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_e;src[2]=texpos_vision_shadow_sw;break;
+			case 10:dst=&texpos_vision_shadow_s_w_ne;src_num=3;src[0]=texpos_vision_shadow_s;src[1]=texpos_vision_shadow_w;src[2]=texpos_vision_shadow_ne;break;
+			case 11:dst=&texpos_vision_shadow_s_e_nw;src_num=3;src[0]=texpos_vision_shadow_s;src[1]=texpos_vision_shadow_e;src[2]=texpos_vision_shadow_nw;break;
+			case 12:dst=&texpos_vision_shadow_nw_ne;src_num=2;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_ne;break;
+			case 13:dst=&texpos_vision_shadow_nw_sw;src_num=2;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_sw;break;
+			case 14:dst=&texpos_vision_shadow_nw_se;src_num=2;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_se;break;
+			case 15:dst=&texpos_vision_shadow_ne_sw;src_num=2;src[0]=texpos_vision_shadow_ne;src[1]=texpos_vision_shadow_sw;break;
+			case 16:dst=&texpos_vision_shadow_ne_se;src_num=2;src[0]=texpos_vision_shadow_ne;src[1]=texpos_vision_shadow_se;break;
+			case 17:dst=&texpos_vision_shadow_sw_se;src_num=2;src[0]=texpos_vision_shadow_sw;src[1]=texpos_vision_shadow_se;break;
+			case 18:dst=&texpos_vision_shadow_nw_ne_sw;src_num=3;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_ne;src[2]=texpos_vision_shadow_sw;break;
+			case 19:dst=&texpos_vision_shadow_nw_ne_se;src_num=3;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_ne;src[2]=texpos_vision_shadow_se;break;
+			case 20:dst=&texpos_vision_shadow_nw_sw_se;src_num=3;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_sw;src[2]=texpos_vision_shadow_se;break;
+			case 21:dst=&texpos_vision_shadow_ne_sw_se;src_num=3;src[0]=texpos_vision_shadow_ne;src[1]=texpos_vision_shadow_sw;src[2]=texpos_vision_shadow_se;break;
+			case 22:dst=&texpos_vision_shadow_nw_ne_sw_se;src_num=4;src[0]=texpos_vision_shadow_nw;src[1]=texpos_vision_shadow_ne;src[2]=texpos_vision_shadow_sw;src[3]=texpos_vision_shadow_se;break;
+			case 23:dst=&texpos_vision_shadow_n_s;src_num=2;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_s;break;
+			case 24:dst=&texpos_vision_shadow_w_e;src_num=2;src[0]=texpos_vision_shadow_w;src[1]=texpos_vision_shadow_e;break;
+			case 25:dst=&texpos_vision_shadow_n_sw_se;src_num=3;src[0]=texpos_vision_shadow_n;src[1]=texpos_vision_shadow_sw;src[2]=texpos_vision_shadow_se;break;
+			case 26:dst=&texpos_vision_shadow_s_nw_ne;src_num=3;src[0]=texpos_vision_shadow_s;src[1]=texpos_vision_shadow_nw;src[2]=texpos_vision_shadow_ne;break;
+			case 27:dst=&texpos_vision_shadow_w_ne_se;src_num=3;src[0]=texpos_vision_shadow_w;src[1]=texpos_vision_shadow_ne;src[2]=texpos_vision_shadow_se;break;
+			case 28:dst=&texpos_vision_shadow_e_nw_sw;src_num=3;src[0]=texpos_vision_shadow_e;src[1]=texpos_vision_shadow_nw;src[2]=texpos_vision_shadow_sw;break;
+			}
+		if(dst==NULL)continue;
+		if(*dst==0&&src_num>0)
+			{
+			bool good_source=true;
+			int32_t s;
+			for(s=0;s<src_num;++s)
+				{
+				if(src[s]==0)
+					{
+					good_source=false;
+					break;
+					}
+				}
+			if(good_source)
+				{
+				for(s=0;s<src_num;++s)
+					{
+					SDL_Surface *tex=enabler.textures.get_texture_data(src[s]);
+					SDL_Surface *color=NULL;
+					if(tex!=NULL)
+						{
+						if(s==0)
+							{
+							*dst=enabler.textures.create_texture(tex->w,tex->h);
+							color=enabler.textures.get_texture_data(*dst);
+							SDL_LockSurface(color);
+							}
+
+						if(color!=NULL)
+							{
+							SDL_LockSurface(tex);
+
+							if(s==0)copy_transformed_pixel_data(tex,color,0,false);
+							else copy_pixel_data_nonzero_only_no_blend(tex,color);
+
+							SDL_UnlockSurface(tex);
+							}
+						}
+					if(color!=NULL)SDL_UnlockSurface(color);
+					}
+				}
+			}
+		}
 }
 
 void graphicst::set_force_full_display_count(short new_count)
@@ -4778,6 +5130,16 @@ void graphicst::zero_and_clear_all_texpos()
 {
 	texpos_boulder.clear();
 	texpos_driftwood=0;
+
+	texpos_campfire_top[0]=0;
+	texpos_campfire_top[1]=0;
+	texpos_campfire_top[2]=0;
+	texpos_campfire_top[3]=0;
+	texpos_campfire[0]=0;
+	texpos_campfire[1]=0;
+	texpos_campfire[2]=0;
+	texpos_campfire[3]=0;
+	texpos_campfire_dead=0;
 
 	texpos_fire[0]=0;
 	texpos_fire[1]=0;
@@ -4903,6 +5265,7 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_unit_selector_pit=0;
 	texpos_unit_selector_pond=0;
 	texpos_creature_is_traveling=0;
+	texpos_creature_is_dead=0;
 	texpos_building_icon_workshops=0;
 	texpos_building_icon_furniture=0;
 	texpos_building_icon_doors_hatches=0;
@@ -5321,11 +5684,28 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_type_filter_left,0,sizeof(int32_t)*3);
 	memset(texpos_type_filter_right,0,sizeof(int32_t)*3);
 	memset(texpos_type_filter_text,0,sizeof(int32_t)*3);
+	memset(texpos_pinned,0,sizeof(int32_t)*2);
+	memset(texpos_not_pinned,0,sizeof(int32_t)*2);
+	memset(texpos_button_wrestle_right,0,sizeof(int32_t)*3);
+	memset(texpos_button_wrestle_equal,0,sizeof(int32_t)*3);
+	memset(texpos_button_wrestle_left,0,sizeof(int32_t)*3);
+	memset(texpos_button_adventure_tactical_mode_on,0,sizeof(int32_t)*4*2);
+	memset(texpos_button_adventure_tactical_mode_off,0,sizeof(int32_t)*4*2);
+
+	memset(texpos_adventure_log_pinned_active,0,sizeof(int32_t)*3*3);
+	memset(texpos_adventure_log_pinned_inactive,0,sizeof(int32_t)*3*3);
+	memset(texpos_adventure_log_item_active,0,sizeof(int32_t)*3*3);
+	memset(texpos_adventure_log_item_inactive,0,sizeof(int32_t)*3*3);
 
 	memset(texpos_button_announcement_open_all_announcements,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_announcement_not_pausing_on_new_report,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_announcement_pausing_on_new_report,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_announcement_open_from_main,0,sizeof(int32_t)*3*3);
+
+	memset(texpos_button_quality_up,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_quality_down,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_quality_up_inactive,0,sizeof(int32_t)*3*3);
+	memset(texpos_button_quality_down_inactive,0,sizeof(int32_t)*3*3);
 
 	memset(texpos_button_stocks_recenter,0,sizeof(int32_t)*3*3);
 	memset(texpos_button_stocks_view_item,0,sizeof(int32_t)*3*3);
@@ -5375,15 +5755,29 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_button_unit_sheet,0,sizeof(int32_t)*3*3*INTERFACE_BUTTON_UNIT_SHEETNUM);
 	memset(texpos_button_large_unit_sheet,0,sizeof(int32_t)*4*3*INTERFACE_BUTTON_LARGE_UNIT_SHEETNUM);
 	memset(texpos_button_pets_livestock,0,sizeof(int32_t)*3*3*INTERFACE_BUTTON_PETS_LIVESTOCKNUM);
+	memset(texpos_button_inventory_item,0,sizeof(int32_t)*3*3*INTERFACE_BUTTON_INVENTORY_ITEMNUM);
+
+	memset(texpos_adventure_travel_dir,0,sizeof(int32_t)*INTERFACE_ADVENTURE_TRAVEL_DIRNUM);
+
+	texpos_skill_progress_bar_left_full=0;
+	texpos_skill_progress_bar_mid_full=0;
+	texpos_skill_progress_bar_right_full=0;
+	texpos_skill_progress_bar_left_half=0;
+	texpos_skill_progress_bar_mid_half=0;
+	texpos_skill_progress_bar_right_half=0;
+	texpos_skill_progress_bar_left_empty=0;
+	texpos_skill_progress_bar_mid_empty=0;
+	texpos_skill_progress_bar_right_empty=0;
 
 	memset(texpos_moon_weather,0,sizeof(int32_t)*INTERFACE_MOON_WEATHERNUM);
 	memset(texpos_announcement_alert,0,sizeof(int32_t)*ANNOUNCEMENT_ALERTNUM);
 	memset(texpos_unit_status,0,sizeof(int32_t)*UNIT_STATUSNUM);
+	memset(texpos_side_indicator,0,sizeof(int32_t)*SIDE_INDICATORNUM);
 
 	texpos_default_portrait_background=0;
-	texpos_default_portrait_frame=0;
 	texpos_chosen_portrait_frame=0;
 	texpos_hero_portrait_frame=0;
+	texpos_default_portrait_frame=0;
 	texpos_portrait_chosen=0;
 	texpos_portrait_hero=0;
 	texpos_portrait_ordinary=0;
@@ -5395,6 +5789,56 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_portrait_right=0;
 	texpos_portrait_add_active=0;
 	texpos_portrait_add_inactive=0;
+	texpos_portrait_frame_deity_bad=0;
+	texpos_portrait_frame_deity_normal=0;
+	texpos_portrait_frame_deity_good=0;
+
+	texpos_vision_shadow_n=0;
+	texpos_vision_shadow_s=0;
+	texpos_vision_shadow_w=0;
+	texpos_vision_shadow_e=0;
+	texpos_vision_shadow_n_w=0;
+	texpos_vision_shadow_n_e=0;
+	texpos_vision_shadow_s_w=0;
+	texpos_vision_shadow_s_e=0;
+	texpos_vision_shadow_n_s_w=0;
+	texpos_vision_shadow_n_s_e=0;
+	texpos_vision_shadow_n_w_e=0;
+	texpos_vision_shadow_s_w_e=0;
+	texpos_vision_shadow_n_s_w_e=0;
+	texpos_vision_shadow_nw=0;
+	texpos_vision_shadow_ne=0;
+	texpos_vision_shadow_sw=0;
+	texpos_vision_shadow_se=0;
+	texpos_vision_shadow_n_s=0;
+	texpos_vision_shadow_w_e=0;
+	texpos_vision_shadow_n_sw_se=0;
+	texpos_vision_shadow_n_sw=0;
+	texpos_vision_shadow_n_se=0;
+	texpos_vision_shadow_s_nw_ne=0;
+	texpos_vision_shadow_s_nw=0;
+	texpos_vision_shadow_s_ne=0;
+	texpos_vision_shadow_w_ne_se=0;
+	texpos_vision_shadow_w_ne=0;
+	texpos_vision_shadow_w_se=0;
+	texpos_vision_shadow_e_nw_sw=0;
+	texpos_vision_shadow_e_nw=0;
+	texpos_vision_shadow_e_sw=0;
+	texpos_vision_shadow_n_w_se=0;
+	texpos_vision_shadow_n_e_sw=0;
+	texpos_vision_shadow_s_w_ne=0;
+	texpos_vision_shadow_s_e_nw=0;
+	texpos_vision_shadow_nw_ne=0;
+	texpos_vision_shadow_nw_sw=0;
+	texpos_vision_shadow_nw_se=0;
+	texpos_vision_shadow_ne_sw=0;
+	texpos_vision_shadow_ne_se=0;
+	texpos_vision_shadow_sw_se=0;
+	texpos_vision_shadow_nw_ne_sw=0;
+	texpos_vision_shadow_nw_ne_se=0;
+	texpos_vision_shadow_nw_sw_se=0;
+	texpos_vision_shadow_ne_sw_se=0;
+	texpos_vision_shadow_nw_ne_sw_se=0;
 
 	multilevel_ramp_with_wall_nsew=0;
 	multilevel_ramp_with_wall_nse=0;
@@ -6121,6 +6565,294 @@ void graphicst::zero_and_clear_all_texpos()
 	soil_ramp_with_wall_nw_sw_se=0;
 	soil_ramp_with_wall_ne_sw_se=0;
 
+	sand_beige_ramp_with_wall_nsew=0;
+	sand_beige_ramp_with_wall_nse=0;
+	sand_beige_ramp_with_wall_nsw=0;
+	sand_beige_ramp_with_wall_nwe=0;
+	sand_beige_ramp_with_wall_swe=0;
+	sand_beige_ramp_with_wall_n_s=0;
+	sand_beige_ramp_with_wall_n_w=0;
+	sand_beige_ramp_with_wall_n_e=0;
+	sand_beige_ramp_with_wall_s_w=0;
+	sand_beige_ramp_with_wall_s_e=0;
+	sand_beige_ramp_with_wall_w_e=0;
+	sand_beige_ramp_with_wall_n=0;
+	sand_beige_ramp_with_wall_s=0;
+	sand_beige_ramp_with_wall_w=0;
+	sand_beige_ramp_with_wall_e=0;
+	sand_beige_ramp_with_wall_nw=0;
+	sand_beige_ramp_with_wall_sw=0;
+	sand_beige_ramp_with_wall_se=0;
+	sand_beige_ramp_with_wall_ne=0;
+	sand_beige_ramp_with_wall_nw_ne=0;
+	sand_beige_ramp_with_wall_sw_se=0;
+	sand_beige_ramp_with_wall_nw_sw=0;
+	sand_beige_ramp_with_wall_ne_se=0;
+	sand_beige_ramp_other=0;
+	sand_beige_ramp_with_wall_s_ne=0;
+	sand_beige_ramp_with_wall_w_se=0;
+	sand_beige_ramp_with_wall_n_sw=0;
+	sand_beige_ramp_with_wall_e_nw=0;
+	sand_beige_ramp_with_wall_e_sw=0;
+	sand_beige_ramp_with_wall_s_nw=0;
+	sand_beige_ramp_with_wall_w_ne=0;
+	sand_beige_ramp_with_wall_n_se=0;
+	sand_beige_ramp_with_wall_s_e_nw=0;
+	sand_beige_ramp_with_wall_s_w_ne=0;
+	sand_beige_ramp_with_wall_n_w_se=0;
+	sand_beige_ramp_with_wall_n_e_sw=0;
+	sand_beige_ramp_with_wall_n_sw_se=0;
+	sand_beige_ramp_with_wall_e_nw_sw=0;
+	sand_beige_ramp_with_wall_s_nw_ne=0;
+	sand_beige_ramp_with_wall_w_ne_se=0;
+	sand_beige_ramp_with_wall_nw_se=0;
+	sand_beige_ramp_with_wall_ne_sw=0;
+	sand_beige_ramp_with_wall_nw_ne_sw_se=0;
+	sand_beige_ramp_with_wall_nw_ne_sw=0;
+	sand_beige_ramp_with_wall_nw_ne_se=0;
+	sand_beige_ramp_with_wall_nw_sw_se=0;
+	sand_beige_ramp_with_wall_ne_sw_se=0;
+
+	sand_black_ramp_with_wall_nsew=0;
+	sand_black_ramp_with_wall_nse=0;
+	sand_black_ramp_with_wall_nsw=0;
+	sand_black_ramp_with_wall_nwe=0;
+	sand_black_ramp_with_wall_swe=0;
+	sand_black_ramp_with_wall_n_s=0;
+	sand_black_ramp_with_wall_n_w=0;
+	sand_black_ramp_with_wall_n_e=0;
+	sand_black_ramp_with_wall_s_w=0;
+	sand_black_ramp_with_wall_s_e=0;
+	sand_black_ramp_with_wall_w_e=0;
+	sand_black_ramp_with_wall_n=0;
+	sand_black_ramp_with_wall_s=0;
+	sand_black_ramp_with_wall_w=0;
+	sand_black_ramp_with_wall_e=0;
+	sand_black_ramp_with_wall_nw=0;
+	sand_black_ramp_with_wall_sw=0;
+	sand_black_ramp_with_wall_se=0;
+	sand_black_ramp_with_wall_ne=0;
+	sand_black_ramp_with_wall_nw_ne=0;
+	sand_black_ramp_with_wall_sw_se=0;
+	sand_black_ramp_with_wall_nw_sw=0;
+	sand_black_ramp_with_wall_ne_se=0;
+	sand_black_ramp_other=0;
+	sand_black_ramp_with_wall_s_ne=0;
+	sand_black_ramp_with_wall_w_se=0;
+	sand_black_ramp_with_wall_n_sw=0;
+	sand_black_ramp_with_wall_e_nw=0;
+	sand_black_ramp_with_wall_e_sw=0;
+	sand_black_ramp_with_wall_s_nw=0;
+	sand_black_ramp_with_wall_w_ne=0;
+	sand_black_ramp_with_wall_n_se=0;
+	sand_black_ramp_with_wall_s_e_nw=0;
+	sand_black_ramp_with_wall_s_w_ne=0;
+	sand_black_ramp_with_wall_n_w_se=0;
+	sand_black_ramp_with_wall_n_e_sw=0;
+	sand_black_ramp_with_wall_n_sw_se=0;
+	sand_black_ramp_with_wall_e_nw_sw=0;
+	sand_black_ramp_with_wall_s_nw_ne=0;
+	sand_black_ramp_with_wall_w_ne_se=0;
+	sand_black_ramp_with_wall_nw_se=0;
+	sand_black_ramp_with_wall_ne_sw=0;
+	sand_black_ramp_with_wall_nw_ne_sw_se=0;
+	sand_black_ramp_with_wall_nw_ne_sw=0;
+	sand_black_ramp_with_wall_nw_ne_se=0;
+	sand_black_ramp_with_wall_nw_sw_se=0;
+	sand_black_ramp_with_wall_ne_sw_se=0;
+
+	sand_red_ramp_with_wall_nsew=0;
+	sand_red_ramp_with_wall_nse=0;
+	sand_red_ramp_with_wall_nsw=0;
+	sand_red_ramp_with_wall_nwe=0;
+	sand_red_ramp_with_wall_swe=0;
+	sand_red_ramp_with_wall_n_s=0;
+	sand_red_ramp_with_wall_n_w=0;
+	sand_red_ramp_with_wall_n_e=0;
+	sand_red_ramp_with_wall_s_w=0;
+	sand_red_ramp_with_wall_s_e=0;
+	sand_red_ramp_with_wall_w_e=0;
+	sand_red_ramp_with_wall_n=0;
+	sand_red_ramp_with_wall_s=0;
+	sand_red_ramp_with_wall_w=0;
+	sand_red_ramp_with_wall_e=0;
+	sand_red_ramp_with_wall_nw=0;
+	sand_red_ramp_with_wall_sw=0;
+	sand_red_ramp_with_wall_se=0;
+	sand_red_ramp_with_wall_ne=0;
+	sand_red_ramp_with_wall_nw_ne=0;
+	sand_red_ramp_with_wall_sw_se=0;
+	sand_red_ramp_with_wall_nw_sw=0;
+	sand_red_ramp_with_wall_ne_se=0;
+	sand_red_ramp_other=0;
+	sand_red_ramp_with_wall_s_ne=0;
+	sand_red_ramp_with_wall_w_se=0;
+	sand_red_ramp_with_wall_n_sw=0;
+	sand_red_ramp_with_wall_e_nw=0;
+	sand_red_ramp_with_wall_e_sw=0;
+	sand_red_ramp_with_wall_s_nw=0;
+	sand_red_ramp_with_wall_w_ne=0;
+	sand_red_ramp_with_wall_n_se=0;
+	sand_red_ramp_with_wall_s_e_nw=0;
+	sand_red_ramp_with_wall_s_w_ne=0;
+	sand_red_ramp_with_wall_n_w_se=0;
+	sand_red_ramp_with_wall_n_e_sw=0;
+	sand_red_ramp_with_wall_n_sw_se=0;
+	sand_red_ramp_with_wall_e_nw_sw=0;
+	sand_red_ramp_with_wall_s_nw_ne=0;
+	sand_red_ramp_with_wall_w_ne_se=0;
+	sand_red_ramp_with_wall_nw_se=0;
+	sand_red_ramp_with_wall_ne_sw=0;
+	sand_red_ramp_with_wall_nw_ne_sw_se=0;
+	sand_red_ramp_with_wall_nw_ne_sw=0;
+	sand_red_ramp_with_wall_nw_ne_se=0;
+	sand_red_ramp_with_wall_nw_sw_se=0;
+	sand_red_ramp_with_wall_ne_sw_se=0;
+
+	sand_tan_ramp_with_wall_nsew=0;
+	sand_tan_ramp_with_wall_nse=0;
+	sand_tan_ramp_with_wall_nsw=0;
+	sand_tan_ramp_with_wall_nwe=0;
+	sand_tan_ramp_with_wall_swe=0;
+	sand_tan_ramp_with_wall_n_s=0;
+	sand_tan_ramp_with_wall_n_w=0;
+	sand_tan_ramp_with_wall_n_e=0;
+	sand_tan_ramp_with_wall_s_w=0;
+	sand_tan_ramp_with_wall_s_e=0;
+	sand_tan_ramp_with_wall_w_e=0;
+	sand_tan_ramp_with_wall_n=0;
+	sand_tan_ramp_with_wall_s=0;
+	sand_tan_ramp_with_wall_w=0;
+	sand_tan_ramp_with_wall_e=0;
+	sand_tan_ramp_with_wall_nw=0;
+	sand_tan_ramp_with_wall_sw=0;
+	sand_tan_ramp_with_wall_se=0;
+	sand_tan_ramp_with_wall_ne=0;
+	sand_tan_ramp_with_wall_nw_ne=0;
+	sand_tan_ramp_with_wall_sw_se=0;
+	sand_tan_ramp_with_wall_nw_sw=0;
+	sand_tan_ramp_with_wall_ne_se=0;
+	sand_tan_ramp_other=0;
+	sand_tan_ramp_with_wall_s_ne=0;
+	sand_tan_ramp_with_wall_w_se=0;
+	sand_tan_ramp_with_wall_n_sw=0;
+	sand_tan_ramp_with_wall_e_nw=0;
+	sand_tan_ramp_with_wall_e_sw=0;
+	sand_tan_ramp_with_wall_s_nw=0;
+	sand_tan_ramp_with_wall_w_ne=0;
+	sand_tan_ramp_with_wall_n_se=0;
+	sand_tan_ramp_with_wall_s_e_nw=0;
+	sand_tan_ramp_with_wall_s_w_ne=0;
+	sand_tan_ramp_with_wall_n_w_se=0;
+	sand_tan_ramp_with_wall_n_e_sw=0;
+	sand_tan_ramp_with_wall_n_sw_se=0;
+	sand_tan_ramp_with_wall_e_nw_sw=0;
+	sand_tan_ramp_with_wall_s_nw_ne=0;
+	sand_tan_ramp_with_wall_w_ne_se=0;
+	sand_tan_ramp_with_wall_nw_se=0;
+	sand_tan_ramp_with_wall_ne_sw=0;
+	sand_tan_ramp_with_wall_nw_ne_sw_se=0;
+	sand_tan_ramp_with_wall_nw_ne_sw=0;
+	sand_tan_ramp_with_wall_nw_ne_se=0;
+	sand_tan_ramp_with_wall_nw_sw_se=0;
+	sand_tan_ramp_with_wall_ne_sw_se=0;
+
+	sand_white_ramp_with_wall_nsew=0;
+	sand_white_ramp_with_wall_nse=0;
+	sand_white_ramp_with_wall_nsw=0;
+	sand_white_ramp_with_wall_nwe=0;
+	sand_white_ramp_with_wall_swe=0;
+	sand_white_ramp_with_wall_n_s=0;
+	sand_white_ramp_with_wall_n_w=0;
+	sand_white_ramp_with_wall_n_e=0;
+	sand_white_ramp_with_wall_s_w=0;
+	sand_white_ramp_with_wall_s_e=0;
+	sand_white_ramp_with_wall_w_e=0;
+	sand_white_ramp_with_wall_n=0;
+	sand_white_ramp_with_wall_s=0;
+	sand_white_ramp_with_wall_w=0;
+	sand_white_ramp_with_wall_e=0;
+	sand_white_ramp_with_wall_nw=0;
+	sand_white_ramp_with_wall_sw=0;
+	sand_white_ramp_with_wall_se=0;
+	sand_white_ramp_with_wall_ne=0;
+	sand_white_ramp_with_wall_nw_ne=0;
+	sand_white_ramp_with_wall_sw_se=0;
+	sand_white_ramp_with_wall_nw_sw=0;
+	sand_white_ramp_with_wall_ne_se=0;
+	sand_white_ramp_other=0;
+	sand_white_ramp_with_wall_s_ne=0;
+	sand_white_ramp_with_wall_w_se=0;
+	sand_white_ramp_with_wall_n_sw=0;
+	sand_white_ramp_with_wall_e_nw=0;
+	sand_white_ramp_with_wall_e_sw=0;
+	sand_white_ramp_with_wall_s_nw=0;
+	sand_white_ramp_with_wall_w_ne=0;
+	sand_white_ramp_with_wall_n_se=0;
+	sand_white_ramp_with_wall_s_e_nw=0;
+	sand_white_ramp_with_wall_s_w_ne=0;
+	sand_white_ramp_with_wall_n_w_se=0;
+	sand_white_ramp_with_wall_n_e_sw=0;
+	sand_white_ramp_with_wall_n_sw_se=0;
+	sand_white_ramp_with_wall_e_nw_sw=0;
+	sand_white_ramp_with_wall_s_nw_ne=0;
+	sand_white_ramp_with_wall_w_ne_se=0;
+	sand_white_ramp_with_wall_nw_se=0;
+	sand_white_ramp_with_wall_ne_sw=0;
+	sand_white_ramp_with_wall_nw_ne_sw_se=0;
+	sand_white_ramp_with_wall_nw_ne_sw=0;
+	sand_white_ramp_with_wall_nw_ne_se=0;
+	sand_white_ramp_with_wall_nw_sw_se=0;
+	sand_white_ramp_with_wall_ne_sw_se=0;
+
+	sand_yellow_ramp_with_wall_nsew=0;
+	sand_yellow_ramp_with_wall_nse=0;
+	sand_yellow_ramp_with_wall_nsw=0;
+	sand_yellow_ramp_with_wall_nwe=0;
+	sand_yellow_ramp_with_wall_swe=0;
+	sand_yellow_ramp_with_wall_n_s=0;
+	sand_yellow_ramp_with_wall_n_w=0;
+	sand_yellow_ramp_with_wall_n_e=0;
+	sand_yellow_ramp_with_wall_s_w=0;
+	sand_yellow_ramp_with_wall_s_e=0;
+	sand_yellow_ramp_with_wall_w_e=0;
+	sand_yellow_ramp_with_wall_n=0;
+	sand_yellow_ramp_with_wall_s=0;
+	sand_yellow_ramp_with_wall_w=0;
+	sand_yellow_ramp_with_wall_e=0;
+	sand_yellow_ramp_with_wall_nw=0;
+	sand_yellow_ramp_with_wall_sw=0;
+	sand_yellow_ramp_with_wall_se=0;
+	sand_yellow_ramp_with_wall_ne=0;
+	sand_yellow_ramp_with_wall_nw_ne=0;
+	sand_yellow_ramp_with_wall_sw_se=0;
+	sand_yellow_ramp_with_wall_nw_sw=0;
+	sand_yellow_ramp_with_wall_ne_se=0;
+	sand_yellow_ramp_other=0;
+	sand_yellow_ramp_with_wall_s_ne=0;
+	sand_yellow_ramp_with_wall_w_se=0;
+	sand_yellow_ramp_with_wall_n_sw=0;
+	sand_yellow_ramp_with_wall_e_nw=0;
+	sand_yellow_ramp_with_wall_e_sw=0;
+	sand_yellow_ramp_with_wall_s_nw=0;
+	sand_yellow_ramp_with_wall_w_ne=0;
+	sand_yellow_ramp_with_wall_n_se=0;
+	sand_yellow_ramp_with_wall_s_e_nw=0;
+	sand_yellow_ramp_with_wall_s_w_ne=0;
+	sand_yellow_ramp_with_wall_n_w_se=0;
+	sand_yellow_ramp_with_wall_n_e_sw=0;
+	sand_yellow_ramp_with_wall_n_sw_se=0;
+	sand_yellow_ramp_with_wall_e_nw_sw=0;
+	sand_yellow_ramp_with_wall_s_nw_ne=0;
+	sand_yellow_ramp_with_wall_w_ne_se=0;
+	sand_yellow_ramp_with_wall_nw_se=0;
+	sand_yellow_ramp_with_wall_ne_sw=0;
+	sand_yellow_ramp_with_wall_nw_ne_sw_se=0;
+	sand_yellow_ramp_with_wall_nw_ne_sw=0;
+	sand_yellow_ramp_with_wall_nw_ne_se=0;
+	sand_yellow_ramp_with_wall_nw_sw_se=0;
+	sand_yellow_ramp_with_wall_ne_sw_se=0;
+
 	stone_ramp_with_wall_nsew=0;
 	stone_ramp_with_wall_nse=0;
 	stone_ramp_with_wall_nsw=0;
@@ -6814,6 +7546,9 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_embark_contract_x_active,0,sizeof(int32_t)*4);
 	memset(texpos_embark_contract_x_inactive,0,sizeof(int32_t)*4);
 
+	memset(texpos_adventure_burden_light,0,sizeof(int32_t)*4);
+	memset(texpos_adventure_burden_heavy,0,sizeof(int32_t)*4);
+
 	memset(texpos_help_border,0,sizeof(int32_t)*3*3);
 	memset(texpos_help_corner,0,sizeof(int32_t)*8*6);
 	memset(texpos_help_close,0,sizeof(int32_t)*3*2);
@@ -6935,6 +7670,8 @@ void graphicst::zero_and_clear_all_texpos()
 		texpos_frozen_ocean_evil[s]=0;
 		texpos_frozen_ocean_goodsav[s]=0;
 		texpos_frozen_ocean_good[s]=0;
+		texpos_site_grassy[s]=0;
+		texpos_site_muddy[s]=0;
 		texpos_world_edge_shape_straight_n[s]=0;
 		texpos_world_edge_shape_straight_s[s]=0;
 		texpos_world_edge_shape_straight_w[s]=0;
@@ -8236,6 +8973,86 @@ void graphicst::zero_and_clear_all_texpos()
 		texpos_edge_beach_line_thinning_w_s[s]=0;
 		texpos_edge_beach_line_thinning_e_n[s]=0;
 		texpos_edge_beach_line_thinning_e_s[s]=0;
+
+		texpos_edge_site_muddy_straight_n[s]=0;
+		texpos_edge_site_muddy_straight_s[s]=0;
+		texpos_edge_site_muddy_straight_w[s]=0;
+		texpos_edge_site_muddy_straight_e[s]=0;
+		texpos_edge_site_muddy_thick_corner_nw[s]=0;
+		texpos_edge_site_muddy_thick_corner_ne[s]=0;
+		texpos_edge_site_muddy_thick_corner_sw[s]=0;
+		texpos_edge_site_muddy_thick_corner_se[s]=0;
+		texpos_edge_site_muddy_thin_corner_nw[s]=0;
+		texpos_edge_site_muddy_thin_corner_ne[s]=0;
+		texpos_edge_site_muddy_thin_corner_sw[s]=0;
+		texpos_edge_site_muddy_thin_corner_se[s]=0;
+		texpos_edge_site_muddy_inlet_nsw[s]=0;
+		texpos_edge_site_muddy_inlet_nse[s]=0;
+		texpos_edge_site_muddy_inlet_nwe[s]=0;
+		texpos_edge_site_muddy_inlet_swe[s]=0;
+		texpos_edge_site_muddy_surround[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_nw_n[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_nw_w[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_ne_n[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_ne_e[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_sw_s[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_sw_w[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_se_s[s]=0;
+		texpos_edge_site_muddy_thin_corner_transition_se_e[s]=0;
+		texpos_edge_site_muddy_tiny_corner_nw[s]=0;
+		texpos_edge_site_muddy_tiny_corner_ne[s]=0;
+		texpos_edge_site_muddy_tiny_corner_sw[s]=0;
+		texpos_edge_site_muddy_tiny_corner_se[s]=0;
+		texpos_edge_site_muddy_thinning_n_w[s]=0;
+		texpos_edge_site_muddy_thinning_n_e[s]=0;
+		texpos_edge_site_muddy_thinning_s_w[s]=0;
+		texpos_edge_site_muddy_thinning_s_e[s]=0;
+		texpos_edge_site_muddy_thinning_w_n[s]=0;
+		texpos_edge_site_muddy_thinning_w_s[s]=0;
+		texpos_edge_site_muddy_thinning_e_n[s]=0;
+		texpos_edge_site_muddy_thinning_e_s[s]=0;
+		texpos_edge_site_grassy_straight_n[s]=0;
+		texpos_edge_site_grassy_straight_s[s]=0;
+		texpos_edge_site_grassy_straight_w[s]=0;
+		texpos_edge_site_grassy_straight_e[s]=0;
+		texpos_edge_site_grassy_thick_corner_nw[s]=0;
+		texpos_edge_site_grassy_thick_corner_ne[s]=0;
+		texpos_edge_site_grassy_thick_corner_sw[s]=0;
+		texpos_edge_site_grassy_thick_corner_se[s]=0;
+		texpos_edge_site_grassy_thin_corner_nw[s]=0;
+		texpos_edge_site_grassy_thin_corner_ne[s]=0;
+		texpos_edge_site_grassy_thin_corner_sw[s]=0;
+		texpos_edge_site_grassy_thin_corner_se[s]=0;
+		texpos_edge_site_grassy_inlet_nsw[s]=0;
+		texpos_edge_site_grassy_inlet_nse[s]=0;
+		texpos_edge_site_grassy_inlet_nwe[s]=0;
+		texpos_edge_site_grassy_inlet_swe[s]=0;
+		texpos_edge_site_grassy_surround[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_nw_n[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_nw_w[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_ne_n[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_ne_e[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_sw_s[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_sw_w[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_se_s[s]=0;
+		texpos_edge_site_grassy_thin_corner_transition_se_e[s]=0;
+		texpos_edge_site_grassy_tiny_corner_nw[s]=0;
+		texpos_edge_site_grassy_tiny_corner_ne[s]=0;
+		texpos_edge_site_grassy_tiny_corner_sw[s]=0;
+		texpos_edge_site_grassy_tiny_corner_se[s]=0;
+		texpos_edge_site_grassy_thinning_n_w[s]=0;
+		texpos_edge_site_grassy_thinning_n_e[s]=0;
+		texpos_edge_site_grassy_thinning_s_w[s]=0;
+		texpos_edge_site_grassy_thinning_s_e[s]=0;
+		texpos_edge_site_grassy_thinning_w_n[s]=0;
+		texpos_edge_site_grassy_thinning_w_s[s]=0;
+		texpos_edge_site_grassy_thinning_e_n[s]=0;
+		texpos_edge_site_grassy_thinning_e_s[s]=0;
+
+		texpos_site_map_crops_fallow[s]=0;
+		texpos_site_map_inner_yard[s]=0;
+		texpos_site_map_pasture[s]=0;
+		texpos_site_map_meadow[s]=0;
 		}
 	for(s=0;s<REGION_SQUARE_MOUNTAIN_NUM;++s)
 		{
@@ -8326,6 +9143,8 @@ void graphicst::zero_and_clear_all_texpos()
 		texpos_forest_taiga_evil[s]=0;
 		texpos_forest_taiga_goodsav[s]=0;
 		texpos_forest_taiga_good[s]=0;
+		texpos_site_map_crops[s]=0;
+		texpos_site_map_orchard[s]=0;
 		int32_t c;
 		for(c=0;c<9;++c)
 			{
@@ -8359,8 +9178,232 @@ void graphicst::zero_and_clear_all_texpos()
 			texpos_forest_conifer_trop_evil_c[s][c]=0;
 			texpos_forest_conifer_trop_goodsav_c[s][c]=0;
 			texpos_forest_conifer_trop_good_c[s][c]=0;
+			texpos_site_map_crops_c[s][c]=0;
+			texpos_site_map_orchard_c[s][c]=0;
 			}
 		}
+
+	for(s=0;s<12;++s)
+		{
+		texpos_site_map_solid_buildings[s]=0;
+		texpos_site_map_solid_buildings_top[s]=0;
+		}
+	texpos_site_map_buildings_road_nswe=0;
+	texpos_site_map_buildings_road_swe=0;
+	texpos_site_map_buildings_road_nwe=0;
+	texpos_site_map_buildings_road_nse=0;
+	texpos_site_map_buildings_road_nsw=0;
+	texpos_site_map_buildings_road_ns=0;
+	texpos_site_map_buildings_road_nw=0;
+	texpos_site_map_buildings_road_ne=0;
+	texpos_site_map_buildings_road_sw=0;
+	texpos_site_map_buildings_road_se=0;
+	texpos_site_map_buildings_road_we=0;
+	texpos_site_map_buildings_road_n=0;
+	texpos_site_map_buildings_road_s=0;
+	texpos_site_map_buildings_road_w=0;
+	texpos_site_map_buildings_road_e=0;
+	texpos_site_map_buildings_road_nswe_top=0;
+	texpos_site_map_buildings_road_swe_top=0;
+	texpos_site_map_buildings_road_nwe_top=0;
+	texpos_site_map_buildings_road_nse_top=0;
+	texpos_site_map_buildings_road_nsw_top=0;
+	texpos_site_map_buildings_road_ns_top=0;
+	texpos_site_map_buildings_road_nw_top=0;
+	texpos_site_map_buildings_road_ne_top=0;
+	texpos_site_map_buildings_road_sw_top=0;
+	texpos_site_map_buildings_road_se_top=0;
+	texpos_site_map_buildings_road_we_top=0;
+	texpos_site_map_buildings_road_n_top=0;
+	texpos_site_map_buildings_road_s_top=0;
+	texpos_site_map_buildings_road_w_top=0;
+	texpos_site_map_buildings_road_e_top=0;
+	texpos_site_map_isolated_building=0;
+
+	texpos_site_map_mead_hall_11.clear();
+	texpos_site_map_mead_hall_11_top.clear();
+	texpos_site_map_temple_11.clear();
+	texpos_site_map_temple_11_top.clear();
+	texpos_site_map_tavern_11.clear();
+	texpos_site_map_tavern_11_top.clear();
+	texpos_site_map_library_11.clear();
+	texpos_site_map_library_11_top.clear();
+	texpos_site_map_counting_house_11.clear();
+	texpos_site_map_counting_house_11_top.clear();
+	texpos_site_map_bld_tower.clear();
+	texpos_site_map_bld_tower_top.clear();
+	texpos_site_map_garden.clear();
+	texpos_site_map_garden_top.clear();
+	texpos_site_map_guildhall_11.clear();
+	texpos_site_map_guildhall_11_top.clear();
+	for(s=0;s<2;++s)
+		{
+		texpos_site_map_temple_21[s].clear();
+		texpos_site_map_temple_21_top[s].clear();
+		texpos_site_map_temple_12[s].clear();
+		texpos_site_map_tavern_21[s].clear();
+		texpos_site_map_tavern_21_top[s].clear();
+		texpos_site_map_tavern_12[s].clear();
+		texpos_site_map_library_21[s].clear();
+		texpos_site_map_library_21_top[s].clear();
+		texpos_site_map_library_12[s].clear();
+		texpos_site_map_counting_house_21[s].clear();
+		texpos_site_map_counting_house_21_top[s].clear();
+		texpos_site_map_counting_house_12[s].clear();
+		texpos_site_map_guildhall_21[s].clear();
+		texpos_site_map_guildhall_21_top[s].clear();
+		texpos_site_map_guildhall_12[s].clear();
+		int32_t s2;
+		for(s2=0;s2<2;++s2)
+			{
+			texpos_site_map_temple_22[s][s2].clear();
+			texpos_site_map_tavern_22[s][s2].clear();
+			texpos_site_map_library_22[s][s2].clear();
+			texpos_site_map_counting_house_22[s][s2].clear();
+			texpos_site_map_guildhall_22[s][s2].clear();
+			}
+		texpos_site_map_temple_22_top[s].clear();
+		texpos_site_map_tavern_22_top[s].clear();
+		texpos_site_map_library_22_top[s].clear();
+		texpos_site_map_counting_house_22_top[s].clear();
+		texpos_site_map_guildhall_22_top[s].clear();
+		}
+
+	texpos_site_map_plaza=0;
+	texpos_site_map_dirt_field=0;
+	texpos_site_map_road_paved_nswe=0;
+	texpos_site_map_road_paved_swe=0;
+	texpos_site_map_road_paved_nwe=0;
+	texpos_site_map_road_paved_nse=0;
+	texpos_site_map_road_paved_nsw=0;
+	texpos_site_map_road_paved_ns=0;
+	texpos_site_map_road_paved_nw=0;
+	texpos_site_map_road_paved_ne=0;
+	texpos_site_map_road_paved_sw=0;
+	texpos_site_map_road_paved_se=0;
+	texpos_site_map_road_paved_we=0;
+	texpos_site_map_road_paved_n=0;
+	texpos_site_map_road_paved_s=0;
+	texpos_site_map_road_paved_w=0;
+	texpos_site_map_road_paved_e=0;
+	texpos_site_map_road_dirt_nswe=0;
+	texpos_site_map_road_dirt_swe=0;
+	texpos_site_map_road_dirt_nwe=0;
+	texpos_site_map_road_dirt_nse=0;
+	texpos_site_map_road_dirt_nsw=0;
+	texpos_site_map_road_dirt_ns=0;
+	texpos_site_map_road_dirt_nw=0;
+	texpos_site_map_road_dirt_ne=0;
+	texpos_site_map_road_dirt_sw=0;
+	texpos_site_map_road_dirt_se=0;
+	texpos_site_map_road_dirt_we=0;
+	texpos_site_map_road_dirt_n=0;
+	texpos_site_map_road_dirt_s=0;
+	texpos_site_map_road_dirt_w=0;
+	texpos_site_map_road_dirt_e=0;
+	texpos_site_map_castle=0;
+	texpos_site_map_castle_wall_nswe=0;
+	texpos_site_map_castle_wall_swe=0;
+	texpos_site_map_castle_wall_nwe=0;
+	texpos_site_map_castle_wall_nse=0;
+	texpos_site_map_castle_wall_nsw=0;
+	texpos_site_map_castle_wall_ns=0;
+	texpos_site_map_castle_wall_nw=0;
+	texpos_site_map_castle_wall_ne=0;
+	texpos_site_map_castle_wall_sw=0;
+	texpos_site_map_castle_wall_se=0;
+	texpos_site_map_castle_wall_we=0;
+	texpos_site_map_castle_keep=0;
+	texpos_site_map_castle_keep_top=0;
+	texpos_site_map_wooden_wall_nswe=0;
+	texpos_site_map_wooden_wall_swe=0;
+	texpos_site_map_wooden_wall_nwe=0;
+	texpos_site_map_wooden_wall_nse=0;
+	texpos_site_map_wooden_wall_nsw=0;
+	texpos_site_map_wooden_wall_ns=0;
+	texpos_site_map_wooden_wall_nw=0;
+	texpos_site_map_wooden_wall_ne=0;
+	texpos_site_map_wooden_wall_sw=0;
+	texpos_site_map_wooden_wall_se=0;
+	texpos_site_map_wooden_wall_we=0;
+	texpos_site_map_wooden_keep=0;
+	texpos_site_map_wooden_keep_top=0;
+	texpos_site_map_bridge_brook_we=0;
+	texpos_site_map_bridge_brook_ns=0;
+	texpos_site_map_bridge_river_we=0;
+	texpos_site_map_bridge_river_ns=0;
+	texpos_site_map_gate_ns=0;
+	texpos_site_map_gate_we=0;
+	texpos_site_map_wooden_gate_tower=0;
+	texpos_site_map_wooden_gate_tower_top=0;
+	texpos_site_map_stone_gate_tower=0;
+	texpos_site_map_stone_gate_tower_top=0;
+	texpos_site_map_great_dark_tower=0;
+	texpos_site_map_great_dark_tower_top=0;
+	for(s=0;s<3;++s)
+		{
+		texpos_site_map_great_dark_tower_z_top[s]=0;
+		int32_t s2;
+		for(s2=0;s2<3;++s2)
+			{
+			texpos_site_map_great_dark_tower_z[s][s2]=0;
+			}
+		}
+	texpos_site_map_dark_tower=0;
+	texpos_site_map_dark_tower_top=0;
+	texpos_site_map_trench_nswe=0;
+	texpos_site_map_trench_swe=0;
+	texpos_site_map_trench_nwe=0;
+	texpos_site_map_trench_nse=0;
+	texpos_site_map_trench_nsw=0;
+	texpos_site_map_trench_ns=0;
+	texpos_site_map_trench_nw=0;
+	texpos_site_map_trench_ne=0;
+	texpos_site_map_trench_sw=0;
+	texpos_site_map_trench_se=0;
+	texpos_site_map_trench_we=0;
+	texpos_site_map_trench_n=0;
+	texpos_site_map_trench_s=0;
+	texpos_site_map_trench_w=0;
+	texpos_site_map_trench_e=0;
+	texpos_site_map_trench=0;
+	texpos_site_map_hillock_house.clear();
+	texpos_site_map_hillock_hall.clear();
+	texpos_site_map_hillock_tavern.clear();
+	texpos_site_map_hillock_civic.clear();
+	texpos_site_map_tree_residential=0;
+	texpos_site_map_tree_residential_top=0;
+	texpos_site_map_tree_home=0;
+	texpos_site_map_tree_home_top=0;
+	texpos_site_map_tree_industry=0;
+	texpos_site_map_tree_industry_top=0;
+	texpos_site_map_tree_market=0;
+	texpos_site_map_tree_market_top=0;
+	texpos_site_map_tree_inn=0;
+	texpos_site_map_tree_inn_top=0;
+	texpos_site_map_tree_library=0;
+	texpos_site_map_tree_library_top=0;
+	texpos_site_map_tree_building=0;
+	texpos_site_map_tree_building_top=0;
+	texpos_site_map_tower_undead=0;
+	texpos_site_map_tower_undead_top=0;
+	texpos_site_map_building=0;
+	texpos_site_map_vault=0;
+	texpos_site_map_vault_top=0;
+	for(s=0;s<3;++s)
+		{
+		texpos_site_map_vault_z_top[s]=0;
+
+		int32_t s2;
+		for(s2=0;s2<3;++s2)
+			{
+			texpos_site_map_vault_z[s][s2]=0;
+			}
+		}
+	texpos_site_map_mythical_palace=0;
+	texpos_site_map_mythical_dungeon=0;
+	texpos_site_map_mythical_lair=0;
+
 	texpos_tunnel_ns=0;
 	texpos_tunnel_we=0;
 	texpos_tunnel_se=0;
@@ -8508,6 +9551,9 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_site_fort=0;
 	texpos_site_monastery=0;
 	texpos_site_vault=0;
+	texpos_site_mythical_palace=0;
+	texpos_site_mythical_dungeon=0;
+	texpos_site_mythical_lair=0;
 	texpos_site_tomb=0;
 	texpos_site_dark_fortress_2=0;
 	texpos_site_dark_fortress_1=0;
@@ -8520,7 +9566,34 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_site_ruin_goblin=0;
 	texpos_site_ruin=0;
 	texpos_elevation_indicator=0;
-	texpos_army=0;
+	texpos_army_group_small=0;
+	texpos_army_group_medium=0;
+	texpos_army_group_large=0;
+	texpos_army_soldiers_small=0;
+	texpos_army_soldiers_medium=0;
+	texpos_army_soldiers_large=0;
+	texpos_army_monsters_small=0;
+	texpos_army_monsters_medium=0;
+	texpos_army_monsters_large=0;
+	texpos_map_adv_you_travel=0;
+
+	{int32_t r;
+	for(r=0;r<3*3;++r)
+		{
+		texpos_world_stratus_nimbus[r]=0;
+		texpos_world_stratus_proper[r]=0;
+		texpos_world_stratus_alto[r]=0;
+		texpos_world_cumulus_nimbus[r]=0;
+		texpos_world_cirrus[r]=0;
+		}}
+	texpos_world_cumulus_multi=0;
+	texpos_world_cumulus_med=0;
+	texpos_world_fog_thick=0;
+	texpos_world_fog_normal=0;
+	texpos_world_fog_mist=0;
+
+	{int32_t r;
+	for(r=0;r<TEXTURE_MAP_DRAWNNUM;++r)texpos_map_drawn[r].clear();}
 
 	texpos_forgotten_beast_icon=0;
 	texpos_titan_icon=0;
@@ -8539,6 +9612,20 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_zoom_in_off,0,sizeof(int32_t)*2*2);
 	memset(texpos_zoom_out_on,0,sizeof(int32_t)*2*2);
 	memset(texpos_zoom_out_off,0,sizeof(int32_t)*2*2);
+
+	memset(texpos_adv_liquid_numbers_on,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_liquid_numbers_off,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_ramp_arrows_on,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_ramp_arrows_off,0,sizeof(int32_t)*2*2);
+
+	memset(texpos_adv_zoom_in_on,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_zoom_in_off,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_zoom_out_on,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_zoom_out_off,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_tracks_on,0,sizeof(int32_t)*2*2);
+	memset(texpos_adv_tracks_off,0,sizeof(int32_t)*2*2);
+
+	memset(texpos_adv_env,0,sizeof(int32_t)*INTERFACE_ADV_ENV_TEXTURENUM*4*3);
 
 	look_cursor_texpos=0;
 	talk_cursor_texpos=0;
@@ -8646,6 +9733,75 @@ void graphicst::zero_and_clear_all_texpos()
 		texpos_brook_bed_ne_sw_se[i][s]=0;
 		texpos_brook_bed_nw_ne_sw_se[i][s]=0;
 		}}}
+
+	{int32_t i,s,s2;
+	for(i=0;i<COMBAT_ANIMATION_SWISHNUM;++i)
+		{
+		for(s=0;s<COMBAT_ANIMATION_SWISH_DIRECTIONNUM;++s)
+			{
+			for(s2=0;s2<COMBAT_ANIMATION_SWISH_FRAME_COUNT;++s2)
+				{
+				texpos_combat_animation_swish[i][s][s2]=0;
+				texpos_combat_animation_sparks[i][s][s2]=0;
+				}}}}
+
+	{int32_t i,s,s2;
+	for(i=0;i<GRAPHICS_TRACKING_SYMBOL_WEIGHTNUM;++i)
+		{
+		for(s=0;s<GRAPHICS_TRACKING_SYMBOL_DIRNUM;++s)
+			{
+			for(s2=0;s2<2;++s2)
+				{
+				texpos_tracking_symbol_broken_vegetation[i][s][s2]=0;
+				texpos_tracking_symbol_humanoid_liquid_print[i][s][s2]=0;
+				texpos_tracking_symbol_beast_liquid_print[i][s][s2]=0;
+				texpos_tracking_symbol_footwear_liquid_print[i][s][s2]=0;
+				texpos_tracking_symbol_humanoid_imprint[i][s][s2]=0;
+				texpos_tracking_symbol_beast_imprint[i][s][s2]=0;
+				texpos_tracking_symbol_footwear_imprint[i][s][s2]=0;
+				}}}}
+	texpos_tracking_symbol_unintelligible_mess[0]=0;
+	texpos_tracking_symbol_unintelligible_mess[1]=0;
+
+	{int32_t i,s,s2;
+	for(i=0;i<MOVE_INDICATORNUM;++i)
+		{
+		for(s=0;s<MOVE_INDICATOR_DIRECTIONNUM;++s)
+			{
+			for(s2=0;s2<MOVE_INDICATOR_FRAME_COUNT;++s2)
+				{
+				texpos_move_indicator[i][s][s2]=0;
+				}}}}
+	{int32_t i;
+	for(i=0;i<GRAPHICS_SOUND_INDICATORNUM;++i)
+		{
+		texpos_sound_indicator[i]=0;
+		}}
+	{int32_t i,s;
+	for(i=0;i<3;++i)
+		{
+		for(s=0;s<2;++s)
+			{
+			texpos_adv_speed_box[i][s]=0;
+			}}}
+	texpos_vampire_sense_marker=0;
+	texpos_stealth_vision_direct=0;
+	texpos_stealth_vision_direct_down=0;
+	texpos_stealth_vision_direct_up=0;
+	texpos_stealth_vision_peripheral=0;
+	texpos_stealth_vision_peripheral_down=0;
+	texpos_stealth_vision_peripheral_up=0;
+	texpos_memory_map_monster=0;
+	texpos_memory_map_item=0;
+	texpos_memory_map_building=0;
+	texpos_memory_map_wall=0;
+	texpos_memory_map_stair_up=0;
+	texpos_memory_map_stair_down=0;
+	texpos_memory_map_stair_updown=0;
+	texpos_memory_map_ramp_up=0;
+	texpos_memory_map_ramp_down=0;
+	texpos_memory_map_floor=0;
+	texpos_memory_map_air=0;
 
 	int32_t smt;
 	for(smt=0;smt<SPATTER_MATERIALNUM;++smt)
@@ -9119,9 +10275,11 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_default_statue_top=0;
 	texpos_item_default_statue_bottom=0;
 	texpos_item_slab_blank=0;
-	texpos_item_slab_engraved=0;
+	memset(texpos_item_slab_engraved,0,sizeof(int32_t)*ENGRAVING_INTENTNUM);
 	texpos_item_quern=0;
 	texpos_item_millstone=0;
+	texpos_item_mythical_remnant_default=0;
+	memset(texpos_item_mythical_remnant,0,sizeof(int32_t)*SPHERENUM);
 
 	texpos_skeleton=0;
 
@@ -9465,3 +10623,714 @@ void graphicst::get_play_area_tile_size(int32_t &limx,int32_t &limy)
 			}
 		}
 }
+
+// This should probably end up being moved to raws.
+// Eventually. Hopefully.
+
+const unordered_bimap<string,PCGLayering> PCG_LAYERINGSTRINGS={
+	{"BEAST_AMORPHOUS",PCG_LAYERING_BEAST_AMORPHOUS},
+	{"BEAST_AMORPHOUS_SHELL_BACK",PCG_LAYERING_BEAST_AMORPHOUS_SHELL_BACK},
+
+	{"BEAST_SNAKE",PCG_LAYERING_BEAST_SNAKE},
+	{"BEAST_SNAKE_MANDIBLES",PCG_LAYERING_BEAST_SNAKE_MANDIBLES},
+	{"BEAST_SNAKE_HORNS",PCG_LAYERING_BEAST_SNAKE_HORNS},
+	{"BEAST_SNAKE_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SNAKE_WINGS_LACY_BACK},
+	{"BEAST_SNAKE_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SNAKE_WINGS_LACY_FRONT},
+	{"BEAST_SNAKE_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SNAKE_WINGS_FEATHERED_BACK},
+	{"BEAST_SNAKE_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SNAKE_WINGS_FEATHERED_FRONT},
+	{"BEAST_SNAKE_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SNAKE_WINGS_BAT_BACK},
+	{"BEAST_SNAKE_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SNAKE_WINGS_BAT_FRONT},
+	{"BEAST_SNAKE_EYE_ONE",PCG_LAYERING_BEAST_SNAKE_EYE_ONE},
+	{"BEAST_SNAKE_EYE_TWO",PCG_LAYERING_BEAST_SNAKE_EYE_TWO},
+	{"BEAST_SNAKE_EYE_THREE",PCG_LAYERING_BEAST_SNAKE_EYE_THREE},
+	{"BEAST_SNAKE_SHELL_BACK",PCG_LAYERING_BEAST_SNAKE_SHELL_BACK},
+	{"BEAST_SNAKE_TRUNK",PCG_LAYERING_BEAST_SNAKE_TRUNK},
+	{"BEAST_SNAKE_ANTENNAE",PCG_LAYERING_BEAST_SNAKE_ANTENNAE},
+
+	{"BEAST_WORM_LONG",PCG_LAYERING_BEAST_WORM_LONG},
+	{"BEAST_WORM_LONG_MANDIBLES",PCG_LAYERING_BEAST_WORM_LONG_MANDIBLES},
+	{"BEAST_WORM_LONG_HORNS",PCG_LAYERING_BEAST_WORM_LONG_HORNS},
+	{"BEAST_WORM_LONG_WINGS_LACY_BACK",PCG_LAYERING_BEAST_WORM_LONG_WINGS_LACY_BACK},
+	{"BEAST_WORM_LONG_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_WORM_LONG_WINGS_LACY_FRONT},
+	{"BEAST_WORM_LONG_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_WORM_LONG_WINGS_FEATHERED_BACK},
+	{"BEAST_WORM_LONG_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_WORM_LONG_WINGS_FEATHERED_FRONT},
+	{"BEAST_WORM_LONG_WINGS_BAT_BACK",PCG_LAYERING_BEAST_WORM_LONG_WINGS_BAT_BACK},
+	{"BEAST_WORM_LONG_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_WORM_LONG_WINGS_BAT_FRONT},
+	{"BEAST_WORM_LONG_EYE_ONE",PCG_LAYERING_BEAST_WORM_LONG_EYE_ONE},
+	{"BEAST_WORM_LONG_EYE_TWO",PCG_LAYERING_BEAST_WORM_LONG_EYE_TWO},
+	{"BEAST_WORM_LONG_EYE_THREE",PCG_LAYERING_BEAST_WORM_LONG_EYE_THREE},
+	{"BEAST_WORM_LONG_SHELL_BACK",PCG_LAYERING_BEAST_WORM_LONG_SHELL_BACK},
+	{"BEAST_WORM_LONG_TRUNK",PCG_LAYERING_BEAST_WORM_LONG_TRUNK},
+	{"BEAST_WORM_LONG_ANTENNAE",PCG_LAYERING_BEAST_WORM_LONG_ANTENNAE},
+
+	{"BEAST_WORM_SHORT",PCG_LAYERING_BEAST_WORM_SHORT},
+	{"BEAST_WORM_SHORT_MANDIBLES",PCG_LAYERING_BEAST_WORM_SHORT_MANDIBLES},
+	{"BEAST_WORM_SHORT_HORNS",PCG_LAYERING_BEAST_WORM_SHORT_HORNS},
+	{"BEAST_WORM_SHORT_WINGS_LACY_BACK",PCG_LAYERING_BEAST_WORM_SHORT_WINGS_LACY_BACK},
+	{"BEAST_WORM_SHORT_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_WORM_SHORT_WINGS_LACY_FRONT},
+	{"BEAST_WORM_SHORT_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_WORM_SHORT_WINGS_FEATHERED_BACK},
+	{"BEAST_WORM_SHORT_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_WORM_SHORT_WINGS_FEATHERED_FRONT},
+	{"BEAST_WORM_SHORT_WINGS_BAT_BACK",PCG_LAYERING_BEAST_WORM_SHORT_WINGS_BAT_BACK},
+	{"BEAST_WORM_SHORT_EYE_ONE",PCG_LAYERING_BEAST_WORM_SHORT_EYE_ONE},
+	{"BEAST_WORM_SHORT_EYE_TWO",PCG_LAYERING_BEAST_WORM_SHORT_EYE_TWO},
+	{"BEAST_WORM_SHORT_EYE_THREE",PCG_LAYERING_BEAST_WORM_SHORT_EYE_THREE},
+	{"BEAST_WORM_SHORT_SHELL_BACK",PCG_LAYERING_BEAST_WORM_SHORT_SHELL_BACK},
+	{"BEAST_WORM_SHORT_TRUNK",PCG_LAYERING_BEAST_WORM_SHORT_TRUNK},
+	{"BEAST_WORM_SHORT_ANTENNAE",PCG_LAYERING_BEAST_WORM_SHORT_ANTENNAE},
+
+	{"BEAST_INSECT",PCG_LAYERING_BEAST_INSECT},
+	{"BEAST_INSECT_MANDIBLES",PCG_LAYERING_BEAST_INSECT_MANDIBLES},
+	{"BEAST_INSECT_HORNS",PCG_LAYERING_BEAST_INSECT_HORNS},
+	{"BEAST_INSECT_WINGS_LACY_BACK",PCG_LAYERING_BEAST_INSECT_WINGS_LACY_BACK},
+	{"BEAST_INSECT_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_INSECT_WINGS_FEATHERED_FRONT},
+	{"BEAST_INSECT_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_INSECT_WINGS_BAT_FRONT},
+	{"BEAST_INSECT_EYE_ONE",PCG_LAYERING_BEAST_INSECT_EYE_ONE},
+	{"BEAST_INSECT_EYE_TWO",PCG_LAYERING_BEAST_INSECT_EYE_TWO},
+	{"BEAST_INSECT_EYE_THREE",PCG_LAYERING_BEAST_INSECT_EYE_THREE},
+	{"BEAST_INSECT_PROBOSCIS",PCG_LAYERING_BEAST_INSECT_PROBOSCIS},
+	{"BEAST_INSECT_SHELL_BACK",PCG_LAYERING_BEAST_INSECT_SHELL_BACK},
+	{"BEAST_INSECT_TRUNK",PCG_LAYERING_BEAST_INSECT_TRUNK},
+	{"BEAST_INSECT_ANTENNAE",PCG_LAYERING_BEAST_INSECT_ANTENNAE},
+
+	{"BEAST_SPIDER",PCG_LAYERING_BEAST_SPIDER},
+	{"BEAST_SPIDER_MANDIBLES",PCG_LAYERING_BEAST_SPIDER_MANDIBLES},
+	{"BEAST_SPIDER_HORNS",PCG_LAYERING_BEAST_SPIDER_HORNS},
+	{"BEAST_SPIDER_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SPIDER_WINGS_LACY_FRONT},
+	{"BEAST_SPIDER_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SPIDER_WINGS_FEATHERED_FRONT},
+	{"BEAST_SPIDER_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SPIDER_WINGS_BAT_FRONT},
+	{"BEAST_SPIDER_EYE_ONE",PCG_LAYERING_BEAST_SPIDER_EYE_ONE},
+	{"BEAST_SPIDER_EYE_TWO",PCG_LAYERING_BEAST_SPIDER_EYE_TWO},
+	{"BEAST_SPIDER_EYE_THREE",PCG_LAYERING_BEAST_SPIDER_EYE_THREE},
+	{"BEAST_SPIDER_SHELL_FRONT",PCG_LAYERING_BEAST_SPIDER_SHELL_FRONT},
+	{"BEAST_SPIDER_TRUNK",PCG_LAYERING_BEAST_SPIDER_TRUNK},
+	{"BEAST_SPIDER_ANTENNAE",PCG_LAYERING_BEAST_SPIDER_ANTENNAE},
+
+	{"BEAST_SCORPION",PCG_LAYERING_BEAST_SCORPION},
+	{"BEAST_SCORPION_MANDIBLES",PCG_LAYERING_BEAST_SCORPION_MANDIBLES},
+	{"BEAST_SCORPION_HORNS",PCG_LAYERING_BEAST_SCORPION_HORNS},
+	{"BEAST_SCORPION_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SCORPION_WINGS_LACY_BACK},
+	{"BEAST_SCORPION_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SCORPION_WINGS_LACY_FRONT},
+	{"BEAST_SCORPION_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SCORPION_WINGS_FEATHERED_BACK},
+	{"BEAST_SCORPION_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SCORPION_WINGS_FEATHERED_FRONT},
+	{"BEAST_SCORPION_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SCORPION_WINGS_BAT_BACK},
+	{"BEAST_SCORPION_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SCORPION_WINGS_BAT_FRONT},
+	{"BEAST_SCORPION_EYE_ONE",PCG_LAYERING_BEAST_SCORPION_EYE_ONE},
+	{"BEAST_SCORPION_EYE_TWO",PCG_LAYERING_BEAST_SCORPION_EYE_TWO},
+	{"BEAST_SCORPION_EYE_THREE",PCG_LAYERING_BEAST_SCORPION_EYE_THREE},
+	{"BEAST_SCORPION_TAIL_ONE",PCG_LAYERING_BEAST_SCORPION_TAIL_ONE},
+	{"BEAST_SCORPION_TAIL_TWO",PCG_LAYERING_BEAST_SCORPION_TAIL_TWO},
+	{"BEAST_SCORPION_TAIL_THREE",PCG_LAYERING_BEAST_SCORPION_TAIL_THREE},
+	{"BEAST_SCORPION_SHELL_FRONT",PCG_LAYERING_BEAST_SCORPION_SHELL_FRONT},
+	{"BEAST_SCORPION_TRUNK",PCG_LAYERING_BEAST_SCORPION_TRUNK},
+	{"BEAST_SCORPION_ANTENNAE",PCG_LAYERING_BEAST_SCORPION_ANTENNAE},
+
+	{"BEAST_BIPEDAL_DINOSAUR",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR},
+	{"BEAST_BIPEDAL_DINOSAUR_MANDIBLES",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_MANDIBLES},
+	{"BEAST_BIPEDAL_DINOSAUR_HORNS",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_HORNS},
+	{"BEAST_BIPEDAL_DINOSAUR_WINGS_LACY_BACK",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_WINGS_LACY_BACK},
+	{"BEAST_BIPEDAL_DINOSAUR_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_WINGS_LACY_FRONT},
+	{"BEAST_BIPEDAL_DINOSAUR_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_WINGS_FEATHERED_BACK},
+	{"BEAST_BIPEDAL_DINOSAUR_WINGS_BAT_BACK",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_WINGS_BAT_BACK},
+	{"BEAST_BIPEDAL_DINOSAUR_EYE_ONE",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_EYE_ONE},
+	{"BEAST_BIPEDAL_DINOSAUR_EYE_TWO",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_EYE_TWO},
+	{"BEAST_BIPEDAL_DINOSAUR_EYE_THREE",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_EYE_THREE},
+	{"BEAST_BIPEDAL_DINOSAUR_TAIL_ONE",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_TAIL_ONE},
+	{"BEAST_BIPEDAL_DINOSAUR_TAIL_TWO",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_TAIL_TWO},
+	{"BEAST_BIPEDAL_DINOSAUR_TAIL_THREE",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_TAIL_THREE},
+	{"BEAST_BIPEDAL_DINOSAUR_SHELL_BACK",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_SHELL_BACK},
+	{"BEAST_BIPEDAL_DINOSAUR_TRUNK",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_TRUNK},
+	{"BEAST_BIPEDAL_DINOSAUR_ANTENNAE",PCG_LAYERING_BEAST_BIPEDAL_DINOSAUR_ANTENNAE},
+
+	{"BEAST_HUMANOID",PCG_LAYERING_BEAST_HUMANOID},
+	{"BEAST_HUMANOID_MANDIBLES",PCG_LAYERING_BEAST_HUMANOID_MANDIBLES},
+	{"BEAST_HUMANOID_HORNS",PCG_LAYERING_BEAST_HUMANOID_HORNS},
+	{"BEAST_HUMANOID_WINGS_LACY_BACK",PCG_LAYERING_BEAST_HUMANOID_WINGS_LACY_BACK},
+	{"BEAST_HUMANOID_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_HUMANOID_WINGS_LACY_FRONT},
+	{"BEAST_HUMANOID_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_HUMANOID_WINGS_FEATHERED_BACK},
+	{"BEAST_HUMANOID_WINGS_BAT_BACK",PCG_LAYERING_BEAST_HUMANOID_WINGS_BAT_BACK},
+	{"BEAST_HUMANOID_EYE_ONE",PCG_LAYERING_BEAST_HUMANOID_EYE_ONE},
+	{"BEAST_HUMANOID_EYE_TWO",PCG_LAYERING_BEAST_HUMANOID_EYE_TWO},
+	{"BEAST_HUMANOID_EYE_THREE",PCG_LAYERING_BEAST_HUMANOID_EYE_THREE},
+	{"BEAST_HUMANOID_TAIL_ONE",PCG_LAYERING_BEAST_HUMANOID_TAIL_ONE},
+	{"BEAST_HUMANOID_TAIL_TWO",PCG_LAYERING_BEAST_HUMANOID_TAIL_TWO},
+	{"BEAST_HUMANOID_TAIL_THREE",PCG_LAYERING_BEAST_HUMANOID_TAIL_THREE},
+	{"BEAST_HUMANOID_SHELL_BACK",PCG_LAYERING_BEAST_HUMANOID_SHELL_BACK},
+	{"BEAST_HUMANOID_TRUNK",PCG_LAYERING_BEAST_HUMANOID_TRUNK},
+	{"BEAST_HUMANOID_ANTENNAE",PCG_LAYERING_BEAST_HUMANOID_ANTENNAE},
+
+	{"BEAST_FRONT_GRASP",PCG_LAYERING_BEAST_FRONT_GRASP},
+	{"BEAST_FRONT_GRASP_HEX",PCG_LAYERING_BEAST_FRONT_GRASP_HEX},
+	{"BEAST_FRONT_GRASP_OCT",PCG_LAYERING_BEAST_FRONT_GRASP_OCT},
+	{"BEAST_FRONT_GRASP_MANDIBLES",PCG_LAYERING_BEAST_FRONT_GRASP_MANDIBLES},
+	{"BEAST_FRONT_GRASP_HORNS",PCG_LAYERING_BEAST_FRONT_GRASP_HORNS},
+	{"BEAST_FRONT_GRASP_WINGS_LACY_BACK",PCG_LAYERING_BEAST_FRONT_GRASP_WINGS_LACY_BACK},
+	{"BEAST_FRONT_GRASP_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_FRONT_GRASP_WINGS_LACY_FRONT},
+	{"BEAST_FRONT_GRASP_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_FRONT_GRASP_WINGS_FEATHERED_BACK},
+	{"BEAST_FRONT_GRASP_WINGS_BAT_BACK",PCG_LAYERING_BEAST_FRONT_GRASP_WINGS_BAT_BACK},
+	{"BEAST_FRONT_GRASP_EYE_ONE",PCG_LAYERING_BEAST_FRONT_GRASP_EYE_ONE},
+	{"BEAST_FRONT_GRASP_EYE_TWO",PCG_LAYERING_BEAST_FRONT_GRASP_EYE_TWO},
+	{"BEAST_FRONT_GRASP_EYE_THREE",PCG_LAYERING_BEAST_FRONT_GRASP_EYE_THREE},
+	{"BEAST_FRONT_GRASP_TAIL_ONE",PCG_LAYERING_BEAST_FRONT_GRASP_TAIL_ONE},
+	{"BEAST_FRONT_GRASP_TAIL_TWO",PCG_LAYERING_BEAST_FRONT_GRASP_TAIL_TWO},
+	{"BEAST_FRONT_GRASP_TAIL_THREE",PCG_LAYERING_BEAST_FRONT_GRASP_TAIL_THREE},
+	{"BEAST_FRONT_GRASP_SHELL_BACK",PCG_LAYERING_BEAST_FRONT_GRASP_SHELL_BACK},
+	{"BEAST_FRONT_GRASP_TRUNK",PCG_LAYERING_BEAST_FRONT_GRASP_TRUNK},
+	{"BEAST_FRONT_GRASP_ANTENNAE",PCG_LAYERING_BEAST_FRONT_GRASP_ANTENNAE},
+
+	{"BEAST_QUADRUPED_BULKY",PCG_LAYERING_BEAST_QUADRUPED_BULKY},
+	{"BEAST_QUADRUPED_BULKY_HEX",PCG_LAYERING_BEAST_QUADRUPED_BULKY_HEX},
+	{"BEAST_QUADRUPED_BULKY_OCT",PCG_LAYERING_BEAST_QUADRUPED_BULKY_OCT},
+	{"BEAST_QUADRUPED_BULKY_MANDIBLES",PCG_LAYERING_BEAST_QUADRUPED_BULKY_MANDIBLES},
+	{"BEAST_QUADRUPED_BULKY_HORNS",PCG_LAYERING_BEAST_QUADRUPED_BULKY_HORNS},
+	{"BEAST_QUADRUPED_BULKY_WINGS_LACY_BACK",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_LACY_BACK},
+	{"BEAST_QUADRUPED_BULKY_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_LACY_FRONT},
+	{"BEAST_QUADRUPED_BULKY_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_FEATHERED_BACK},
+	{"BEAST_QUADRUPED_BULKY_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_FEATHERED_FRONT},
+	{"BEAST_QUADRUPED_BULKY_WINGS_BAT_BACK",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_BAT_BACK},
+	{"BEAST_QUADRUPED_BULKY_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_QUADRUPED_BULKY_WINGS_BAT_FRONT},
+	{"BEAST_QUADRUPED_BULKY_EYE_ONE",PCG_LAYERING_BEAST_QUADRUPED_BULKY_EYE_ONE},
+	{"BEAST_QUADRUPED_BULKY_EYE_TWO",PCG_LAYERING_BEAST_QUADRUPED_BULKY_EYE_TWO},
+	{"BEAST_QUADRUPED_BULKY_EYE_THREE",PCG_LAYERING_BEAST_QUADRUPED_BULKY_EYE_THREE},
+	{"BEAST_QUADRUPED_BULKY_TAIL_ONE",PCG_LAYERING_BEAST_QUADRUPED_BULKY_TAIL_ONE},
+	{"BEAST_QUADRUPED_BULKY_TAIL_TWO",PCG_LAYERING_BEAST_QUADRUPED_BULKY_TAIL_TWO},
+	{"BEAST_QUADRUPED_BULKY_TAIL_THREE",PCG_LAYERING_BEAST_QUADRUPED_BULKY_TAIL_THREE},
+	{"BEAST_QUADRUPED_BULKY_SHELL_FRONT",PCG_LAYERING_BEAST_QUADRUPED_BULKY_SHELL_FRONT},
+	{"BEAST_QUADRUPED_BULKY_TRUNK",PCG_LAYERING_BEAST_QUADRUPED_BULKY_TRUNK},
+	{"BEAST_QUADRUPED_BULKY_ANTENNAE",PCG_LAYERING_BEAST_QUADRUPED_BULKY_ANTENNAE},
+
+	{"BEAST_QUADRUPED_SLINKY",PCG_LAYERING_BEAST_QUADRUPED_SLINKY},
+	{"BEAST_QUADRUPED_SLINKY_HEX",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_HEX},
+	{"BEAST_QUADRUPED_SLINKY_OCT",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_OCT},
+	{"BEAST_QUADRUPED_SLINKY_MANDIBLES",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_MANDIBLES},
+	{"BEAST_QUADRUPED_SLINKY_HORNS",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_HORNS},
+	{"BEAST_QUADRUPED_SLINKY_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_WINGS_LACY_FRONT},
+	{"BEAST_QUADRUPED_SLINKY_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_WINGS_FEATHERED_BACK},
+	{"BEAST_QUADRUPED_SLINKY_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_WINGS_FEATHERED_FRONT},
+	{"BEAST_QUADRUPED_SLINKY_WINGS_BAT_BACK",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_WINGS_BAT_BACK},
+	{"BEAST_QUADRUPED_SLINKY_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_WINGS_BAT_FRONT},
+	{"BEAST_QUADRUPED_SLINKY_EYE_ONE",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_EYE_ONE},
+	{"BEAST_QUADRUPED_SLINKY_EYE_TWO",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_EYE_TWO},
+	{"BEAST_QUADRUPED_SLINKY_EYE_THREE",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_EYE_THREE},
+	{"BEAST_QUADRUPED_SLINKY_TAIL_ONE",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_TAIL_ONE},
+	{"BEAST_QUADRUPED_SLINKY_TAIL_TWO",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_TAIL_TWO},
+	{"BEAST_QUADRUPED_SLINKY_TAIL_THREE",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_TAIL_THREE},
+	{"BEAST_QUADRUPED_SLINKY_SHELL_FRONT",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_SHELL_FRONT},
+	{"BEAST_QUADRUPED_SLINKY_TRUNK",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_TRUNK},
+	{"BEAST_QUADRUPED_SLINKY_ANTENNAE",PCG_LAYERING_BEAST_QUADRUPED_SLINKY_ANTENNAE},
+
+	{"BEAST_WALRUS",PCG_LAYERING_BEAST_WALRUS},
+	{"BEAST_WALRUS_MANDIBLES",PCG_LAYERING_BEAST_WALRUS_MANDIBLES},
+	{"BEAST_WALRUS_WINGS_LACY_BACK",PCG_LAYERING_BEAST_WALRUS_WINGS_LACY_BACK},
+	{"BEAST_WALRUS_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_WALRUS_WINGS_LACY_FRONT},
+	{"BEAST_WALRUS_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_WALRUS_WINGS_FEATHERED_BACK},
+	{"BEAST_WALRUS_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_WALRUS_WINGS_FEATHERED_FRONT},
+	{"BEAST_WALRUS_WINGS_BAT_BACK",PCG_LAYERING_BEAST_WALRUS_WINGS_BAT_BACK},
+	{"BEAST_WALRUS_EYE_ONE",PCG_LAYERING_BEAST_WALRUS_EYE_ONE},
+	{"BEAST_WALRUS_EYE_TWO",PCG_LAYERING_BEAST_WALRUS_EYE_TWO},
+	{"BEAST_WALRUS_EYE_THREE",PCG_LAYERING_BEAST_WALRUS_EYE_THREE},
+	{"BEAST_WALRUS_TAIL_ONE",PCG_LAYERING_BEAST_WALRUS_TAIL_ONE},
+	{"BEAST_WALRUS_TAIL_TWO",PCG_LAYERING_BEAST_WALRUS_TAIL_TWO},
+	{"BEAST_WALRUS_TAIL_THREE",PCG_LAYERING_BEAST_WALRUS_TAIL_THREE},
+	{"BEAST_WALRUS_SHELL_BACK",PCG_LAYERING_BEAST_WALRUS_SHELL_BACK},
+	{"BEAST_WALRUS_TRUNK",PCG_LAYERING_BEAST_WALRUS_TRUNK},
+	{"BEAST_WALRUS_ANTENNAE",PCG_LAYERING_BEAST_WALRUS_ANTENNAE},
+
+	{"BEAST_SMALL_AMORPHOUS",PCG_LAYERING_BEAST_SMALL_AMORPHOUS},
+	{"BEAST_SMALL_AMORPHOUS_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_AMORPHOUS_SHELL_BACK},
+
+	{"BEAST_SMALL_SNAKE",PCG_LAYERING_BEAST_SMALL_SNAKE},
+	{"BEAST_SMALL_SNAKE_MANDIBLES",PCG_LAYERING_BEAST_SMALL_SNAKE_MANDIBLES},
+	{"BEAST_SMALL_SNAKE_HORNS",PCG_LAYERING_BEAST_SMALL_SNAKE_HORNS},
+	{"BEAST_SMALL_SNAKE_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_LACY_BACK},
+	{"BEAST_SMALL_SNAKE_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_SNAKE_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_SNAKE_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_SNAKE_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_BAT_BACK},
+	{"BEAST_SMALL_SNAKE_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_SNAKE_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_SNAKE_EYE_ONE",PCG_LAYERING_BEAST_SMALL_SNAKE_EYE_ONE},
+	{"BEAST_SMALL_SNAKE_EYE_TWO",PCG_LAYERING_BEAST_SMALL_SNAKE_EYE_TWO},
+	{"BEAST_SMALL_SNAKE_EYE_THREE",PCG_LAYERING_BEAST_SMALL_SNAKE_EYE_THREE},
+	{"BEAST_SMALL_SNAKE_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_SNAKE_SHELL_BACK},
+	{"BEAST_SMALL_SNAKE_TRUNK",PCG_LAYERING_BEAST_SMALL_SNAKE_TRUNK},
+	{"BEAST_SMALL_SNAKE_ANTENNAE",PCG_LAYERING_BEAST_SMALL_SNAKE_ANTENNAE},
+
+	{"BEAST_SMALL_WORM_LONG",PCG_LAYERING_BEAST_SMALL_WORM_LONG},
+	{"BEAST_SMALL_WORM_LONG_MANDIBLES",PCG_LAYERING_BEAST_SMALL_WORM_LONG_MANDIBLES},
+	{"BEAST_SMALL_WORM_LONG_HORNS",PCG_LAYERING_BEAST_SMALL_WORM_LONG_HORNS},
+	{"BEAST_SMALL_WORM_LONG_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_LACY_BACK},
+	{"BEAST_SMALL_WORM_LONG_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_WORM_LONG_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_WORM_LONG_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_WORM_LONG_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_BAT_BACK},
+	{"BEAST_SMALL_WORM_LONG_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_WORM_LONG_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_WORM_LONG_EYE_ONE",PCG_LAYERING_BEAST_SMALL_WORM_LONG_EYE_ONE},
+	{"BEAST_SMALL_WORM_LONG_EYE_TWO",PCG_LAYERING_BEAST_SMALL_WORM_LONG_EYE_TWO},
+	{"BEAST_SMALL_WORM_LONG_EYE_THREE",PCG_LAYERING_BEAST_SMALL_WORM_LONG_EYE_THREE},
+	{"BEAST_SMALL_WORM_LONG_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_WORM_LONG_SHELL_BACK},
+	{"BEAST_SMALL_WORM_LONG_TRUNK",PCG_LAYERING_BEAST_SMALL_WORM_LONG_TRUNK},
+	{"BEAST_SMALL_WORM_LONG_ANTENNAE",PCG_LAYERING_BEAST_SMALL_WORM_LONG_ANTENNAE},
+
+	{"BEAST_SMALL_WORM_SHORT",PCG_LAYERING_BEAST_SMALL_WORM_SHORT},
+	{"BEAST_SMALL_WORM_SHORT_MANDIBLES",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_MANDIBLES},
+	{"BEAST_SMALL_WORM_SHORT_HORNS",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_HORNS},
+	{"BEAST_SMALL_WORM_SHORT_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_WINGS_LACY_BACK},
+	{"BEAST_SMALL_WORM_SHORT_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_WORM_SHORT_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_WORM_SHORT_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_WORM_SHORT_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_WINGS_BAT_BACK},
+	{"BEAST_SMALL_WORM_SHORT_EYE_ONE",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_EYE_ONE},
+	{"BEAST_SMALL_WORM_SHORT_EYE_TWO",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_EYE_TWO},
+	{"BEAST_SMALL_WORM_SHORT_EYE_THREE",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_EYE_THREE},
+	{"BEAST_SMALL_WORM_SHORT_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_SHELL_BACK},
+	{"BEAST_SMALL_WORM_SHORT_TRUNK",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_TRUNK},
+	{"BEAST_SMALL_WORM_SHORT_ANTENNAE",PCG_LAYERING_BEAST_SMALL_WORM_SHORT_ANTENNAE},
+
+	{"BEAST_SMALL_INSECT",PCG_LAYERING_BEAST_SMALL_INSECT},
+	{"BEAST_SMALL_INSECT_MANDIBLES",PCG_LAYERING_BEAST_SMALL_INSECT_MANDIBLES},
+	{"BEAST_SMALL_INSECT_HORNS",PCG_LAYERING_BEAST_SMALL_INSECT_HORNS},
+	{"BEAST_SMALL_INSECT_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_INSECT_WINGS_LACY_BACK},
+	{"BEAST_SMALL_INSECT_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_INSECT_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_INSECT_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_INSECT_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_INSECT_EYE_ONE",PCG_LAYERING_BEAST_SMALL_INSECT_EYE_ONE},
+	{"BEAST_SMALL_INSECT_EYE_TWO",PCG_LAYERING_BEAST_SMALL_INSECT_EYE_TWO},
+	{"BEAST_SMALL_INSECT_EYE_THREE",PCG_LAYERING_BEAST_SMALL_INSECT_EYE_THREE},
+	{"BEAST_SMALL_INSECT_PROBOSCIS",PCG_LAYERING_BEAST_SMALL_INSECT_PROBOSCIS},
+	{"BEAST_SMALL_INSECT_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_INSECT_SHELL_BACK},
+	{"BEAST_SMALL_INSECT_TRUNK",PCG_LAYERING_BEAST_SMALL_INSECT_TRUNK},
+	{"BEAST_SMALL_INSECT_ANTENNAE",PCG_LAYERING_BEAST_SMALL_INSECT_ANTENNAE},
+
+	{"BEAST_SMALL_SPIDER",PCG_LAYERING_BEAST_SMALL_SPIDER},
+	{"BEAST_SMALL_SPIDER_MANDIBLES",PCG_LAYERING_BEAST_SMALL_SPIDER_MANDIBLES},
+	{"BEAST_SMALL_SPIDER_HORNS",PCG_LAYERING_BEAST_SMALL_SPIDER_HORNS},
+	{"BEAST_SMALL_SPIDER_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_SPIDER_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_SPIDER_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_SPIDER_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_SPIDER_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_SPIDER_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_SPIDER_EYE_ONE",PCG_LAYERING_BEAST_SMALL_SPIDER_EYE_ONE},
+	{"BEAST_SMALL_SPIDER_EYE_TWO",PCG_LAYERING_BEAST_SMALL_SPIDER_EYE_TWO},
+	{"BEAST_SMALL_SPIDER_EYE_THREE",PCG_LAYERING_BEAST_SMALL_SPIDER_EYE_THREE},
+	{"BEAST_SMALL_SPIDER_SHELL_FRONT",PCG_LAYERING_BEAST_SMALL_SPIDER_SHELL_FRONT},
+	{"BEAST_SMALL_SPIDER_TRUNK",PCG_LAYERING_BEAST_SMALL_SPIDER_TRUNK},
+	{"BEAST_SMALL_SPIDER_ANTENNAE",PCG_LAYERING_BEAST_SMALL_SPIDER_ANTENNAE},
+
+	{"BEAST_SMALL_SCORPION",PCG_LAYERING_BEAST_SMALL_SCORPION},
+	{"BEAST_SMALL_SCORPION_MANDIBLES",PCG_LAYERING_BEAST_SMALL_SCORPION_MANDIBLES},
+	{"BEAST_SMALL_SCORPION_HORNS",PCG_LAYERING_BEAST_SMALL_SCORPION_HORNS},
+	{"BEAST_SMALL_SCORPION_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_LACY_BACK},
+	{"BEAST_SMALL_SCORPION_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_SCORPION_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_SCORPION_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_SCORPION_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_BAT_BACK},
+	{"BEAST_SMALL_SCORPION_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_SCORPION_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_SCORPION_EYE_ONE",PCG_LAYERING_BEAST_SMALL_SCORPION_EYE_ONE},
+	{"BEAST_SMALL_SCORPION_EYE_TWO",PCG_LAYERING_BEAST_SMALL_SCORPION_EYE_TWO},
+	{"BEAST_SMALL_SCORPION_EYE_THREE",PCG_LAYERING_BEAST_SMALL_SCORPION_EYE_THREE},
+	{"BEAST_SMALL_SCORPION_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_SCORPION_TAIL_ONE},
+	{"BEAST_SMALL_SCORPION_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_SCORPION_TAIL_TWO},
+	{"BEAST_SMALL_SCORPION_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_SCORPION_TAIL_THREE},
+	{"BEAST_SMALL_SCORPION_SHELL_FRONT",PCG_LAYERING_BEAST_SMALL_SCORPION_SHELL_FRONT},
+	{"BEAST_SMALL_SCORPION_TRUNK",PCG_LAYERING_BEAST_SMALL_SCORPION_TRUNK},
+	{"BEAST_SMALL_SCORPION_ANTENNAE",PCG_LAYERING_BEAST_SMALL_SCORPION_ANTENNAE},
+
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_MANDIBLES",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_MANDIBLES},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_HORNS",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_HORNS},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_LACY_BACK},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_WINGS_BAT_BACK},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_ONE",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_ONE},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_TWO",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_TWO},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_THREE",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_EYE_THREE},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_ONE},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_TWO},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_TAIL_THREE},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_SHELL_BACK},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_TRUNK",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_TRUNK},
+	{"BEAST_SMALL_BIPEDAL_DINOSAUR_ANTENNAE",PCG_LAYERING_BEAST_SMALL_BIPEDAL_DINOSAUR_ANTENNAE},
+
+	{"BEAST_SMALL_HUMANOID",PCG_LAYERING_BEAST_SMALL_HUMANOID},
+	{"BEAST_SMALL_HUMANOID_MANDIBLES",PCG_LAYERING_BEAST_SMALL_HUMANOID_MANDIBLES},
+	{"BEAST_SMALL_HUMANOID_HORNS",PCG_LAYERING_BEAST_SMALL_HUMANOID_HORNS},
+	{"BEAST_SMALL_HUMANOID_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_HUMANOID_WINGS_LACY_BACK},
+	{"BEAST_SMALL_HUMANOID_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_HUMANOID_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_HUMANOID_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_HUMANOID_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_HUMANOID_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_HUMANOID_WINGS_BAT_BACK},
+	{"BEAST_SMALL_HUMANOID_EYE_ONE",PCG_LAYERING_BEAST_SMALL_HUMANOID_EYE_ONE},
+	{"BEAST_SMALL_HUMANOID_EYE_TWO",PCG_LAYERING_BEAST_SMALL_HUMANOID_EYE_TWO},
+	{"BEAST_SMALL_HUMANOID_EYE_THREE",PCG_LAYERING_BEAST_SMALL_HUMANOID_EYE_THREE},
+	{"BEAST_SMALL_HUMANOID_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_HUMANOID_TAIL_ONE},
+	{"BEAST_SMALL_HUMANOID_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_HUMANOID_TAIL_TWO},
+	{"BEAST_SMALL_HUMANOID_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_HUMANOID_TAIL_THREE},
+	{"BEAST_SMALL_HUMANOID_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_HUMANOID_SHELL_BACK},
+	{"BEAST_SMALL_HUMANOID_TRUNK",PCG_LAYERING_BEAST_SMALL_HUMANOID_TRUNK},
+	{"BEAST_SMALL_HUMANOID_ANTENNAE",PCG_LAYERING_BEAST_SMALL_HUMANOID_ANTENNAE},
+
+	{"BEAST_SMALL_FRONT_GRASP",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP},
+	{"BEAST_SMALL_FRONT_GRASP_HEX",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_HEX},
+	{"BEAST_SMALL_FRONT_GRASP_OCT",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_OCT},
+	{"BEAST_SMALL_FRONT_GRASP_MANDIBLES",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_MANDIBLES},
+	{"BEAST_SMALL_FRONT_GRASP_HORNS",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_HORNS},
+	{"BEAST_SMALL_FRONT_GRASP_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_WINGS_LACY_BACK},
+	{"BEAST_SMALL_FRONT_GRASP_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_FRONT_GRASP_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_FRONT_GRASP_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_WINGS_BAT_BACK},
+	{"BEAST_SMALL_FRONT_GRASP_EYE_ONE",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_EYE_ONE},
+	{"BEAST_SMALL_FRONT_GRASP_EYE_TWO",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_EYE_TWO},
+	{"BEAST_SMALL_FRONT_GRASP_EYE_THREE",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_EYE_THREE},
+	{"BEAST_SMALL_FRONT_GRASP_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_TAIL_ONE},
+	{"BEAST_SMALL_FRONT_GRASP_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_TAIL_TWO},
+	{"BEAST_SMALL_FRONT_GRASP_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_TAIL_THREE},
+	{"BEAST_SMALL_FRONT_GRASP_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_SHELL_BACK},
+	{"BEAST_SMALL_FRONT_GRASP_TRUNK",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_TRUNK},
+	{"BEAST_SMALL_FRONT_GRASP_ANTENNAE",PCG_LAYERING_BEAST_SMALL_FRONT_GRASP_ANTENNAE},
+
+	{"BEAST_SMALL_QUADRUPED_BULKY",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY},
+	{"BEAST_SMALL_QUADRUPED_BULKY_HEX",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_HEX},
+	{"BEAST_SMALL_QUADRUPED_BULKY_OCT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_OCT},
+	{"BEAST_SMALL_QUADRUPED_BULKY_MANDIBLES",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_MANDIBLES},
+	{"BEAST_SMALL_QUADRUPED_BULKY_HORNS",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_HORNS},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_LACY_BACK},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_BAT_BACK},
+	{"BEAST_SMALL_QUADRUPED_BULKY_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_QUADRUPED_BULKY_EYE_ONE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_EYE_ONE},
+	{"BEAST_SMALL_QUADRUPED_BULKY_EYE_TWO",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_EYE_TWO},
+	{"BEAST_SMALL_QUADRUPED_BULKY_EYE_THREE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_EYE_THREE},
+	{"BEAST_SMALL_QUADRUPED_BULKY_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_TAIL_ONE},
+	{"BEAST_SMALL_QUADRUPED_BULKY_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_TAIL_TWO},
+	{"BEAST_SMALL_QUADRUPED_BULKY_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_TAIL_THREE},
+	{"BEAST_SMALL_QUADRUPED_BULKY_SHELL_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_SHELL_FRONT},
+	{"BEAST_SMALL_QUADRUPED_BULKY_TRUNK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_TRUNK},
+	{"BEAST_SMALL_QUADRUPED_BULKY_ANTENNAE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_BULKY_ANTENNAE},
+
+	{"BEAST_SMALL_QUADRUPED_SLINKY",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_HEX",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_HEX},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_OCT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_OCT},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_MANDIBLES",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_MANDIBLES},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_HORNS",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_HORNS},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_WINGS_BAT_BACK},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_WINGS_BAT_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_WINGS_BAT_FRONT},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_EYE_ONE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_EYE_ONE},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_EYE_TWO",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_EYE_TWO},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_EYE_THREE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_EYE_THREE},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_TAIL_ONE},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_TAIL_TWO},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_TAIL_THREE},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_SHELL_FRONT",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_SHELL_FRONT},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_TRUNK",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_TRUNK},
+	{"BEAST_SMALL_QUADRUPED_SLINKY_ANTENNAE",PCG_LAYERING_BEAST_SMALL_QUADRUPED_SLINKY_ANTENNAE},
+
+	{"BEAST_SMALL_WALRUS",PCG_LAYERING_BEAST_SMALL_WALRUS},
+	{"BEAST_SMALL_WALRUS_MANDIBLES",PCG_LAYERING_BEAST_SMALL_WALRUS_MANDIBLES},
+	{"BEAST_SMALL_WALRUS_WINGS_LACY_BACK",PCG_LAYERING_BEAST_SMALL_WALRUS_WINGS_LACY_BACK},
+	{"BEAST_SMALL_WALRUS_WINGS_LACY_FRONT",PCG_LAYERING_BEAST_SMALL_WALRUS_WINGS_LACY_FRONT},
+	{"BEAST_SMALL_WALRUS_WINGS_FEATHERED_BACK",PCG_LAYERING_BEAST_SMALL_WALRUS_WINGS_FEATHERED_BACK},
+	{"BEAST_SMALL_WALRUS_WINGS_FEATHERED_FRONT",PCG_LAYERING_BEAST_SMALL_WALRUS_WINGS_FEATHERED_FRONT},
+	{"BEAST_SMALL_WALRUS_WINGS_BAT_BACK",PCG_LAYERING_BEAST_SMALL_WALRUS_WINGS_BAT_BACK},
+	{"BEAST_SMALL_WALRUS_EYE_ONE",PCG_LAYERING_BEAST_SMALL_WALRUS_EYE_ONE},
+	{"BEAST_SMALL_WALRUS_EYE_TWO",PCG_LAYERING_BEAST_SMALL_WALRUS_EYE_TWO},
+	{"BEAST_SMALL_WALRUS_EYE_THREE",PCG_LAYERING_BEAST_SMALL_WALRUS_EYE_THREE},
+	{"BEAST_SMALL_WALRUS_TAIL_ONE",PCG_LAYERING_BEAST_SMALL_WALRUS_TAIL_ONE},
+	{"BEAST_SMALL_WALRUS_TAIL_TWO",PCG_LAYERING_BEAST_SMALL_WALRUS_TAIL_TWO},
+	{"BEAST_SMALL_WALRUS_TAIL_THREE",PCG_LAYERING_BEAST_SMALL_WALRUS_TAIL_THREE},
+	{"BEAST_SMALL_WALRUS_SHELL_BACK",PCG_LAYERING_BEAST_SMALL_WALRUS_SHELL_BACK},
+	{"BEAST_SMALL_WALRUS_TRUNK",PCG_LAYERING_BEAST_SMALL_WALRUS_TRUNK},
+	{"BEAST_SMALL_WALRUS_ANTENNAE",PCG_LAYERING_BEAST_SMALL_WALRUS_ANTENNAE},
+
+	/*
+	{"NIGHT_TROLL_BODY_EYELESS",PCG_LAYERING_NIGHT_TROLL_BODY_EYELESS},
+	{"NIGHT_TROLL_BODY_ONE_EYE",PCG_LAYERING_NIGHT_TROLL_BODY_ONE_EYE},
+	{"NIGHT_TROLL_BODY_TWO_EYES",PCG_LAYERING_NIGHT_TROLL_BODY_TWO_EYES},
+	{"NIGHT_TROLL_BODY_THREE_EYES",PCG_LAYERING_NIGHT_TROLL_BODY_THREE_EYES},
+	{"NIGHT_TROLL_BODY_HAIRY",PCG_LAYERING_NIGHT_TROLL_BODY_HAIRY},
+	{"NIGHT_TROLL_BODY_SCALY",PCG_LAYERING_NIGHT_TROLL_BODY_SCALY},
+	{"NIGHT_TROLL_BODY_SKINLESS",PCG_LAYERING_NIGHT_TROLL_BODY_SKINLESS},
+	{"NIGHT_TROLL_BODY_FEATHERED",PCG_LAYERING_NIGHT_TROLL_BODY_FEATHERED},
+	{"NIGHT_TROLL_TAIL_THIN_1",PCG_LAYERING_NIGHT_TROLL_TAIL_THIN_1},
+	{"NIGHT_TROLL_TAIL_THIN_2",PCG_LAYERING_NIGHT_TROLL_TAIL_THIN_2},
+	{"NIGHT_TROLL_TAIL_THIN_3",PCG_LAYERING_NIGHT_TROLL_TAIL_THIN_3},
+	{"NIGHT_TROLL_TAIL_THICK_1",PCG_LAYERING_NIGHT_TROLL_TAIL_THICK_1},
+	{"NIGHT_TROLL_TAIL_THICK_2",PCG_LAYERING_NIGHT_TROLL_TAIL_THICK_2},
+	{"NIGHT_TROLL_TAIL_THICK_3",PCG_LAYERING_NIGHT_TROLL_TAIL_THICK_3},
+	{"NIGHT_TROLL_WINGS_FEATHERED",PCG_LAYERING_NIGHT_TROLL_WINGS_FEATHERED},
+	{"NIGHT_TROLL_WINGS_SKIN",PCG_LAYERING_NIGHT_TROLL_WINGS_SKIN},
+	{"NIGHT_TROLL_HORN_SHORT_1",PCG_LAYERING_NIGHT_TROLL_HORN_SHORT_1},
+	{"NIGHT_TROLL_HORN_SHORT_2",PCG_LAYERING_NIGHT_TROLL_HORN_SHORT_2},
+	{"NIGHT_TROLL_HORN_SHORT_3",PCG_LAYERING_NIGHT_TROLL_HORN_SHORT_3},
+	{"NIGHT_TROLL_HORN_SHORT_4",PCG_LAYERING_NIGHT_TROLL_HORN_SHORT_4},
+	{"NIGHT_TROLL_HORN_SPIRAL_1",PCG_LAYERING_NIGHT_TROLL_HORN_SPIRAL_1},
+	{"NIGHT_TROLL_HORN_SPIRAL_2",PCG_LAYERING_NIGHT_TROLL_HORN_SPIRAL_2},
+	{"NIGHT_TROLL_HORN_SPIRAL_3",PCG_LAYERING_NIGHT_TROLL_HORN_SPIRAL_3},
+	{"NIGHT_TROLL_HORN_SPIRAL_4",PCG_LAYERING_NIGHT_TROLL_HORN_SPIRAL_4},
+	{"NIGHT_TROLL_HORN_LONG_1",PCG_LAYERING_NIGHT_TROLL_HORN_LONG_1},
+	{"NIGHT_TROLL_HORN_LONG_2",PCG_LAYERING_NIGHT_TROLL_HORN_LONG_2},
+	{"NIGHT_TROLL_HORN_LONG_3",PCG_LAYERING_NIGHT_TROLL_HORN_LONG_3},
+	{"NIGHT_TROLL_HORN_LONG_4",PCG_LAYERING_NIGHT_TROLL_HORN_LONG_4},
+	{"NIGHT_TROLL_HORN_CURVED_1",PCG_LAYERING_NIGHT_TROLL_HORN_CURVED_1},
+	{"NIGHT_TROLL_HORN_CURVED_2",PCG_LAYERING_NIGHT_TROLL_HORN_CURVED_2},
+	{"NIGHT_TROLL_HORN_CURVED_3",PCG_LAYERING_NIGHT_TROLL_HORN_CURVED_3},
+	{"NIGHT_TROLL_HORN_CURVED_4",PCG_LAYERING_NIGHT_TROLL_HORN_CURVED_4},
+	{"NIGHT_TROLL_TRUNK_LONG",PCG_LAYERING_NIGHT_TROLL_TRUNK_LONG},
+	{"NIGHT_TROLL_TRUNK_SHORT",PCG_LAYERING_NIGHT_TROLL_TRUNK_SHORT},
+	*/
+
+	{"WEREBEAST_ANTEATER",PCG_LAYERING_WEREBEAST_ANTEATER},
+	{"WEREBEAST_ANTELOPE",PCG_LAYERING_WEREBEAST_ANTELOPE},
+	{"WEREBEAST_APE",PCG_LAYERING_WEREBEAST_APE},
+	{"WEREBEAST_ARMADILLO",PCG_LAYERING_WEREBEAST_ARMADILLO},
+	{"WEREBEAST_BADGER",PCG_LAYERING_WEREBEAST_BADGER},
+	{"WEREBEAST_BEAR",PCG_LAYERING_WEREBEAST_BEAR},
+	{"WEREBEAST_BEAVER",PCG_LAYERING_WEREBEAST_BEAVER},
+	{"WEREBEAST_BISON",PCG_LAYERING_WEREBEAST_BISON},
+	{"WEREBEAST_BUFFALO",PCG_LAYERING_WEREBEAST_BUFFALO},
+	{"WEREBEAST_BULL",PCG_LAYERING_WEREBEAST_BULL},
+	{"WEREBEAST_CAPYBARA",PCG_LAYERING_WEREBEAST_CAPYBARA},
+	{"WEREBEAST_CAMEL",PCG_LAYERING_WEREBEAST_CAMEL},
+	{"WEREBEAST_CAT",PCG_LAYERING_WEREBEAST_CAT},
+	{"WEREBEAST_CAVY",PCG_LAYERING_WEREBEAST_CAVY},
+	{"WEREBEAST_CHAMELEON",PCG_LAYERING_WEREBEAST_CHAMELEON},
+	{"WEREBEAST_CHINCHILLA",PCG_LAYERING_WEREBEAST_CHINCHILLA},
+	{"WEREBEAST_CIVET",PCG_LAYERING_WEREBEAST_CIVET},
+	{"WEREBEAST_COATI",PCG_LAYERING_WEREBEAST_COATI},
+	{"WEREBEAST_COYOTE",PCG_LAYERING_WEREBEAST_COYOTE},
+	{"WEREBEAST_DEER",PCG_LAYERING_WEREBEAST_DEER},
+	{"WEREBEAST_DONKEY",PCG_LAYERING_WEREBEAST_DONKEY},
+	{"WEREBEAST_ELEPHANT",PCG_LAYERING_WEREBEAST_ELEPHANT},
+	{"WEREBEAST_ELK",PCG_LAYERING_WEREBEAST_ELK},
+	{"WEREBEAST_FOX",PCG_LAYERING_WEREBEAST_FOX},
+	{"WEREBEAST_GECKO",PCG_LAYERING_WEREBEAST_GECKO},
+	{"WEREBEAST_GILA_MONSTER",PCG_LAYERING_WEREBEAST_GILA_MONSTER},
+	{"WEREBEAST_GIRAFFE",PCG_LAYERING_WEREBEAST_GIRAFFE},
+	{"WEREBEAST_GOAT",PCG_LAYERING_WEREBEAST_GOAT},
+	{"WEREBEAST_GOPHER",PCG_LAYERING_WEREBEAST_GOPHER},
+	{"WEREBEAST_HARE",PCG_LAYERING_WEREBEAST_HARE},
+	{"WEREBEAST_HEDGEHOG",PCG_LAYERING_WEREBEAST_HEDGEHOG},
+	{"WEREBEAST_HORSE",PCG_LAYERING_WEREBEAST_HORSE},
+	{"WEREBEAST_HYENA",PCG_LAYERING_WEREBEAST_HYENA},
+	{"WEREBEAST_IGUANA",PCG_LAYERING_WEREBEAST_IGUANA},
+	{"WEREBEAST_JACKAL",PCG_LAYERING_WEREBEAST_JACKAL},
+	{"WEREBEAST_KANGAROO",PCG_LAYERING_WEREBEAST_KANGAROO},
+	{"WEREBEAST_KOALA",PCG_LAYERING_WEREBEAST_KOALA},
+	{"WEREBEAST_LEMUR",PCG_LAYERING_WEREBEAST_LEMUR},
+	{"WEREBEAST_LIZARD",PCG_LAYERING_WEREBEAST_LIZARD},
+	{"WEREBEAST_LLAMA",PCG_LAYERING_WEREBEAST_LLAMA},
+	{"WEREBEAST_LORIS",PCG_LAYERING_WEREBEAST_LORIS},
+	{"WEREBEAST_MAMMOTH",PCG_LAYERING_WEREBEAST_MAMMOTH},
+	{"WEREBEAST_MARMOT",PCG_LAYERING_WEREBEAST_MARMOT},
+	{"WEREBEAST_MOLE",PCG_LAYERING_WEREBEAST_MOLE},
+	{"WEREBEAST_MONGOOSE",PCG_LAYERING_WEREBEAST_MONGOOSE},
+	{"WEREBEAST_MONITOR_LIZARD",PCG_LAYERING_WEREBEAST_MONITOR_LIZARD},
+	{"WEREBEAST_MOOSE",PCG_LAYERING_WEREBEAST_MOOSE},
+	{"WEREBEAST_MONKEY",PCG_LAYERING_WEREBEAST_MONKEY},
+	{"WEREBEAST_MOUSE",PCG_LAYERING_WEREBEAST_MOUSE},
+	{"WEREBEAST_OPOSSUM",PCG_LAYERING_WEREBEAST_OPOSSUM},
+	{"WEREBEAST_PANDA",PCG_LAYERING_WEREBEAST_PANDA},
+	{"WEREBEAST_PANGOLIN",PCG_LAYERING_WEREBEAST_PANGOLIN},
+	{"WEREBEAST_PANTHER",PCG_LAYERING_WEREBEAST_PANTHER},
+	{"WEREBEAST_PIG",PCG_LAYERING_WEREBEAST_PIG},
+	{"WEREBEAST_PORCUPINE",PCG_LAYERING_WEREBEAST_PORCUPINE},
+	{"WEREBEAST_RABBIT",PCG_LAYERING_WEREBEAST_RABBIT},
+	{"WEREBEAST_RACCOON",PCG_LAYERING_WEREBEAST_RACCOON},
+	{"WEREBEAST_RAT",PCG_LAYERING_WEREBEAST_RAT},
+	{"WEREBEAST_RHINOCEROS",PCG_LAYERING_WEREBEAST_RHINOCEROS},
+	{"WEREBEAST_SHEEP",PCG_LAYERING_WEREBEAST_SHEEP},
+	{"WEREBEAST_SHREW",PCG_LAYERING_WEREBEAST_SHREW},
+	{"WEREBEAST_SKINK",PCG_LAYERING_WEREBEAST_SKINK},
+	{"WEREBEAST_SKUNK",PCG_LAYERING_WEREBEAST_SKUNK},
+	{"WEREBEAST_SLOTH",PCG_LAYERING_WEREBEAST_SLOTH},
+	{"WEREBEAST_SQUIRREL",PCG_LAYERING_WEREBEAST_SQUIRREL},
+	{"WEREBEAST_TAPIR",PCG_LAYERING_WEREBEAST_TAPIR},
+	{"WEREBEAST_TORTOISE",PCG_LAYERING_WEREBEAST_TORTOISE},
+	{"WEREBEAST_WARTHOG",PCG_LAYERING_WEREBEAST_WARTHOG},
+	{"WEREBEAST_WEASEL",PCG_LAYERING_WEREBEAST_WEASEL},
+	{"WEREBEAST_WOLF",PCG_LAYERING_WEREBEAST_WOLF},
+	{"WEREBEAST_WOMBAT",PCG_LAYERING_WEREBEAST_WOMBAT},
+	{"WEREBEAST_ZEBRA",PCG_LAYERING_WEREBEAST_ZEBRA},
+
+	{"EXPERIMENT_HUMANOID_SHADOW",PCG_LAYERING_EXPERIMENT_HUMANOID_SHADOW},
+	{"EXPERIMENT_HUMANOID_HEAD_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_SKIN},
+	{"EXPERIMENT_HUMANOID_HEAD_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_SCALES},
+	{"EXPERIMENT_HUMANOID_HEAD_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_FEATHERS},
+	{"EXPERIMENT_HUMANOID_HEAD_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_HEAD_FUR},
+	{"EXPERIMENT_HUMANOID_MOUTH",PCG_LAYERING_EXPERIMENT_HUMANOID_MOUTH},
+	{"EXPERIMENT_HUMANOID_MANDIBLES",PCG_LAYERING_EXPERIMENT_HUMANOID_MANDIBLES},
+	{"EXPERIMENT_HUMANOID_TRUNK",PCG_LAYERING_EXPERIMENT_HUMANOID_TRUNK},
+	{"EXPERIMENT_HUMANOID_ANTENNAE",PCG_LAYERING_EXPERIMENT_HUMANOID_ANTENNAE},
+	{"EXPERIMENT_HUMANOID_EYE_ONE",PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_ONE},
+	{"EXPERIMENT_HUMANOID_EYE_TWO",PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_TWO},
+	{"EXPERIMENT_HUMANOID_EYE_THREE",PCG_LAYERING_EXPERIMENT_HUMANOID_EYE_THREE},
+	{"EXPERIMENT_HUMANOID_TORSO_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SKINLESS},
+	{"EXPERIMENT_HUMANOID_TORSO_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SKIN},
+	{"EXPERIMENT_HUMANOID_TORSO_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_SCALES},
+	{"EXPERIMENT_HUMANOID_TORSO_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_FEATHERS},
+	{"EXPERIMENT_HUMANOID_TORSO_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_TORSO_FUR},
+	{"EXPERIMENT_HUMANOID_EXTERNAL_RIBS",PCG_LAYERING_EXPERIMENT_HUMANOID_EXTERNAL_RIBS},
+	{"EXPERIMENT_HUMANOID_FOOT_LEFT",PCG_LAYERING_EXPERIMENT_HUMANOID_FOOT_LEFT},
+	{"EXPERIMENT_HUMANOID_FOOT_RIGHT",PCG_LAYERING_EXPERIMENT_HUMANOID_FOOT_RIGHT},
+	{"EXPERIMENT_HUMANOID_HAND_LEFT",PCG_LAYERING_EXPERIMENT_HUMANOID_HAND_LEFT},
+	{"EXPERIMENT_HUMANOID_HAND_RIGHT",PCG_LAYERING_EXPERIMENT_HUMANOID_HAND_RIGHT},
+	{"EXPERIMENT_HUMANOID_LEG_LEFT",PCG_LAYERING_EXPERIMENT_HUMANOID_LEG_LEFT},
+	{"EXPERIMENT_HUMANOID_LEG_RIGHT",PCG_LAYERING_EXPERIMENT_HUMANOID_LEG_RIGHT},
+	{"EXPERIMENT_HUMANOID_ARM_LEFT",PCG_LAYERING_EXPERIMENT_HUMANOID_ARM_LEFT},
+	{"EXPERIMENT_HUMANOID_ARM_RIGHT",PCG_LAYERING_EXPERIMENT_HUMANOID_ARM_RIGHT},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_1},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_CURVING_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_1},
+	{"EXPERIMENT_HUMANOID_HORN_SHORT_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_1},
+	{"EXPERIMENT_HUMANOID_HORN_STUBBY_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_1},
+	{"EXPERIMENT_HUMANOID_HORN_BROAD_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_1},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_1",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_1},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_2},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_CURVING_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_2},
+	{"EXPERIMENT_HUMANOID_HORN_SHORT_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_2},
+	{"EXPERIMENT_HUMANOID_HORN_STUBBY_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_2},
+	{"EXPERIMENT_HUMANOID_HORN_BROAD_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_2},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_2",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_2},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_3},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_CURVING_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_3},
+	{"EXPERIMENT_HUMANOID_HORN_SHORT_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_3},
+	{"EXPERIMENT_HUMANOID_HORN_STUBBY_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_3},
+	{"EXPERIMENT_HUMANOID_HORN_BROAD_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_3},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_3",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_3},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_4},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_CURVING_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_4},
+	{"EXPERIMENT_HUMANOID_HORN_SHORT_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_4},
+	{"EXPERIMENT_HUMANOID_HORN_STUBBY_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_4},
+	{"EXPERIMENT_HUMANOID_HORN_BROAD_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_4},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_4",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_4},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_SPIRAL_5},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_CURVING_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_CURVING_5},
+	{"EXPERIMENT_HUMANOID_HORN_SHORT_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_SHORT_5},
+	{"EXPERIMENT_HUMANOID_HORN_STUBBY_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_STUBBY_5},
+	{"EXPERIMENT_HUMANOID_HORN_BROAD_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_BROAD_5},
+	{"EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_5",PCG_LAYERING_EXPERIMENT_HUMANOID_HORN_LONG_STRAIGHT_5},
+	{"EXPERIMENT_HUMANOID_WINGS_LACY",PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_LACY},
+	{"EXPERIMENT_HUMANOID_WINGS_FEATHERED",PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_FEATHERED},
+	{"EXPERIMENT_HUMANOID_WINGS_BAT",PCG_LAYERING_EXPERIMENT_HUMANOID_WINGS_BAT},
+
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FUR},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_FEATHERS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SCALES},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKIN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TORSO_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_EXTERNAL_RIBS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_EXTERNAL_RIBS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FUR},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_FEATHERS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SCALES},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKIN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_LEFT_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FUR},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_FEATHERS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SCALES},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKIN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ARM_RIGHT_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FUR",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FUR},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FEATHERS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_FEATHERS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SCALES",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SCALES},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKIN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKIN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MOUTH_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_MANDIBLES_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_ONE_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_TWO_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE_SKINLESS",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HEAD_EYE_THREE_SKINLESS},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_LONG",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_LONG},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_SHORT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_SHORT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_FAT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_FAT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_TWISTING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_TWISTING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_CURLING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_CURLING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_KNOBBY",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_TRUNK_KNOBBY},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_LONG",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_LONG},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_FAN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_FAN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SPINDLY",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SPINDLY},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SQUAT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_SQUAT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_BRANCHING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_BRANCHING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_KNOBBING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_LEFT_KNOBBING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_LONG",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_LONG},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_FAN",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_FAN},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SPINDLY",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SPINDLY},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SQUAT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_SQUAT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_BRANCHING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_BRANCHING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_KNOBBING",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_ANTENNA_RIGHT_KNOBBING},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_LACY",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_LACY},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_FEATHERED",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_FEATHERED},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_BAT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_LEFT_BAT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_LACY",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_LACY},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_FEATHERED",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_FEATHERED},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_BAT",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_WING_RIGHT_BAT},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_1",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_1},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_2",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_2},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_3",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_3},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_4",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_4},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_SPIRAL_5},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_CURVING_5},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_SHORT_5},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_STUBBY_5},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_BROAD_5},
+	{"EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_5",PCG_LAYERING_EXPERIMENT_HUMANOID_PORTRAIT_HORN_LONG_STRAIGHT_5},
+	};
+
+	const unordered_bimap<string,PCGLayeringModifier> PCG_LAYERING_MODIFIERSTRINGS={
+	{"HORN_COUNT_1",PCG_LAYERING_MODIFIER_HORN_COUNT_1},
+	{"HORN_COUNT_2",PCG_LAYERING_MODIFIER_HORN_COUNT_2},
+	{"HORN_COUNT_3",PCG_LAYERING_MODIFIER_HORN_COUNT_3},
+	{"HORN_COUNT_4",PCG_LAYERING_MODIFIER_HORN_COUNT_4},
+
+	{"HORN_LONG_SPIRAL",PCG_LAYERING_MODIFIER_HORN_LONG_SPIRAL},
+	{"HORN_LONG_CURVING",PCG_LAYERING_MODIFIER_HORN_LONG_CURVING},
+	{"HORN_SHORT",PCG_LAYERING_MODIFIER_HORN_SHORT},
+	{"HORN_STUBBY",PCG_LAYERING_MODIFIER_HORN_STUBBY},
+	{"HORN_BROAD",PCG_LAYERING_MODIFIER_HORN_BROAD},
+	{"HORN_LONG_STRAIGHT",PCG_LAYERING_MODIFIER_HORN_LONG_STRAIGHT},
+
+	{"ANTENNA_LONG",PCG_LAYERING_MODIFIER_ANTENNA_LONG},
+	{"ANTENNA_FAN",PCG_LAYERING_MODIFIER_ANTENNA_FAN},
+	{"ANTENNA_SPINDLY",PCG_LAYERING_MODIFIER_ANTENNA_SPINDLY},
+	{"ANTENNA_SQUAT",PCG_LAYERING_MODIFIER_ANTENNA_SQUAT},
+	{"ANTENNA_BRANCHING",PCG_LAYERING_MODIFIER_ANTENNA_BRANCHING},
+	{"ANTENNA_KNOBBING",PCG_LAYERING_MODIFIER_ANTENNA_KNOBBING},
+
+	{"TRUNK_LONG",PCG_LAYERING_MODIFIER_TRUNK_LONG},
+	{"TRUNK_SHORT",PCG_LAYERING_MODIFIER_TRUNK_SHORT},
+	{"TRUNK_FAT",PCG_LAYERING_MODIFIER_TRUNK_FAT},
+	{"TRUNK_TWISTING",PCG_LAYERING_MODIFIER_TRUNK_TWISTING},
+	{"TRUNK_CURLING",PCG_LAYERING_MODIFIER_TRUNK_CURLING},
+	{"TRUNK_KNOBBY",PCG_LAYERING_MODIFIER_TRUNK_KNOBBY},
+
+	{"SURFACE_FUR",PCG_LAYERING_MODIFIER_SURFACE_FUR},
+	{"SURFACE_FEATHERS",PCG_LAYERING_MODIFIER_SURFACE_FEATHERS},
+	{"SURFACE_SCALES",PCG_LAYERING_MODIFIER_SURFACE_SCALES},
+	{"SURFACE_SKIN",PCG_LAYERING_MODIFIER_SURFACE_SKIN},
+	{"SURFACE_SKINLESS",PCG_LAYERING_MODIFIER_SURFACE_SKINLESS},
+
+	{"EXTERNAL_RIBS",PCG_LAYERING_MODIFIER_EXTERNAL_RIBS},
+};

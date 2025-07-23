@@ -35,7 +35,7 @@ typedef bool (*dfhooks_ncurses_key_fn)(int key);
 dfhooks_ncurses_key_fn g_dfhooks_ncurses_key = nullptr;
 
 typedef void (*dfhooks_sdl_loop_fn)();
-dfhooks_sdl_loop_fn g_dfhooks_sdl_loop_fn=nullptr;
+dfhooks_sdl_loop_fn g_dfhooks_sdl_loop=nullptr;
 
 static void* open_library(const std::string& lib_name) {
 #if _WIN32
@@ -74,6 +74,7 @@ static void init_fns(void* handle) {
     g_dfhooks_prerender = (dfhooks_prerender_fn)load_sym(handle, "dfhooks_prerender");
     g_dfhooks_sdl_event = (dfhooks_sdl_event_fn)load_sym(handle, "dfhooks_sdl_event");
     g_dfhooks_ncurses_key = (dfhooks_ncurses_key_fn)load_sym(handle, "dfhooks_ncurses_key");
+    g_dfhooks_sdl_loop=(dfhooks_sdl_loop_fn)load_sym(handle,"dfhooks_sdl_loop");
 }
 
 void hooks_init() {
@@ -116,6 +117,6 @@ bool hooks_ncurses_key(int key) {
 }
 
 void hooks_sdl_loop_fn() {
-    if (g_dfhooks_sdl_loop_fn)
-        g_dfhooks_sdl_loop_fn();
+    if (g_dfhooks_sdl_loop)
+        g_dfhooks_sdl_loop();
     }

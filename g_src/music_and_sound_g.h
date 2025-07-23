@@ -17,7 +17,7 @@
 
 #include "../platform.h"
 
-#ifdef WIN32
+#ifndef CUSTOM_SOUND_PLUGINS
 #include "../../fmod/inc/fmod.hpp"
 #include "../../fmod/inc/fmod_common.h"
 #endif
@@ -53,6 +53,8 @@ enum MusicEventType
 	MUSIC_EVENT_SIEGE,
 	MUSIC_EVENT_JUST_EMBARKED,
 	MUSIC_EVENT_LOST_FORT,
+	MUSIC_EVENT_FORT_LEVEL,
+	MUSIC_EVENT_FIRST_GHOST,
 	MUSIC_EVENTNUM,
 	MUSIC_EVENT_NONE=-1
 };
@@ -69,6 +71,8 @@ enum MusicContextType
 	MUSIC_CONTEXT_SUMMER,
 	MUSIC_CONTEXT_AUTUMN,
 	MUSIC_CONTEXT_WINTER,
+	MUSIC_CONTEXT_EXCLUSIVE_MAIN,
+	MUSIC_CONTEXT_EXCLUSIVE_TITLE,
 	MUSIC_CONTEXTNUM,
 	MUSIC_CONTEXT_NONE=-1
 };
@@ -182,6 +186,19 @@ enum Song
 	SONG_AMBIENCE_NEUTRAL_WINDS,
 	SONG_AMBIENCE_NEUTRAL_WINDS_2,
 	SONG_AMBIENCE_NEUTRAL_CAVERN,
+	SONG_STRIKE_IT_AGAIN,
+	SONG_THE_CAPITAL,
+	SONG_BRUISING_THE_FAT,
+	SONG_LIFE_OF_ADVENTURE,
+	SONG_BEYOND_THE_GATES,
+	SONG_HAMLET_MEMOIRS,
+	SONG_NIGHT_CREATURE,
+	SONG_INTO_THE_PITS,
+	SONG_SISTERS_OF_WAR,
+	SONG_CANNIBAL,
+	SONG_PONY_RIDER,
+	SONG_TWO_COINS,
+	SONG_LOSING_IS_FUN,
 	SONGNUM,
 	SONG_NONE=-1
 	};
@@ -298,7 +315,7 @@ constexpr static float volume_lookup[256]={
 
 class musicsound_info // composition makes it at least a little easier to just "plug in" new systems here
 {
-#ifndef WIN32
+#ifdef CUSTOM_SOUND_PLUGINS
 private:
 	bool (*is_ambience_playing_ptr)(int32_t);
 	bool (*is_card_playing_ptr)();
@@ -553,11 +570,11 @@ class musicsoundst
 
 		int get_custom_sound(std::string &token);
 
-		void set_custom_song(std::string &token,std::string &filename,string &title,string &author, bool loops);
+		void set_custom_song(std::string &token,filest &filename,string &title,string &author, bool loops);
 
-		void set_custom_sound(std::string &token,std::string &filename);
+		void set_custom_sound(std::string &token,filest &filename);
 
-		void prepare_sounds(const string &src_dir);
+		void prepare_sounds(const std::filesystem::path &src_dir);
 
 	private:
 
@@ -573,5 +590,67 @@ class musicsoundst
 		uint32_t forcesongstart;
 
 		char on;
+};
+
+struct adv_music_statest
+{
+	bool have_done_chargen_music;
+	bool have_done_start_music;
+	bool have_played_initial_trade_music;
+	bool have_played_initial_civilization_music;
+	bool have_played_initial_cannibal_music;
+	bool have_played_first_quest_music;
+	bool have_played_first_dangerous_music;
+	bool have_played_death_music;
+	bool have_played_initial_mounted_travel_music;
+	bool have_played_tavern_music;
+	
+	DWORD adv_last_music_play_time;
+	bool playing_combat_music;
+		bool playing_combat_music_doing_layers_and_groups;
+		DWORD adv_combat_music_start_time;
+			DWORD adv_combat_music_time_started_last_layer;
+			DWORD adv_combat_music_last_regular_time;
+		int32_t adv_combat_music_group;
+		int32_t adv_combat_music_layer;
+	DWORD adv_start_music_time;
+
+
+
+	adv_music_statest()
+		{
+		init();
+		}
+	void init()
+		{
+		set_all_played_to_false();
+
+		playing_combat_music=false;
+		playing_combat_music_doing_layers_and_groups=false;
+		adv_combat_music_start_time=-1;
+		adv_combat_music_group=0;
+		adv_combat_music_layer=0;
+		adv_combat_music_time_started_last_layer=-1;
+		adv_combat_music_last_regular_time=-1;
+
+		adv_last_music_play_time=-1;
+		adv_start_music_time=-1;
+		}
+	void set_all_played_to_false()
+		{
+		have_done_chargen_music=false;
+		have_done_start_music=false;
+		have_played_initial_trade_music=false;
+		have_played_initial_civilization_music=false;
+		have_played_initial_cannibal_music=false;
+		have_played_first_quest_music=false;
+		have_played_first_dangerous_music=false;
+		have_played_death_music=false;
+		have_played_initial_mounted_travel_music=false;
+		have_played_tavern_music=false;
+		}
+
+	void play_generic_song();
+	void play_dangerous_song(bool is_terrifying_area);
 };
 #endif

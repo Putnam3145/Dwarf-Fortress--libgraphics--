@@ -33,12 +33,12 @@ extern char filecomp_buffer_aux[20000];
 extern char filecomp_buffer2_aux[80000];
 
 
-void textlinesst::load_raw_to_lines(const char *filename)
+void textlinesst::load_raw_to_lines(const std::filesystem::path &filename)
 {
 	clean_lines();
 
-	//LOAD THE FILE
 	std::ifstream fseed(filename);
+
 	if(fseed.is_open())
 		{
 		string str;
@@ -60,7 +60,7 @@ void textlinesst::load_raw_to_lines(const char *filename)
 		}
 	fseed.close();
 }
-void textlinesst::save_lines_to_raw(const char *filename) 
+void textlinesst::save_lines_to_raw(const std::filesystem::path &filename)
 {
 	std::ofstream fseed(filename);
 	if (fseed.is_open())

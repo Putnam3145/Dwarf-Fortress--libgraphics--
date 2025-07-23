@@ -1352,3 +1352,7 @@ template<class T> int64_t get_index_from_local_id_64_vector(int64_t id,svector<T
 
 	return -1;
 }
+
+template<class T> std::optional<T> wrap_optional(T input,T null_val) {
+	return input==null_val ? std::nullopt : std::make_optional(input);
+	}

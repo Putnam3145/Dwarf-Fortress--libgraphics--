@@ -80,25 +80,7 @@ struct scrollbarst
         page_size = npnm;
     }
 
-    void set_select_on_mouse_y(int32_t mouse_y)
-    {
-        if (mouse_y <= print_sy)sel = sel_min;
-        else if (mouse_y >= print_ey)
-        {
-            sel = sel_max - page_size + 1;
-            if (sel < sel_min)sel = sel_min;
-        }
-        else if (print_ey > print_sy)
-        {
-            int32_t range = sel_max - sel_min + 1 - page_size;
-            if (range < 0)range = 0;
-            sel = (mouse_y - print_sy) * range / (print_ey - print_sy + 1) + sel_min;
-            if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
-            if (sel < sel_min)sel = sel_min;
-        }
-
-        set_scroller_start_end();
-    }
+    void set_select_on_mouse_y(int32_t mouse_y);
 
     void set_scroller_start_end()
     {
@@ -586,13 +568,17 @@ namespace widgets {
             }
     };
 
+    #define WIDGET_STACK_DEFER_FLAG_POP BIT1
+    #define WIDGET_STACK_DEFER_FLAG_BREAK_DOWN BIT2
+
     // As container, but simply displays the last of its children, rather than all.
     class widget_stack : public container
         {
-        bool do_pop=false;
+        uint8_t defer_flags=0;
         std::shared_ptr<widget> deferred_replacement=NULL;
     public:
-        void pop() { do_pop=true; }
+        void pop() { defer_flags=WIDGET_STACK_DEFER_FLAG_POP; }
+        void pop_and_close() { defer_flags=(WIDGET_STACK_DEFER_FLAG_POP|WIDGET_STACK_DEFER_FLAG_BREAK_DOWN); }
         void deferred_replace(std::shared_ptr<widget> widget);
         void do_replacements();
         virtual void arrange();

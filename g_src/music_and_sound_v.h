@@ -3,3 +3,4 @@
 extern enablerst enabler;
 extern initst init;
 musicsoundst musicsound;
+adv_music_statest adv_music_state;

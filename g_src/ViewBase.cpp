@@ -5,6 +5,8 @@
 #include "interface.h"
 #include "init.h"
 
+#include "audio/audio-play.h"
+int playSoundFromEvent(int eventId);
 
 using namespace widgets;
 
@@ -36,6 +38,31 @@ bool standardscroll(std::set<InterfaceKey> &events,int32_t &scroll,const int32_t
 	return false;
 	}
 
+void scrollbarst::set_select_on_mouse_y(int32_t mouse_y)
+{
+	int32_t osel=sel;
+
+    if (mouse_y <= print_sy)sel = sel_min;
+    else if (mouse_y >= print_ey)
+    {
+        sel = sel_max - page_size + 1;
+        if (sel < sel_min)sel = sel_min;
+    }
+    else if (print_ey > print_sy)
+    {
+        int32_t range = sel_max - sel_min + 1 - page_size;
+        if (range < 0)range = 0;
+        sel = (mouse_y - print_sy) * range / (print_ey - print_sy + 1) + sel_min;
+        if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
+        if (sel < sel_min)sel = sel_min;
+    }
+
+    set_scroller_start_end();
+
+	//********************** REMOVED MOUSE SCROLL
+	//if(sel!=osel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+}
+
 bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_position, bool& scrolling)
 {
 	if (events.count(INTERFACEKEY_CONTEXT_SCROLL_UP))
@@ -43,9 +70,15 @@ bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_
 		events.clear();
 		scrolling = false;
 
+		int32_t osel=sel;
+
 		--sel;
 		if (sel < sel_min)sel = sel_min;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return true;
 	}
 	if (events.count(INTERFACEKEY_CONTEXT_SCROLL_DOWN))
@@ -53,9 +86,15 @@ bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_
 		events.clear();
 		scrolling = false;
 
+		int32_t osel=sel;
+
 		++sel;
 		if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return true;
 	}
 	if (events.count(INTERFACEKEY_CONTEXT_SCROLL_PAGEUP))
@@ -63,9 +102,15 @@ bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_
 		events.clear();
 		scrolling = false;
 
+		int32_t osel=sel;
+
 		sel -= page_size;
 		if (sel < sel_min)sel = sel_min;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return true;
 	}
 	if (events.count(INTERFACEKEY_CONTEXT_SCROLL_PAGEDOWN))
@@ -73,9 +118,15 @@ bool scrollbarst::handle_events(std::set<InterfaceKey>& events, int32_t& scroll_
 		events.clear();
 		scrolling = false;
 
+		int32_t osel=sel;
+
 		sel += page_size;
 		if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return true;
 	}
 
@@ -89,17 +140,29 @@ void scrollbarst::handle_initial_click(int32_t mouse_y, int32_t& scroll_position
 	//top arrow
 	if (mouse_y == print_sy - 1)
 	{
+		int32_t osel=sel;
+
 		--sel;
 		if (sel < sel_min)sel = sel_min;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return;
 	}
 	//bottom arrow
 	if (mouse_y == print_ey + 1)
 	{
+		int32_t osel=sel;
+
 		++sel;
 		if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return;
 	}
 	//hit the scroller
@@ -111,17 +174,29 @@ void scrollbarst::handle_initial_click(int32_t mouse_y, int32_t& scroll_position
 	//page up
 	if (mouse_y < scroller_sy)
 	{
+		int32_t osel=sel;
+
 		sel -= page_size;
 		if (sel < sel_min)sel = sel_min;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return;
 	}
 	//page down
 	if (mouse_y > scroller_ey)
 	{
+		int32_t osel=sel;
+
 		sel += page_size;
 		if (sel > sel_max - page_size + 1)sel = sel_max - page_size + 1;
 		scroll_position = sel;
+
+		//********************** REMOVED MOUSE SCROLL
+		//if(osel!=sel)playSoundFromEvent(DFAS_SCROLL_EVENT_MOUSE_SCROLL_1);
+
 		return;
 	}
 }
@@ -954,7 +1029,7 @@ bool widget::activate() {
 	bool ret=false;
 	for (auto &f : custom_activated) 
 		{ 
-		if (f(this)) ret=true;
+		if (f && f(this)) ret=true;
 		}
 	return ret;
 	}
@@ -967,7 +1042,7 @@ void widget::render(uint32_t curtick)
 	{
 	for (auto &fn : custom_render)
 		{
-		fn(this, curtick);
+		if(fn) fn(this, curtick);
 		}
 	if (enabler.tracking_on)
 		{
@@ -1055,7 +1130,7 @@ void widget::feed(std::set<InterfaceKey> &ev)
 	// (but still highly useful for e.g. certain containers that might want to be keyboard controlled)
 	for (auto &fn : custom_feed)
 		{
-		fn(ev, this);
+		if(fn) fn(ev, this);
 		}
 	if (enabler.tracking_on && enabler.mouse_lbut)
 		{
@@ -1091,7 +1166,7 @@ void widget::logic()
 	{
 	for (auto &fn : custom_logic)
 		{
-		fn(this);
+		if(fn) fn(this);
 		}
 	}
 
@@ -1525,11 +1600,11 @@ void widget_stack::do_replacements() {
 	if (deferred_replacement)
 		{
 		clear();
-		do_pop=false;
+		defer_flags&=~WIDGET_STACK_DEFER_FLAG_POP;
 		add_widget<widget>(deferred_replacement);
 		deferred_replacement.reset();
 		}
-	if (do_pop)
+	if (defer_flags&WIDGET_STACK_DEFER_FLAG_POP)
 		{
 		auto child=children.back();
 		children.pop_back();
@@ -1537,7 +1612,12 @@ void widget_stack::do_replacements() {
 			{
 			remove_child(child->name);
 			}
-		do_pop=false;
+		defer_flags&=~WIDGET_STACK_DEFER_FLAG_POP;
+		}
+	if (defer_flags&WIDGET_STACK_DEFER_FLAG_BREAK_DOWN)
+		{
+		this->set_visible(false);
+		defer_flags&=~WIDGET_STACK_DEFER_FLAG_BREAK_DOWN;
 		}
 	}
 
@@ -1791,6 +1871,7 @@ void radio_rows::set_selected(void *w) {
 
 void radio_rows::set_selected(int32_t i) {
 	selected_idx=max(0,min((int32_t)(rows.children.size())-1,i));
+	if (rows.children.empty()) return;
 	selected=rows.children[selected_idx].get();
 	if (auto f=select_callback.find(selected_idx); f != select_callback.end())
 		{

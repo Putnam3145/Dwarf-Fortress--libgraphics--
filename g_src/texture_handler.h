@@ -21,9 +21,9 @@ struct palette_pagest
 {
 	string token;
 
-	string graphics_dir;
+	std::filesystem::path graphics_dir;
 
-	string filename;
+	std::filesystem::path filename;
 
 
 	int32_t default_row;
@@ -53,9 +53,9 @@ struct tile_pagest
 {
 	string token;
 
-	string graphics_dir;
+	std::filesystem::path graphics_dir;
 
-	string filename;
+	std::filesystem::path filename;
 	short tile_dim_x;
 	short tile_dim_y;
 	short page_dim_x;
@@ -87,7 +87,7 @@ class texture_handlerst
 
 
 		void clean();
-		void adopt_new_lines(textlinesst &lines,const string &graphics_dir);
+		void adopt_new_lines(textlinesst &lines,const std::filesystem::path &graphics_dir);
 
 		~texture_handlerst()
 			{

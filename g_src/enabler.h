@@ -275,7 +275,7 @@ class flagarrayst
 				}
 			}
 
-		bool has_flag(long checkflag)
+		bool has_flag(long checkflag) const
 			{
 			if(checkflag<0)return false;
 			long slot=checkflag>>3;
@@ -547,6 +547,12 @@ namespace std {
   };
 };
 
+inline SDL_Surface *IMG_Loadfile(const filest &f) {
+	auto path=f.any_location_unchecked(); // IMG_Load will just return NULL if the file is not found
+	auto str=path.string();
+	return IMG_Load(str.c_str());
+	}
+
 // Being a texture catalog interface, with opengl, sdl and truetype capability
 class textures
 {
@@ -595,16 +601,16 @@ class textures
   // If convert_magenta is true and the file does not have built-in transparency,
   // any magenta (255,0,255 RGB) is converted to full transparency
   // The calculated size of individual tiles is saved to disp_x, disp_y
-  void load_multi_pdim(const string &filename,svector<long> &tex_pos,long dimx,long dimy,
+  void load_multi_pdim(const std::filesystem::path &filename,svector<long> &tex_pos,long dimx,long dimy,
 		       bool convert_magenta,
 		       long *disp_x, long *disp_y);
-  void load_multi_pdim(const string &filename,long *tex_pos,long dimx,long dimy,
+  void load_multi_pdim(const std::filesystem::path &filename,long *tex_pos,long dimx,long dimy,
 		       bool convert_magenta,
 		       long *disp_x, long *disp_y);
-  void refresh_multi_pdim(const string &filename,svector<long> &tex_pos,long dimx,long dimy,
+  void refresh_multi_pdim(const std::filesystem::path &filename,svector<long> &tex_pos,long dimx,long dimy,
 		       bool convert_magenta);
   // Loads a single texture from a file, returning the handle
-  cached_texturest load(const string &filename, bool convert_magenta);
+  cached_texturest load(const std::filesystem::path &filename, bool convert_magenta);
   // To delete a texture..
   void delete_texture(int32_t pos);
   void delete_texture(SDL_Surface *srf);

@@ -98,6 +98,7 @@ class interfacest
 #endif
 
 		void print_interface_token(InterfaceKey key,justification just=justify_left);
+		void print_interface_token_flag(InterfaceKey key,justification just,uint32_t sflag);
 
 	    viewscreenst *grab_lastscreen();
 		interfacest();

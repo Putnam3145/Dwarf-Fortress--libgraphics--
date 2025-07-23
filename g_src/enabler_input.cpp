@@ -307,9 +307,10 @@ void enabler_inputst::clear_keybindings()
     keymap.clear();
 }
 
-bool enabler_inputst::load_keybindings(const string &file) {
-  cout << "Loading bindings from " << file << endl;
-  ifstream s(file.c_str());
+bool enabler_inputst::load_keybindings(const string &filename) {
+  cout << "Loading bindings from " << filename << endl;
+  auto file=filest(filename);
+  ifstream s=file.to_ifstream();
   if (!s.good()) return false;
 
   list<string> lines;
@@ -461,7 +462,7 @@ bool enabler_inputst::load_keybindings(const string &file) {
 void enabler_inputst::save_keybindings(const string &file) {
   cout << "Saving bindings to " << file << endl;
   string temporary = file + ".partial";
-  ofstream s(temporary.c_str()); 
+  ofstream s=filest(temporary).to_ofstream(); 
   multimap<InterfaceKey,EventMatch> map;
   InterfaceKey last_key = INTERFACEKEY_NONE;
 
@@ -505,7 +506,7 @@ void enabler_inputst::save_keybindings(const string &file) {
       
   }
   s.close();
-  replace_file(temporary, file);
+  replace_file(filest(temporary), filest(file));
 }
 
 void enabler_inputst::save_keybindings() {
@@ -1048,14 +1049,17 @@ void enabler_inputst::save_macro_to_file(const string &file, const string &name,
 
 list<string> enabler_inputst::list_macros() {
   // First, check for unloaded macros
-  svector<char*> files;
-  find_files_by_pattern("prefs/macros/*.mak", files);
-  for (int i = 0; i < files.size(); i++) {
-    string file(files[i]);
-    delete[] files[i];
-    file = "prefs/macros/" + file;
-    load_macro_from_file(file);
-  }
+  for (auto &dir : filest("prefs/macros").both_locations())
+      {
+      std::error_code ec;
+      for (auto &dir_entry : std::filesystem::recursive_directory_iterator(dir,ec))
+          {
+          if (dir_entry.path().extension()==".mak")
+              {
+              load_macro_from_file(dir_entry.path().string());
+              }
+          }
+      }
   // Then return all in-memory macros
   list<string> ret;
   for (map<string,macro>::iterator it = macros.begin(); it != macros.end(); ++it)
@@ -1072,17 +1076,17 @@ void enabler_inputst::load_macro(string name) {
 
 void enabler_inputst::save_macro(string name) {
   macros[name] = active_macro;
-  CreateDirectory("prefs",NULL);
-  CreateDirectory("prefs/macros",NULL);
-  save_macro_to_file("prefs/macros/" + filter_filename(name, '_') + ".mak", name, active_macro);
+  auto macros_dir=filest("prefs/macros").canon_location();
+  std::filesystem::create_directories(macros_dir);
+  save_macro_to_file((macros_dir/(filter_filename(name,'_')+".mak")).string(),name,active_macro);
 }
 
 void enabler_inputst::delete_macro(string name) {
   map<string,macro>::iterator it = macros.find(name);
   if (it != macros.end()) macros.erase(it);
   // TODO: Store the filename it was loaded from instead
-  string filename = "prefs/macros/" + filter_filename(name, '_') + ".mak";
-  remove(filename.c_str());
+  // How long has that TODO been there?
+  remove_file(std::filesystem::path("prefs/macros")/(filter_filename(name,'_')+".mak"));
 }
 
 

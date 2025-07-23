@@ -72,7 +72,7 @@ void musicsoundst::play_ambience(int32_t new_ambience)
 		!active_is_playing)&&
 		!ambience_crossfading)
 		{
-		internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx, init.media.volume_ambience, init.media.volume_music);
+		internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx_fort, init.media.volume_ambience_fort, init.media.volume_music_fort);
 		if(active_is_playing)
 			{
 			internal->stop_ambience(1-ambience_active_channel);
@@ -105,7 +105,7 @@ void musicsoundst::start_card(int new_song)
 
 	if(!is_playing)
 		{
-		internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx, init.media.volume_ambience, init.media.volume_music);
+		internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx_fort, init.media.volume_ambience_fort, init.media.volume_music_fort);
 		internal->start_card(new_song);
 
 		++total_plays[new_song];
@@ -188,7 +188,7 @@ void musicsoundst::startbackgroundmusic(int new_song)
 
 			if(song!=new_song&&song>=0&&song<SONGNUM)
 				internal->stop_song();
-			internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx, init.media.volume_ambience, init.media.volume_music);
+			internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx_fort, init.media.volume_ambience_fort, init.media.volume_music_fort);
 			song=new_song;
 			if(queued_song==song)queued_song=-1;
 			internal->start_song(new_song);
@@ -220,7 +220,7 @@ void musicsoundst::playsound(int s,int32_t vol,bool use_media_sound_volume)
 {
 	if(!on)return;
 
-	internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx, init.media.volume_ambience, init.media.volume_music);
+	internal->set_init_volumes(init.media.volume_master, init.media.volume_sfx_fort, init.media.volume_ambience_fort, init.media.volume_music_fort);
 
 	// this one's all internal stuff really
 	internal->play_sound(s,vol,use_media_sound_volume);
@@ -349,7 +349,7 @@ void musicsoundst::set_fading_ambience_volume(float vol)
 	internal->set_ambience_volume(1-ambience_active_channel,vol);
 }
 
-#ifndef WIN32
+#ifdef CUSTOM_SOUND_PLUGINS
 #include <dlfcn.h>
 void musicsoundst::initialize_internal_system()
 {
@@ -444,43 +444,63 @@ int musicsoundst::get_custom_sound(string &token)
 
 void errorlog_string(const string &str);
 
-void musicsoundst::set_custom_song(string &token,string &file,string &title,string &author, bool loops)
+void musicsoundst::set_custom_song(string &token,filest &file,string &title,string &author, bool loops)
 	{
 	if (loaded_music.count(token)) return;
 
 	int id=next_song_id;
 	next_song_id++;
 
-	loading_files.push_back(std::async([this, token, file, title, author, id, loops]() mutable -> loading_music_filest
+	auto file_actual_opt=file.any_location();
+
+	if (!file_actual_opt)
 		{
-		if (set_song(file,id,loops))
+		errorlog_string("No file found at " + file.canon_location().string());
+		return;
+		}
+
+	auto file_actual=file_actual_opt.value().string();
+
+	loading_files.push_back(std::async([this, token,file_actual, title, author, id, loops]() mutable -> loading_music_filest
+		{
+		if (set_song(file_actual,id,loops))
 			{
 			return loading_music_filest{ token, music_datast{id, title, author} };
 			}
 		else
 			{
-			errorlog_string("Could not load music file "+file);
+			errorlog_string("Could not load music file "+file_actual);
 			return loading_music_filest{ token, music_datast{-1, title, author} };
 			}
 		}));
 	}
 
-void musicsoundst::set_custom_sound(string &token,string &file)
+void musicsoundst::set_custom_sound(string &token,filest &file)
 	{
 	if (loaded_sounds.count(token)) return;
 
 	int id=next_sound_id;
 	next_sound_id++;
 
-	loading_files.push_back(std::async([this, token,file, id]() mutable -> loading_music_filest
+	auto file_actual_opt=file.any_location();
+
+	if (!file_actual_opt)
 		{
-		if (set_sound(file,id))
+		errorlog_string("No file found at " + file.canon_location().string());
+		return;
+		}
+
+	auto file_actual=file_actual_opt.value().string();
+
+	loading_files.push_back(std::async([this, token,file_actual, id]() mutable -> loading_music_filest
+		{
+		if (set_sound(file_actual,id))
 			{
 			return loading_music_filest{ token, id };
 			}
 		else
 			{
-			errorlog_string("Could not load sound file "+file);
+			errorlog_string("Could not load sound file "+file_actual);
 			return loading_music_filest{ token, -1 };
 			}
 		}));
@@ -496,153 +516,133 @@ extern thread_local string errorlog_prefix;
 struct sound_file_infost
 {
 	std::string token;
-	std::string filename;
+	filest filename;
 	std::string author;
 	std::string title;
 	bool loops;
 };
 
-void musicsoundst::prepare_sounds(const string &src_dir)
+void musicsoundst::prepare_sounds(const std::filesystem::path &src)
 {
-	svector<char *> processfilename;
-	long f;
 	textlinesst lines;
-	char str[400];
 
-	{
-	string chk=src_dir;
-	chk+="sound/music_file_*";
-#ifdef WIN32
-	chk+=".*";
-#endif
-	find_files_by_pattern_with_exception(chk.c_str(),processfilename,"text");
+	auto src_dir=filest(src);
 
-	string chktype="MUSIC_FILE";
-	for (f=0; f<processfilename.size(); f++)
+	auto dir=src_dir.any_location().value_or(src_dir.canon_location())/"sound";
+
+	if (!std::filesystem::exists(dir)) return;
+	
+	std::error_code ec;
+
+	for (auto dir_entry : std::filesystem::recursive_directory_iterator(dir,ec))
 		{
-		strcpy(str,src_dir.c_str());
-		strcat(str,"sound/");
-		strcat(str,processfilename[f]);
-		lines.load_raw_to_lines(str);
-
-		std::vector<sound_file_infost> files;
-
-		errorlog_prefix="*** Error(s) found in the file \"";
-		errorlog_prefix+=str;
-		errorlog_prefix+='\"';
-
-		for (int t=1; t<lines.text.str.size(); t++)
+		if (dir_entry.path().extension() != ".txt") continue;
+		auto filename=dir_entry.path().filename().string();
+		if (filename.starts_with("music_file_")) 
 			{
-			string &curstr=lines.text.str[t]->dat;
+			lines.load_raw_to_lines(dir_entry.path());
 
-			for (int pos=0; pos<curstr.length(); pos++)
+			std::vector<sound_file_infost> files;
+
+			errorlog_prefix="*** Error(s) found in the file \"";
+			errorlog_prefix+=dir_entry.path().string();
+			errorlog_prefix+='\"';
+
+			for (int t=1; t<lines.text.str.size(); t++)
 				{
-				if (curstr[pos]=='[')
+				string &curstr=lines.text.str[t]->dat;
+
+				for (int pos=0; pos<curstr.length(); pos++)
 					{
-					string token;
-					if (!grab_token_string(token,curstr,pos))continue;
-					if (token=="MUSIC_FILE")
+					if (curstr[pos]=='[')
 						{
+						string token;
 						if (!grab_token_string(token,curstr,pos))continue;
-						files.emplace_back();
-						files.back().token=token;
-						}
-					if (!files.empty())
-						{
-						if (token=="FILE")
+						if (token=="MUSIC_FILE")
 							{
 							if (!grab_token_string(token,curstr,pos))continue;
-							files.back().filename=src_dir + "sound/"+token;
+							files.emplace_back();
+							files.back().token=token;
 							}
-						if (token=="LOOPS")
+						if (!files.empty())
 							{
-							files.back().loops=true;
-							}
-						if (token=="AUTHOR")
-							{
-							if (!grab_token_string(token,curstr,pos))continue;
-							files.back().author=token;
-							}
-						if (token=="TITLE")
-							{
-							if (!grab_token_string(token,curstr,pos))continue;
-							files.back().title=token;
+							if (token=="FILE")
+								{
+								if (!grab_token_string(token,curstr,pos))continue;
+								files.back().filename=filest(src_dir.path/"sound"/token);
+								}
+							if (token=="LOOPS")
+								{
+								files.back().loops=true;
+								}
+							if (token=="AUTHOR")
+								{
+								if (!grab_token_string(token,curstr,pos))continue;
+								files.back().author=token;
+								}
+							if (token=="TITLE")
+								{
+								if (!grab_token_string(token,curstr,pos))continue;
+								files.back().title=token;
+								}
 							}
 						}
 					}
 				}
-			}
-		errorlog_prefix.clear();
-		for (auto &mus:files)
-			{
-			set_custom_song(mus.token,mus.filename,mus.title, mus.author, mus.loops);
-			}
-		delete[] processfilename[f];
-		}
-	processfilename.clear();
-	}
-	{
-	string chk=src_dir;
-	chk+="sound/sound_file_*";
-#ifdef WIN32
-	chk+=".*";
-#endif
-	find_files_by_pattern_with_exception(chk.c_str(),processfilename,"text");
-
-	string chktype="SOUND_FILE";
-	for (f=0; f<processfilename.size(); f++)
-		{
-		strcpy(str,src_dir.c_str());
-		strcat(str,"sound/");
-		strcat(str,processfilename[f]);
-		lines.load_raw_to_lines(str);
-
-		std::vector<sound_file_infost> files;
-
-		errorlog_prefix="*** Error(s) found in the file \"";
-		errorlog_prefix+=str;
-		errorlog_prefix+='\"';
-
-		for (int t=1; t<lines.text.str.size(); t++)
-			{
-			string &curstr=lines.text.str[t]->dat;
-
-			for (int pos=0; pos<curstr.length(); pos++)
+			errorlog_prefix.clear();
+			for (auto &mus:files)
 				{
-				if (curstr[pos]=='[')
+				set_custom_song(mus.token,mus.filename,mus.title,mus.author,mus.loops);
+				}
+			}
+		else if (filename.starts_with("sound_file_"))
+			{
+			lines.load_raw_to_lines(dir_entry.path());
+
+			std::vector<sound_file_infost> files;
+
+			errorlog_prefix="*** Error(s) found in the file \"";
+			errorlog_prefix+=dir_entry.path().string();
+			errorlog_prefix+='\"';
+
+			for (int t=1; t<lines.text.str.size(); t++)
+				{
+				string &curstr=lines.text.str[t]->dat;
+
+				for (int pos=0; pos<curstr.length(); pos++)
 					{
-					string token;
-					if (!grab_token_string(token,curstr,pos))continue;
-					if (token=="SOUND_FILE")
+					if (curstr[pos]=='[')
 						{
+						string token;
 						if (!grab_token_string(token,curstr,pos))continue;
-						files.emplace_back();
-						files.back().token=token;
-						files.back().loops=false;
-						}
-					if (!files.empty())
-						{
-						if (token=="FILE")
+						if (token=="SOUND_FILE")
 							{
 							if (!grab_token_string(token,curstr,pos))continue;
-							files.back().filename=src_dir+"sound/"+token;
+							files.emplace_back();
+							files.back().token=token;
+							files.back().loops=false;
+							}
+						if (!files.empty())
+							{
+							if (token=="FILE")
+								{
+								if (!grab_token_string(token,curstr,pos))continue;
+								files.back().filename=src_dir.path/"sound"/token;
+								}
 							}
 						}
 					}
 				}
+			errorlog_prefix.clear();
+			for (auto &snd:files)
+				{
+				set_custom_sound(snd.token,snd.filename);
+				}
 			}
-		errorlog_prefix.clear();
-		for (auto &snd:files)
-			{
-			set_custom_sound(snd.token,snd.filename);
-			}
-		delete[] processfilename[f];
 		}
-	processfilename.clear();
-	}
 
 }
-#ifndef WIN32
+#ifdef CUSTOM_SOUND_PLUGINS
 musicsound_info::musicsound_info(void* handle)
 {
 	if (handle != NULL)
@@ -809,7 +809,7 @@ void musicsound_info::play_sound(int s, int32_t vol, bool use_media_sound_volume
 			sound_channel[i]->setPriority(128);
 			sound_channel[i]->setPan(s == SOUND_ALERT ? -0.75f : 0.0f);
 			sound_channel[i]->setPosition(0, FMOD_TIMEUNIT_MS);
-			sound_channel[i]->setVolume(int_vol_to_float(vol) * use_media_sound_volume?int_vol_to_float(init.media.volume_sfx):1.0f * int_vol_to_float(init.media.volume_master));
+			sound_channel[i]->setVolume(int_vol_to_float(vol) * use_media_sound_volume?int_vol_to_float(init.media.volume_sfx_fort):1.0f * int_vol_to_float(init.media.volume_master));
 			sound_channel[i]->setPaused(false);
 			return;
 		}
@@ -826,7 +826,7 @@ void musicsound_info::play_sound(int s, int32_t vol, bool use_media_sound_volume
 				sound_channel[i]->setPriority(128);
 				sound_channel[i]->setPan(s == SOUND_ALERT ? -0.5f : 0.0f);
 				sound_channel[i]->setPosition(0, FMOD_TIMEUNIT_MS);
-				sound_channel[i]->setVolume(int_vol_to_float(init.media.volume_sfx) * int_vol_to_float(init.media.volume_master));
+				sound_channel[i]->setVolume(int_vol_to_float(init.media.volume_sfx_fort) * int_vol_to_float(init.media.volume_master));
 				sound_channel[i]->setPaused(false);
 				return;
 			}
@@ -841,7 +841,7 @@ void musicsound_info::play_sound(int s, int32_t vol, bool use_media_sound_volume
 		sound_channel[i]->setPriority(128);
 		sound_channel[i]->setPan(s == SOUND_ALERT ? -0.5f : 0.0f);
 		sound_channel[i]->setPosition(0, FMOD_TIMEUNIT_MS);
-		sound_channel[i]->setVolume(int_vol_to_float(init.media.volume_sfx) * int_vol_to_float(init.media.volume_master));
+		sound_channel[i]->setVolume(int_vol_to_float(init.media.volume_sfx_fort) * int_vol_to_float(init.media.volume_master));
 		sound_channel[i]->setPaused(false);
 	}
 }
@@ -874,7 +874,7 @@ bool musicsound_info::set_song(const string& filename, int slot, bool loops)
 			errorlog_string("Could not load file "+filename+": End of current chunk reached while trying to read data.");
 			return false;
 		case FMOD_ERR_FILE_NOTFOUND:
-			errorlog_string("Could not load file "+filename+": file not found. ");
+			//errorlog_string("Could not load file "+filename+": file not found. ");
 			return false;
 		case FMOD_ERR_FORMAT:
 			errorlog_string("Could not load file "+filename+": unsupported file or audio format.");
@@ -912,7 +912,7 @@ bool musicsound_info::set_sound(const string& filename, int slot)
 			errorlog_string("Could not load file "+filename+": End of current chunk reached while trying to read data.");
 			return false;
 		case FMOD_ERR_FILE_NOTFOUND:
-			errorlog_string("Could not load file "+filename+": file not found. ");
+			//errorlog_string("Could not load file "+filename+": file not found. ");
 			return false;
 		case FMOD_ERR_FORMAT:
 			errorlog_string("Could not load file "+filename+": unsupported file or audio format.");

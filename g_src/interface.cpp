@@ -45,6 +45,9 @@ using std::string;
 #include <list>
 #include <set>
 
+#include "audio/audio-play.h"
+int playSoundFromEvent(int eventId);
+
 void dwarf_end_announcements();
 void dwarf_remove_screen();
 void drawborder(const char *str,char style,const char *colorstr);
@@ -70,6 +73,7 @@ extern graphicst gps;
 extern initst init;
 #ifndef NO_FMOD
 extern musicsoundst musicsound;
+extern adv_music_statest adv_music_state;
 #endif
 
 extern GameMode gamemode;
@@ -405,6 +409,7 @@ void viewscreen_movieplayerst::feed(std::set<InterfaceKey> &events)
 {
 	if(events.count(INTERFACEKEY_LEAVESCREEN))
 		{
+		playSoundFromEvent(DFAS_CLICK_EVENT_CLICK_GENERIC_SMALL);
 		events.clear();
 
 		if(is_playing)
@@ -1393,10 +1398,43 @@ void interfacest::handlemovie(char flushall)
 void interfacest::print_interface_token(InterfaceKey key,justification just)
 {
 	short o_screenf=gps.screenf,o_screenb=gps.screenb,o_screenbright=gps.screenbright;
+	bool o_screen_color_r=gps.screen_color_r;
+	bool o_screen_color_g=gps.screen_color_g;
+	bool o_screen_color_b=gps.screen_color_b;
+	bool o_use_old_16_colors=gps.use_old_16_colors;
+
 	gps.changecolor(2,0,1);
         string tok = enabler.GetKeyDisplay(key);
 	gps.addst(tok,just);
-	gps.changecolor(o_screenf,o_screenb,o_screenbright);
+
+	gps.screenf=o_screenf;
+	gps.screenb=o_screenb;
+	gps.screenbright=o_screenbright;
+	gps.screen_color_r=o_screen_color_r;
+	gps.screen_color_g=o_screen_color_g;
+	gps.screen_color_b=o_screen_color_b;
+	gps.use_old_16_colors=o_use_old_16_colors;
+}
+
+void interfacest::print_interface_token_flag(InterfaceKey key,justification just,uint32_t sflag)
+{
+	short o_screenf=gps.screenf,o_screenb=gps.screenb,o_screenbright=gps.screenbright;
+	bool o_screen_color_r=gps.screen_color_r;
+	bool o_screen_color_g=gps.screen_color_g;
+	bool o_screen_color_b=gps.screen_color_b;
+	bool o_use_old_16_colors=gps.use_old_16_colors;
+
+	gps.changecolor(2,0,1);
+        string tok = enabler.GetKeyDisplay(key);
+	gps.addst_flag(tok,just,0,sflag);
+
+	gps.screenf=o_screenf;
+	gps.screenb=o_screenb;
+	gps.screenbright=o_screenbright;
+	gps.screen_color_r=o_screen_color_r;
+	gps.screen_color_g=o_screen_color_g;
+	gps.screen_color_b=o_screen_color_b;
+	gps.use_old_16_colors=o_use_old_16_colors;
 }
 
 char standardstringentry(char *str,int maxlen,unsigned int flag,std::set<InterfaceKey> &events)
@@ -1427,6 +1465,7 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 	else {
 		if(events.count(INTERFACEKEY_SELECT)||events.count(INTERFACEKEY_LEAVESCREEN)||enabler.mouse_rbut) 
 			{
+			playSoundFromEvent(DFAS_CLICK_EVENT_CLICK_GENERIC_SMALL);
 			enabler.set_listen_to_text(false);
 			if ((flag & STRINGENTRY_REMOVEKEYS))
 				{
@@ -1446,12 +1485,14 @@ char standardstringentry(string &str,int maxlen,unsigned int flag,std::set<Inter
 			char entry = text_input[i];
 			if (entry == '\0') break;
 			if (str.length() < maxlen &&
-				(entry == 0xA) ||
-				(!(flag & STRINGENTRY_FILENAME) || invalid_filename_chars.count(entry) == 0) ||
-				(flag & STRINGENTRY_SYMBOLS) ||
-				((flag & STRINGENTRY_LETTERS) && (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z')) ||
-				((flag & STRINGENTRY_SPACE) && entry == ' ') ||
-				((flag & STRINGENTRY_NUMBERS) && (entry >= '0' && entry <= '9'))
+				(!(flag & STRINGENTRY_FILENAME) || invalid_filename_chars.count(entry) == 0) &&
+					(
+					(entry == 0xA) ||
+					(flag & STRINGENTRY_SYMBOLS) ||
+					((flag & STRINGENTRY_LETTERS) && (entry >= 'a' && entry <= 'z') || (entry >= 'A' && entry <= 'Z')) ||
+					((flag & STRINGENTRY_SPACE) && entry == ' ') ||
+					((flag & STRINGENTRY_NUMBERS) && (entry >= '0' && entry <= '9'))
+					)
 				)
 			{
 				if (entry >= 'a' && entry <= 'z' && (flag & STRINGENTRY_CAPS)) {
