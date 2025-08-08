@@ -475,8 +475,12 @@ std::filesystem::path filest::pref_location() const {
 	return (get_pref_path() / path).lexically_normal().make_preferred();
 	}
 
+bool filest::base_first() const {
+	return (flag & FILE_FLAG_ALWAYS_BASE_FIRST) || init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE);
+	}
+
 std::filesystem::path filest::canon_location() const {
-	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+	if (base_first())
 		{
 		return base_location();
 		}
@@ -487,7 +491,7 @@ std::filesystem::path filest::canon_location() const {
 	}
 
 std::filesystem::path filest::non_canon_location() const {
-	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+	if (base_first())
 		{
 		return pref_location();
 		}
@@ -523,7 +527,7 @@ std::filesystem::path filest::any_location_unchecked() const {
 	}
 
 std::array<std::filesystem::path,2> filest::both_locations() const {
-	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+	if (base_first())
 		{
 		return {base_location(),pref_location()};
 		}
@@ -534,7 +538,7 @@ std::array<std::filesystem::path,2> filest::both_locations() const {
 	}
 
 std::array<std::pair<bool,std::filesystem::path>,2> filest::both_locations_tagged() const {
-	if (init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+	if (base_first())
 		{
 		return {std::make_pair(true,base_location()),std::make_pair(false,pref_location())};
 		}
@@ -544,8 +548,29 @@ std::array<std::pair<bool,std::filesystem::path>,2> filest::both_locations_tagge
 		}
 	}
 
+#ifdef WINDOWS
+#include "shlobj_core.h"
+#endif
+
+void open_path_in_file_manager(const std::filesystem::path &p) {
+	std::filesystem::path loc=p.lexically_normal().make_preferred();
+#ifdef WINDOWS
+	PIDLIST_ABSOLUTE pidl;
+	auto pathwstring=p.wstring();
+	PCWSTR pszPath=pathwstring.c_str();
+	if (SHILCreateFromPath(pszPath,&pidl,NULL)==S_OK)
+		{
+		SHOpenFolderAndSelectItems(pidl,0,0,0);
+		}
+#else
+	// TODO: do something that isn't this?? I trust Linux users to know how to use a file manager, at least, but that's sucky to rely on -- Putnam
+	string loc_str="file://"+loc.string();
+	SDL_OpenURL(loc_str.c_str());
+#endif
+	}
+
 std::ofstream filest::to_ofstream(std::ios_base::openmode mode) const {
-	return std::ofstream(canon_location());
+	return std::ofstream(canon_location(),mode);
 	}
 
 std::ifstream filest::to_ifstream(std::ios_base::openmode mode) const {

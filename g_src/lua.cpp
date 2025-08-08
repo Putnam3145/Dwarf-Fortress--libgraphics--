@@ -103,15 +103,13 @@ int lua_load_directory(lua_State *L,filest path) {
 	lua_getfield(L,-1,"path");
 	std::string cur_path=lua_tostring(L,-1);
 	std::string orig_path=cur_path;
-	for (auto p : path.both_locations())
-		{
-		cur_path+=";"+p.string()+"/?.lua";
-		}
+	std::filesystem::path path_obj=path.any_location_unchecked();
+	cur_path+=";"+path_obj.string()+"/?.lua";
 	lua_pop(L,1);
 	lua_pushstring(L,cur_path.c_str());
 	lua_setfield(L,-2,"path");
 	lua_pop(L,1);
-	std::string f=(path.any_location_unchecked()/"init.lua").string();
+	std::string f=(path_obj/"init.lua").string();
 	auto load_err=luaL_loadfile(L,f.c_str());
 	if (load_err)
 		{
@@ -242,5 +240,5 @@ void add_lua_df_globals(lua_State *L) {
 	lua_register(L,"utterance",lua_generate_utterance);
 	lua_register(L,"capitalize_string_words",lua_capitalize_string_words);
 	lua_register(L,"capitalize_string_first_word",lua_capitalize_string_first_word);
-	lua_run_file(L,filest("data/init/globals.lua"));
+	lua_run_file(L,filest("data/init/globals.lua").with_flags(FILE_FLAG_ALWAYS_BASE_FIRST));
 	}

@@ -21,6 +21,8 @@ inline constexpr const char *PORTABLE_FILENAME="prefs/portable.txt";
 
 inline constexpr std::filesystem::copy_options D_COPY_OPTIONS=std::filesystem::copy_options::overwrite_existing|std::filesystem::copy_options::recursive;
 
+inline constexpr uint8_t FILE_FLAG_ALWAYS_BASE_FIRST=(1<<0);
+
 /// <summary>
 /// A wrapper around a "local" path.
 /// Essentially, all previously raw-accessed local paths should be grabbed through filest instead;
@@ -33,6 +35,10 @@ struct filest {
 	/// for example so that you can construct a new filest using an old one.
 	/// </summary>
 	std::filesystem::path path;
+	/// <summary>
+	/// Flags.
+	/// </summary>
+	uint8_t flag=0;
 	/// <summary>
 	/// Gets the absolute path of the location of this file in the base folder.
 	/// So, on the Steam version on Windows, `filest("prefs/init.txt").base_location().string() will return
@@ -116,6 +122,20 @@ struct filest {
 	/// </summary>
 	void canonize(std::filesystem::copy_options copy_options=D_COPY_OPTIONS) const;
 	/// <summary>
+	/// Sets the filest's flags. This returns a reference to the filest itself, so you can chain it with other configuration functions (should they be added), etc.
+	/// This is important for init, mostly, and other files distributed with the game; we want updates to the game to update these files!
+	/// <returns>This filest</returns>
+	/// </summary>
+	filest &with_flags(uint8_t flags) {
+		flag|=flags;
+		return *this;
+		}
+	/// <summary>
+	/// Returns whether this filest should try the base location first.
+	/// </summary>
+	/// <returns>Whether this filest should try the base location first.</returns>
+	bool base_first() const;
+	/// <summary>
 	/// Constructs a filest using the given `std::filesystem::path`.
 	/// Notably, `const char*` (and thus string literals) are implicitly convertable to `std::filesystem::path`, so this constructor just works for those,
 	/// and it works for `std::string` too.
@@ -194,6 +214,8 @@ bool display_file_error(const std::error_code &ec,const std::string &message);
 /// <param name="ec">The errorcode in question.</param>
 /// <param name="message">The message to be displayed in the errorlog before the errorcode's own.</param>
 #define log_file_error(ec, m) if(ec) errorlog_string(std::string(m)+ec.message()); 
+
+void open_path_in_file_manager(const std::filesystem::path &p);
 
 class file_compressorst
 {

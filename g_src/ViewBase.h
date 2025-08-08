@@ -1021,6 +1021,8 @@ namespace widgets {
 
 }
 
+std::shared_ptr<widgets::container> warning_modal_ok(const std::string &text);
+
 enum InterfaceBreakdownTypes
 {
 	INTERFACE_BREAKDOWN_NONE,

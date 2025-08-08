@@ -307,9 +307,8 @@ void enabler_inputst::clear_keybindings()
     keymap.clear();
 }
 
-bool enabler_inputst::load_keybindings(const string &filename) {
-  cout << "Loading bindings from " << filename << endl;
-  auto file=filest(filename);
+bool enabler_inputst::load_keybindings(const filest &file) {
+  cout << "Loading bindings from " << file.path.string() << endl;
   ifstream s=file.to_ifstream();
   if (!s.good()) return false;
 
@@ -468,6 +467,11 @@ void enabler_inputst::save_keybindings(const string &file) {
 
   if (!s.good()) {
     string t = "Failed to open " + temporary + " for writing";
+    if (!init.media.flag.has_flag(INIT_MEDIA_FLAG_PORTABLE_MODE))
+        {
+        t+="; switching to portable mode to compensate";
+        init.media.flag.add_flag(INIT_MEDIA_FLAG_PORTABLE_MODE);
+        }
     MessageBox(NULL, t.c_str(), 0, 0);
     s.close();
     return;
@@ -510,8 +514,7 @@ void enabler_inputst::save_keybindings(const string &file) {
 }
 
 void enabler_inputst::save_keybindings() {
-    string file="prefs/interface.txt";
-  save_keybindings(file);
+  save_keybindings("prefs/interface.txt");
 }
 
 void enabler_inputst::add_input(SDL_Event &e, Uint32 now) {
@@ -853,7 +856,12 @@ set<InterfaceKey> enabler_inputst::key_translation(EventMatch &match) {
   pair<multimap<EventMatch,InterfaceKey>::iterator,multimap<EventMatch,InterfaceKey>::iterator> its;
   if (match.type == type_mwheel) {
       int orig_y = match.y;
-      match.y = orig_y < 0 ? -1 : 1;
+      match.y=0;
+      if (orig_y > 0) {
+          match.y = 1;
+      } else if (orig_y < 0) {
+          match.y = -1;
+      }
       for (its = keymap.equal_range(match); its.first != its.second; ++its.first)
           bindings.insert((its.first)->second);
       match.y = orig_y;

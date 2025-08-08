@@ -11,6 +11,7 @@
 
 #include "ViewBase.h"
 #include "keybindings.h"
+#include "files.h"
 #ifdef CURSES
 //#include "curses.h"
 #endif
@@ -101,9 +102,9 @@ class enabler_inputst {
   std::set<InterfaceKey> get_input(Time now);
   void clear_input();
 
-  bool load_keybindings(const std::string &file);
+  bool load_keybindings(const filest &file);
   void clear_keybindings();
-  void save_keybindings(const std::string &file);
+  void save_keybindings(const string &file);
   void save_keybindings();
   virtual std::string GetKeyDisplay(int binding);
   std::string GetBindingDisplay(int binding);

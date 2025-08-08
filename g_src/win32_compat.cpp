@@ -97,29 +97,44 @@ BOOL QueryPerformanceFrequency(LARGE_INTEGER* performanceCount)
 
 int MessageBox(HWND *dummy, const char *text, const char *caption, UINT type)
 {
-  bool toggle_screen = false;
-  static int ret = type==MB_YESNO ? IDNO : IDOK; // static is mostly just a precaution here
-  static SDL_MessageBoxButtonData yesno_buttons[2] = {
-      SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDYES, "Yes"}),
-      SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, IDNO, "No"})
-  };
-  static SDL_MessageBoxButtonData ok_button = SDL_MessageBoxButtonData({ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDOK, "Ok"});
-  if (enabler.is_fullscreen()) {
-    enabler.toggle_fullscreen();
-    toggle_screen = true;
-  }
-  SDL_MessageBoxData data;
-  data.title = caption;
-  data.message = text;
-  if (type == MB_YESNO) {
-      data.numbuttons = 2;
-      data.buttons = yesno_buttons;
-  }
-  else {
-      data.numbuttons = 1;
-      data.buttons = &ok_button;
-  }
-  SDL_ShowMessageBox(&data, &ret);
+	static int ret=IDOK; // static is mostly just a precaution here
+  if (SDL_ThreadID() != enabler.renderer_threadid)
+    {
+    enabler.show_message_box(text,caption,type);
+	ret=enabler.last_message_result;
+    }
+  else
+      {
+	  bool toggle_screen=false;
+	  ret=!!(type&MB_YESNO)?IDNO:IDOK;
+	  static SDL_MessageBoxButtonData yesno_buttons[2]={
+		  SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDYES, "Yes"}),
+		  SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, IDNO, "No"})
+		  };
+	  static SDL_MessageBoxButtonData ok_button=SDL_MessageBoxButtonData({SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, IDOK, "Ok"});
+	  if (enabler.is_fullscreen())
+		  {
+		  enabler.toggle_fullscreen();
+		  toggle_screen=true;
+		  }
+	  SDL_MessageBoxData data;
+	  data.window=NULL;
+	  data.flags=SDL_MESSAGEBOX_ERROR;
+	  data.title=caption;
+	  data.message=text;
+	  if (!!(type & MB_YESNO))
+		  {
+		  data.numbuttons=2;
+		  data.buttons=yesno_buttons;
+		  }
+	  else
+		  {
+		  data.numbuttons=1;
+		  data.buttons=&ok_button;
+		  }
+	  SDL_ShowMessageBox(&data,&ret);
+	  enabler.last_message_result=ret;
+      }
   return ret;
 }
 #endif

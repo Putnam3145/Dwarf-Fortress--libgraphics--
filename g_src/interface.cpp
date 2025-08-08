@@ -892,7 +892,11 @@ char interfacest::loop() {
 				}
 			}
         if (era.size() == 0) {
-          if(enabler.mouse_lbut || enabler.mouse_rbut || enabler.mouse_mbut || enabler.get_text_input()[0] != '\0') currentscreen->feed(era);
+			if (enabler.mouse_lbut || enabler.mouse_rbut || enabler.mouse_mbut || enabler.get_text_input()[0] != '\0') 
+				{ 
+				currentscreen->widgets.feed(era);
+				currentscreen->feed(era); 
+				}
           break;
         }
         
@@ -961,8 +965,11 @@ char interfacest::loop() {
         if (era.count(INTERFACEKEY_LOAD_MACRO))
           gview.addscreen(new MacroScreenLoad(), INTERFACE_PUSH_AT_BACK, NULL);
         // Feed input
-        for (int i = 0; i < repeats; i++)
-          currentscreen->feed(era);
+		for (int i=0; i < repeats; i++)
+			{
+			currentscreen->widgets.feed(era);
+			currentscreen->feed(era);
+			}
         if (era.count(INTERFACEKEY_TOGGLE_FULLSCREEN)) {
           enabler.toggle_fullscreen();
         }

@@ -12,16 +12,24 @@ class object_pool
 	using pool_array=std::array<T,N>;
 	std::vector<pool_array*> pool;
 	std::set<size_t> unused_slots;
+	std::vector<T*> *glob;
 	size_t get_next_slot()
 	{
-		if (unused_slots.empty())
+		if (no_empty_slots())
 			{
-			pool.push_back(new pool_array());
-			const auto end=pool.size()*N;
-			auto it=unused_slots.begin();
-			for (auto i=end-N; i<end; i++)
+			if (glob)
 				{
-				it = unused_slots.emplace_hint(it, i);
+				garbage_collect(*this,*glob);
+				}
+			if (no_empty_slots())
+				{
+				pool.push_back(new pool_array());
+				const auto end=pool.size()*N;
+				auto it=unused_slots.begin();
+				for (auto i=end-N; i<end; i++)
+					{
+					it=unused_slots.emplace_hint(it,i);
+					}
 				}
 			}
 		auto smallest=unused_slots.begin();
@@ -78,6 +86,14 @@ public:
 				}
 			}
 		}
+	bool no_empty_slots()
+		{
+		return unused_slots.empty();
+		}
+	size_t capacity() const {
+		return pool.size() * N;
+		}
+	object_pool(std::vector<T *> *g=nullptr) : glob(g) {}
 	~object_pool()
 		{
 		/*
@@ -90,14 +106,12 @@ public:
 template<class T,size_t N>
 void garbage_collect(object_pool<T,N> &pool,std::vector<T *> &glob)
 {
-		std::set<size_t> still_extant;
+		std::unordered_set<size_t> still_extant;
 		for (auto &obj:glob)
 			{
 			still_extant.insert(obj->get_pool_id());
 			}
-		if (still_extant.empty()) return;
-		const auto m=*still_extant.rbegin();
-		for (auto i=0; i<=m; i++)
+		for (auto i=0; i<pool.capacity(); i++)
 			{
 			if (!still_extant.contains(i))
 				pool.erase(i);

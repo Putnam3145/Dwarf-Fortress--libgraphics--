@@ -528,7 +528,7 @@ void musicsoundst::prepare_sounds(const std::filesystem::path &src)
 
 	auto src_dir=filest(src);
 
-	auto dir=src_dir.any_location().value_or(src_dir.canon_location())/"sound";
+	auto dir=src_dir.any_location_unchecked()/"sound";
 
 	if (!std::filesystem::exists(dir)) return;
 	

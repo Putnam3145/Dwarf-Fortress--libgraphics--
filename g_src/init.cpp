@@ -90,12 +90,11 @@ init_displayst::init_displayst()
 	max_interface_percentage=100;
 }
 
-void initst::begin()
-{
-  static bool called = false;
-  if (called) return;
-  called = true;
-  
+void initst::begin() {
+	static bool called=false;
+	if (called) return;
+	called=true;
+
 	string basic_font="data/art/curses_640x300.png";
 	string small_font="data/art/curses_640x300.png";
 	string large_font="data/art/curses_640x300.png";
@@ -108,84 +107,84 @@ void initst::begin()
 		{
 		media.flag.remove_flag(INIT_MEDIA_FLAG_PORTABLE_MODE);
 		}
-	for(auto &f : {filest("data/init/init_default.txt"),filest("prefs/init.txt")})
+	for (auto &f :{filest("data/init/init_default.txt").with_flags(FILE_FLAG_ALWAYS_BASE_FIRST),filest("prefs/init.txt")})
 		{
 		std::ifstream fseed=f.to_ifstream();
-		if(fseed.is_open())
+		if (fseed.is_open())
 			{
 			string str;
 
-			while(std::getline(fseed,str))
+			while (std::getline(fseed,str))
 				{
-				if(str.length()>1)
+				if (str.length()>1)
 					{
 					string token;
 					string token2;
 
 					grab_token_string_pos(token,str,1);
-					if(str.length()>=token.length()+2)
+					if (str.length()>=token.length()+2)
 						{
 						grab_token_string_pos(token2,str,(int32_t)token.length()+2);
 						}
-                                
-					if(!token.compare("BASIC_FONT"))
+
+					if (!token.compare("BASIC_FONT"))
 						{
 						basic_font="data/art/";
 						basic_font+=token2;
 						}
-					if(!token.compare("FONT"))
+					if (!token.compare("FONT"))
 						{
 						small_font="data/art/";
 						small_font+=token2;
 						}
-					if(!token.compare("FULLFONT"))
+					if (!token.compare("FULLFONT"))
 						{
 						large_font="data/art/";
 						large_font+=token2;
 						}
-					if(!token.compare("WINDOWEDX"))
+					if (!token.compare("WINDOWEDX"))
 						{
 						display.desired_windowed_width=convert_string_to_long(token2);
-						if(display.desired_windowed_width<MINIMUM_WINDOW_WIDTH)display.desired_windowed_width=MINIMUM_WINDOW_WIDTH;
+						if (display.desired_windowed_width<MINIMUM_WINDOW_WIDTH)display.desired_windowed_width=MINIMUM_WINDOW_WIDTH;
 						}
-					if(!token.compare("WINDOWEDY"))
+					if (!token.compare("WINDOWEDY"))
 						{
 						display.desired_windowed_height=convert_string_to_long(token2);
-						if(display.desired_windowed_height<MINIMUM_WINDOW_HEIGHT)display.desired_windowed_height=MINIMUM_WINDOW_HEIGHT;
+						if (display.desired_windowed_height<MINIMUM_WINDOW_HEIGHT)display.desired_windowed_height=MINIMUM_WINDOW_HEIGHT;
 						}
-					if(!token.compare("RESIZABLE"))
+					if (!token.compare("RESIZABLE"))
 						{
-						if(token2=="NO")display.flag.add_flag(INIT_DISPLAY_FLAG_NOT_RESIZABLE);
+						if (token2=="NO")display.flag.add_flag(INIT_DISPLAY_FLAG_NOT_RESIZABLE);
 						else display.flag.remove_flag(INIT_DISPLAY_FLAG_NOT_RESIZABLE);
 						}
-					if(!token.compare("FULLSCREENX"))
+					if (!token.compare("FULLSCREENX"))
 						{
 						display.desired_fullscreen_width=convert_string_to_long(token2);
 						}
-					if(!token.compare("FULLSCREENY"))
+					if (!token.compare("FULLSCREENY"))
 						{
 						display.desired_fullscreen_height=convert_string_to_long(token2);
 						}
 
 					//if(!token.compare("MAXIMUM_INTERFACE_PIXEL_WIDTH"));
 
-					if(!token.compare("MAXIMUM_INTERFACE_PERCENTAGE"))
+					if (!token.compare("MAXIMUM_INTERFACE_PERCENTAGE"))
 						{
 						display.max_interface_percentage=convert_string_to_long(token2);
-						if(display.max_interface_percentage>100)display.max_interface_percentage=100;
-						if(display.max_interface_percentage<1)display.max_interface_percentage=1;
+						if (display.max_interface_percentage>100)display.max_interface_percentage=100;
+						if (display.max_interface_percentage<1)display.max_interface_percentage=1;
 						}
-					if(!token.compare("PRINT_MODE"))
+					if (!token.compare("PRINT_MODE"))
 						{
-						std::unordered_map<std::string,int32_t> modes = {
+						std::unordered_map<std::string,int32_t> modes={
 								{"SOFTWARE", INIT_DISPLAY_FLAG_SOFTWARE},
 								{"AUTO", -INIT_DISPLAY_FLAG_SOFTWARE},
 								{"2D", INIT_DISPLAY_FLAG_SOFTWARE},
 								{"STANDARD", -INIT_DISPLAY_FLAG_SOFTWARE},
 								{"TEXT", INIT_DISPLAY_FLAG_TEXT}
-								};
+							};
 						auto it=modes.find(token2);
-						if(it!=modes.end()) 
+						if (it!=modes.end())
 							{
 							if (it->second<0)
 								{
@@ -197,180 +196,180 @@ void initst::begin()
 								}
 							}
 						}
-					if(token=="FPS")
+					if (token=="FPS")
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							gps.display_frames=1;
 							}
 						else gps.display_frames=0;
 						}
-					if(!token.compare("FPS_CAP"))
+					if (!token.compare("FPS_CAP"))
 						{
 						fps_cap=convert_string_to_long(token2);
 						enabler.set_fps(fps_cap);
 						}
-					if(!token.compare("G_FPS_CAP"))
+					if (!token.compare("G_FPS_CAP"))
 						{
 						gfps_cap=convert_string_to_long(token2);
 						enabler.set_gfps(gfps_cap);
 						}
-					if(!token.compare("INTERFACE_SCALING_TO_DESIRED_GRID"))
+					if (!token.compare("INTERFACE_SCALING_TO_DESIRED_GRID"))
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							display.flag.add_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
 							}
 						else display.flag.remove_flag(INIT_DISPLAY_FLAG_INTERFACE_SCALING_TO_DESIRED_HEIGHT_WIDTH);
 						}
-					if(!token.compare("INTERFACE_SCALING_DESIRED_GRID_WIDTH"))
+					if (!token.compare("INTERFACE_SCALING_DESIRED_GRID_WIDTH"))
 						{
 						display.interface_scaling_desired_width=convert_string_to_long(token2);
-						if(display.interface_scaling_desired_width<MIN_GRID_X)display.interface_scaling_desired_width=MIN_GRID_X;
-						if(display.interface_scaling_desired_width>MAX_GRID_X)display.interface_scaling_desired_width=MAX_GRID_X;
+						if (display.interface_scaling_desired_width<MIN_GRID_X)display.interface_scaling_desired_width=MIN_GRID_X;
+						if (display.interface_scaling_desired_width>MAX_GRID_X)display.interface_scaling_desired_width=MAX_GRID_X;
 						}
-					if(!token.compare("INTERFACE_SCALING_DESIRED_GRID_HEIGHT"))
+					if (!token.compare("INTERFACE_SCALING_DESIRED_GRID_HEIGHT"))
 						{
 						display.interface_scaling_desired_height=convert_string_to_long(token2);
-						if(display.interface_scaling_desired_height<MIN_GRID_Y)display.interface_scaling_desired_height=MIN_GRID_Y;
-						if(display.interface_scaling_desired_height>MAX_GRID_Y)display.interface_scaling_desired_height=MAX_GRID_Y;
+						if (display.interface_scaling_desired_height<MIN_GRID_Y)display.interface_scaling_desired_height=MIN_GRID_Y;
+						if (display.interface_scaling_desired_height>MAX_GRID_Y)display.interface_scaling_desired_height=MAX_GRID_Y;
 						}
-					if(!token.compare("INTERFACE_SCALING_PERCENTAGE"))
+					if (!token.compare("INTERFACE_SCALING_PERCENTAGE"))
 						{
 						display.interface_scaling_percentage=convert_string_to_long(token2);
-						if(display.interface_scaling_percentage<100)display.interface_scaling_percentage=100;
-						if(display.interface_scaling_percentage>400)display.interface_scaling_percentage=400;
+						if (display.interface_scaling_percentage<100)display.interface_scaling_percentage=100;
+						if (display.interface_scaling_percentage>400)display.interface_scaling_percentage=400;
 						}
-					if(token=="WINDOWED")
+					if (token=="WINDOWED")
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							display.windowed=INIT_DISPLAY_WINDOW_TRUE;
 							}
-						if(token2=="NO")
+						if (token2=="NO")
 							{
 							display.windowed=INIT_DISPLAY_WINDOW_FALSE;
 							}
-						if(token2=="PROMPT")
+						if (token2=="PROMPT")
 							{
 							display.windowed=INIT_DISPLAY_WINDOW_PROMPT;
 							}
 						}
 					if (token == "TEXTURE_PARAM")
 						{
-						if (token2 == "NEAREST") 
+						if (token2 == "NEAREST")
 							{
-							display.filter_mode = InitDisplayFilterMode::NEAREST;
+							display.filter_mode=InitDisplayFilterMode::NEAREST;
 							}
 						if (token2 == "LANCZOS")
 							{
-							display.filter_mode = InitDisplayFilterMode::LANCZOS;
+							display.filter_mode=InitDisplayFilterMode::LANCZOS;
 							}
 						if (token2 == "AUTO")
 							{
-							display.filter_mode = InitDisplayFilterMode::AUTO;
+							display.filter_mode=InitDisplayFilterMode::AUTO;
 							}
 						}
-					if(!token.compare("SOUND"))
+					if (!token.compare("SOUND"))
 						{
-						if(token2!="YES")
+						if (token2!="YES")
 							{
 							media.flag.add_flag(INIT_MEDIA_FLAG_SOUND_OFF);
 							}
 						else media.flag.remove_flag(INIT_MEDIA_FLAG_SOUND_OFF);
 						}
-					if(!token.compare("MASTER_VOLUME"))
+					if (!token.compare("MASTER_VOLUME"))
 						{
 						media.volume_master=convert_string_to_long(token2);
 						}
-					if(!token.compare("MUSIC_VOLUME"))
+					if (!token.compare("MUSIC_VOLUME"))
 						{
 						media.volume_music_fort=convert_string_to_long(token2);
 						}
-					if(!token.compare("AMBIENCE_VOLUME"))
+					if (!token.compare("AMBIENCE_VOLUME"))
 						{
 						media.volume_ambience_fort=convert_string_to_long(token2);
 						}
-					if(!token.compare("SFX_VOLUME"))
+					if (!token.compare("SFX_VOLUME"))
 						{
 						media.volume_sfx_fort=convert_string_to_long(token2);
 						}
-					if(!token.compare("AVERAGE_TIME_BETWEEN_SONGS"))
+					if (!token.compare("AVERAGE_TIME_BETWEEN_SONGS"))
 						{
 						media.time_between_songs_fort=convert_string_to_long(token2);
-						if(media.time_between_songs_fort<10)media.time_between_songs_fort=10;
-						if(media.time_between_songs_fort>600)media.time_between_songs_fort=600;
+						if (media.time_between_songs_fort<10)media.time_between_songs_fort=10;
+						if (media.time_between_songs_fort>600)media.time_between_songs_fort=600;
 						}
-					if(!token.compare("MUSIC_VOLUME_ADV"))
+					if (!token.compare("MUSIC_VOLUME_ADV"))
 						{
 						media.volume_music_adv=convert_string_to_long(token2);
 						}
-					if(!token.compare("AMBIENCE_VOLUME_ADV"))
+					if (!token.compare("AMBIENCE_VOLUME_ADV"))
 						{
 						media.volume_ambience_adv=convert_string_to_long(token2);
 						}
-					if(!token.compare("SFX_VOLUME_ADV"))
+					if (!token.compare("SFX_VOLUME_ADV"))
 						{
 						media.volume_sfx_adv=convert_string_to_long(token2);
 						}
-					if(!token.compare("KEY_HOLD_MS"))
+					if (!token.compare("KEY_HOLD_MS"))
 						{
 						input.hold_time=convert_string_to_long(token2);
 
-						if(input.hold_time<100)input.hold_time=100;
+						if (input.hold_time<100)input.hold_time=100;
 						}
-					if(token=="KEY_REPEAT_MS")
+					if (token=="KEY_REPEAT_MS")
 						{
 						input.repeat_time=convert_string_to_long(token2);
 
-						if(input.repeat_time<100)input.repeat_time=100;
+						if (input.repeat_time<100)input.repeat_time=100;
 						}
-					if(token=="KEY_REPEAT_ACCEL_LIMIT")
+					if (token=="KEY_REPEAT_ACCEL_LIMIT")
 						{
 						input.repeat_accel_limit=convert_string_to_long(token2);
-						if(input.repeat_accel_limit<1)input.repeat_accel_limit=1;
+						if (input.repeat_accel_limit<1)input.repeat_accel_limit=1;
 						}
-					if(token=="KEY_REPEAT_ACCEL_START")
+					if (token=="KEY_REPEAT_ACCEL_START")
 						{
 						input.repeat_accel_start=convert_string_to_long(token2);
 						}
-					if(token=="MACRO_MS")
+					if (token=="MACRO_MS")
 						{
 						input.macro_time=convert_string_to_long(token2);
 
-						if(input.macro_time<1)input.macro_time=1;
+						if (input.macro_time<1)input.macro_time=1;
 						}
-					if(token=="RECENTER_INTERFACE_SHUTDOWN_MS")
+					if (token=="RECENTER_INTERFACE_SHUTDOWN_MS")
 						{
 						input.pause_zoom_no_interface_ms=convert_string_to_long(token2);
 
-						if(input.pause_zoom_no_interface_ms<0)input.pause_zoom_no_interface_ms=0;
+						if (input.pause_zoom_no_interface_ms<0)input.pause_zoom_no_interface_ms=0;
 						}
-					if(token=="COMPRESSED_SAVES")
+					if (token=="COMPRESSED_SAVES")
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							media.flag.add_flag(INIT_MEDIA_FLAG_COMPRESS_SAVES);
 							}
 						else media.flag.remove_flag(INIT_MEDIA_FLAG_COMPRESS_SAVES);
 						}
-					if(token=="USE_CLASSIC_ASCII")
+					if (token=="USE_CLASSIC_ASCII")
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							display.flag.remove_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
 							}
 						else display.flag.add_flag(INIT_DISPLAY_FLAG_USE_GRAPHICS);
 						}
-					if(token=="TITLE_SHOW_GRAPHICS_LOGOS")
+					if (token=="TITLE_SHOW_GRAPHICS_LOGOS")
 						{
-						if(token2=="YES")
+						if (token2=="YES")
 							{
 							display.flag.add_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS);
 							}
 						else display.flag.remove_flag(INIT_DISPLAY_FLAG_LOAD_TITLE_GRAPHICS);
 						}
-					if(token=="TITLE_MUSIC")
+					if (token=="TITLE_MUSIC")
 						{
 						media.title_music_str=token2;
 						}
@@ -380,268 +379,270 @@ void initst::begin()
 		fseed.close();
 		}
 
-	std::ifstream fseed2=filest("data/init/colors.txt").to_ifstream();
-	if(fseed2.is_open())
+	for (auto &f :{filest("data/init/colors.txt").with_flags(FILE_FLAG_ALWAYS_BASE_FIRST),filest("prefs/colors.txt")})
 		{
+		std::ifstream fseed2=f.to_ifstream();
 		string str;
-
-		while(std::getline(fseed2,str))
+		if (fseed2.is_open())
 			{
-			if(str.length()>1)
+			while (std::getline(fseed2,str))
 				{
-				string token;
-				string token2;
+				if (str.length()>1)
+					{
+					string token;
+					string token2;
 
-				grab_token_string_pos(token,str,1);
-				if(str.length()>=token.length()+2)
-					{
-					grab_token_string_pos(token2,str,(int32_t)token.length()+2);
-					}
+					grab_token_string_pos(token,str,1);
+					if (str.length()>=token.length()+2)
+						{
+						grab_token_string_pos(token2,str,(int32_t)token.length()+2);
+						}
 
-				if(!token.compare("BLACK_R"))
-					{
-					gps.uccolor[0][0]=convert_string_to_long(token2);
-					gps.ccolor[0][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BLACK_G"))
-					{
-					gps.uccolor[0][1]=convert_string_to_long(token2);
-					gps.ccolor[0][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BLACK_B"))
-					{
-					gps.uccolor[0][2]=convert_string_to_long(token2);
-					gps.ccolor[0][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BLUE_R"))
-					{
-					gps.uccolor[1][0]=convert_string_to_long(token2);
-					gps.ccolor[1][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BLUE_G"))
-					{
-					gps.uccolor[1][1]=convert_string_to_long(token2);
-					gps.ccolor[1][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BLUE_B"))
-					{
-					gps.uccolor[1][2]=convert_string_to_long(token2);
-					gps.ccolor[1][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("GREEN_R"))
-					{
-					gps.uccolor[2][0]=convert_string_to_long(token2);
-					gps.ccolor[2][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("GREEN_G"))
-					{
-					gps.uccolor[2][1]=convert_string_to_long(token2);
-					gps.ccolor[2][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("GREEN_B"))
-					{
-					gps.uccolor[2][2]=convert_string_to_long(token2);
-					gps.ccolor[2][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("CYAN_R"))
-					{
-					gps.uccolor[3][0]=convert_string_to_long(token2);
-					gps.ccolor[3][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("CYAN_G"))
-					{
-					gps.uccolor[3][1]=convert_string_to_long(token2);
-					gps.ccolor[3][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("CYAN_B"))
-					{
-					gps.uccolor[3][2]=convert_string_to_long(token2);
-					gps.ccolor[3][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("RED_R"))
-					{
-					gps.uccolor[4][0]=convert_string_to_long(token2);
-					gps.ccolor[4][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("RED_G"))
-					{
-					gps.uccolor[4][1]=convert_string_to_long(token2);
-					gps.ccolor[4][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("RED_B"))
-					{
-					gps.uccolor[4][2]=convert_string_to_long(token2);
-					gps.ccolor[4][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("MAGENTA_R"))
-					{
-					gps.uccolor[5][0]=convert_string_to_long(token2);
-					gps.ccolor[5][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("MAGENTA_G"))
-					{
-					gps.uccolor[5][1]=convert_string_to_long(token2);
-					gps.ccolor[5][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("MAGENTA_B"))
-					{
-					gps.uccolor[5][2]=convert_string_to_long(token2);
-					gps.ccolor[5][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BROWN_R"))
-					{
-					gps.uccolor[6][0]=convert_string_to_long(token2);
-					gps.ccolor[6][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BROWN_G"))
-					{
-					gps.uccolor[6][1]=convert_string_to_long(token2);
-					gps.ccolor[6][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("BROWN_B"))
-					{
-					gps.uccolor[6][2]=convert_string_to_long(token2);
-					gps.ccolor[6][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGRAY_R"))
-					{
-					gps.uccolor[7][0]=convert_string_to_long(token2);
-					gps.ccolor[7][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGRAY_G"))
-					{
-					gps.uccolor[7][1]=convert_string_to_long(token2);
-					gps.ccolor[7][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGRAY_B"))
-					{
-					gps.uccolor[7][2]=convert_string_to_long(token2);
-					gps.ccolor[7][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("DGRAY_R"))
-					{
-					gps.uccolor[8][0]=convert_string_to_long(token2);
-					gps.ccolor[8][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("DGRAY_G"))
-					{
-					gps.uccolor[8][1]=convert_string_to_long(token2);
-					gps.ccolor[8][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("DGRAY_B"))
-					{
-					gps.uccolor[8][2]=convert_string_to_long(token2);
-					gps.ccolor[8][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LBLUE_R"))
-					{
-					gps.uccolor[9][0]=convert_string_to_long(token2);
-					gps.ccolor[9][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LBLUE_G"))
-					{
-					gps.uccolor[9][1]=convert_string_to_long(token2);
-					gps.ccolor[9][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LBLUE_B"))
-					{
-					gps.uccolor[9][2]=convert_string_to_long(token2);
-					gps.ccolor[9][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGREEN_R"))
-					{
-					gps.uccolor[10][0]=convert_string_to_long(token2);
-					gps.ccolor[10][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGREEN_G"))
-					{
-					gps.uccolor[10][1]=convert_string_to_long(token2);
-					gps.ccolor[10][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LGREEN_B"))
-					{
-					gps.uccolor[10][2]=convert_string_to_long(token2);
-					gps.ccolor[10][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LCYAN_R"))
-					{
-					gps.uccolor[11][0]=convert_string_to_long(token2);
-					gps.ccolor[11][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LCYAN_G"))
-					{
-					gps.uccolor[11][1]=convert_string_to_long(token2);
-					gps.ccolor[11][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LCYAN_B"))
-					{
-					gps.uccolor[11][2]=convert_string_to_long(token2);
-					gps.ccolor[11][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LRED_R"))
-					{
-					gps.uccolor[12][0]=convert_string_to_long(token2);
-					gps.ccolor[12][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LRED_G"))
-					{
-					gps.uccolor[12][1]=convert_string_to_long(token2);
-					gps.ccolor[12][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LRED_B"))
-					{
-					gps.uccolor[12][2]=convert_string_to_long(token2);
-					gps.ccolor[12][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LMAGENTA_R"))
-					{
-					gps.uccolor[13][0]=convert_string_to_long(token2);
-					gps.ccolor[13][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LMAGENTA_G"))
-					{
-					gps.uccolor[13][1]=convert_string_to_long(token2);
-					gps.ccolor[13][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("LMAGENTA_B"))
-					{
-					gps.uccolor[13][2]=convert_string_to_long(token2);
-					gps.ccolor[13][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("YELLOW_R"))
-					{
-					gps.uccolor[14][0]=convert_string_to_long(token2);
-					gps.ccolor[14][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("YELLOW_G"))
-					{
-					gps.uccolor[14][1]=convert_string_to_long(token2);
-					gps.ccolor[14][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("YELLOW_B"))
-					{
-					gps.uccolor[14][2]=convert_string_to_long(token2);
-					gps.ccolor[14][2]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("WHITE_R"))
-					{
-					gps.uccolor[15][0]=convert_string_to_long(token2);
-					gps.ccolor[15][0]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("WHITE_G"))
-					{
-					gps.uccolor[15][1]=convert_string_to_long(token2);
-					gps.ccolor[15][1]=(float)convert_string_to_long(token2)/255.0f;
-					}
-				if(!token.compare("WHITE_B"))
-					{
-					gps.uccolor[15][2]=convert_string_to_long(token2);
-					gps.ccolor[15][2]=(float)convert_string_to_long(token2)/255.0f;
+					if (!token.compare("BLACK_R"))
+						{
+						gps.uccolor[0][0]=convert_string_to_long(token2);
+						gps.ccolor[0][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BLACK_G"))
+						{
+						gps.uccolor[0][1]=convert_string_to_long(token2);
+						gps.ccolor[0][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BLACK_B"))
+						{
+						gps.uccolor[0][2]=convert_string_to_long(token2);
+						gps.ccolor[0][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BLUE_R"))
+						{
+						gps.uccolor[1][0]=convert_string_to_long(token2);
+						gps.ccolor[1][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BLUE_G"))
+						{
+						gps.uccolor[1][1]=convert_string_to_long(token2);
+						gps.ccolor[1][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BLUE_B"))
+						{
+						gps.uccolor[1][2]=convert_string_to_long(token2);
+						gps.ccolor[1][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("GREEN_R"))
+						{
+						gps.uccolor[2][0]=convert_string_to_long(token2);
+						gps.ccolor[2][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("GREEN_G"))
+						{
+						gps.uccolor[2][1]=convert_string_to_long(token2);
+						gps.ccolor[2][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("GREEN_B"))
+						{
+						gps.uccolor[2][2]=convert_string_to_long(token2);
+						gps.ccolor[2][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("CYAN_R"))
+						{
+						gps.uccolor[3][0]=convert_string_to_long(token2);
+						gps.ccolor[3][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("CYAN_G"))
+						{
+						gps.uccolor[3][1]=convert_string_to_long(token2);
+						gps.ccolor[3][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("CYAN_B"))
+						{
+						gps.uccolor[3][2]=convert_string_to_long(token2);
+						gps.ccolor[3][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("RED_R"))
+						{
+						gps.uccolor[4][0]=convert_string_to_long(token2);
+						gps.ccolor[4][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("RED_G"))
+						{
+						gps.uccolor[4][1]=convert_string_to_long(token2);
+						gps.ccolor[4][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("RED_B"))
+						{
+						gps.uccolor[4][2]=convert_string_to_long(token2);
+						gps.ccolor[4][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("MAGENTA_R"))
+						{
+						gps.uccolor[5][0]=convert_string_to_long(token2);
+						gps.ccolor[5][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("MAGENTA_G"))
+						{
+						gps.uccolor[5][1]=convert_string_to_long(token2);
+						gps.ccolor[5][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("MAGENTA_B"))
+						{
+						gps.uccolor[5][2]=convert_string_to_long(token2);
+						gps.ccolor[5][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BROWN_R"))
+						{
+						gps.uccolor[6][0]=convert_string_to_long(token2);
+						gps.ccolor[6][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BROWN_G"))
+						{
+						gps.uccolor[6][1]=convert_string_to_long(token2);
+						gps.ccolor[6][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("BROWN_B"))
+						{
+						gps.uccolor[6][2]=convert_string_to_long(token2);
+						gps.ccolor[6][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGRAY_R"))
+						{
+						gps.uccolor[7][0]=convert_string_to_long(token2);
+						gps.ccolor[7][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGRAY_G"))
+						{
+						gps.uccolor[7][1]=convert_string_to_long(token2);
+						gps.ccolor[7][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGRAY_B"))
+						{
+						gps.uccolor[7][2]=convert_string_to_long(token2);
+						gps.ccolor[7][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("DGRAY_R"))
+						{
+						gps.uccolor[8][0]=convert_string_to_long(token2);
+						gps.ccolor[8][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("DGRAY_G"))
+						{
+						gps.uccolor[8][1]=convert_string_to_long(token2);
+						gps.ccolor[8][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("DGRAY_B"))
+						{
+						gps.uccolor[8][2]=convert_string_to_long(token2);
+						gps.ccolor[8][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LBLUE_R"))
+						{
+						gps.uccolor[9][0]=convert_string_to_long(token2);
+						gps.ccolor[9][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LBLUE_G"))
+						{
+						gps.uccolor[9][1]=convert_string_to_long(token2);
+						gps.ccolor[9][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LBLUE_B"))
+						{
+						gps.uccolor[9][2]=convert_string_to_long(token2);
+						gps.ccolor[9][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGREEN_R"))
+						{
+						gps.uccolor[10][0]=convert_string_to_long(token2);
+						gps.ccolor[10][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGREEN_G"))
+						{
+						gps.uccolor[10][1]=convert_string_to_long(token2);
+						gps.ccolor[10][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LGREEN_B"))
+						{
+						gps.uccolor[10][2]=convert_string_to_long(token2);
+						gps.ccolor[10][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LCYAN_R"))
+						{
+						gps.uccolor[11][0]=convert_string_to_long(token2);
+						gps.ccolor[11][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LCYAN_G"))
+						{
+						gps.uccolor[11][1]=convert_string_to_long(token2);
+						gps.ccolor[11][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LCYAN_B"))
+						{
+						gps.uccolor[11][2]=convert_string_to_long(token2);
+						gps.ccolor[11][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LRED_R"))
+						{
+						gps.uccolor[12][0]=convert_string_to_long(token2);
+						gps.ccolor[12][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LRED_G"))
+						{
+						gps.uccolor[12][1]=convert_string_to_long(token2);
+						gps.ccolor[12][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LRED_B"))
+						{
+						gps.uccolor[12][2]=convert_string_to_long(token2);
+						gps.ccolor[12][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LMAGENTA_R"))
+						{
+						gps.uccolor[13][0]=convert_string_to_long(token2);
+						gps.ccolor[13][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LMAGENTA_G"))
+						{
+						gps.uccolor[13][1]=convert_string_to_long(token2);
+						gps.ccolor[13][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("LMAGENTA_B"))
+						{
+						gps.uccolor[13][2]=convert_string_to_long(token2);
+						gps.ccolor[13][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("YELLOW_R"))
+						{
+						gps.uccolor[14][0]=convert_string_to_long(token2);
+						gps.ccolor[14][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("YELLOW_G"))
+						{
+						gps.uccolor[14][1]=convert_string_to_long(token2);
+						gps.ccolor[14][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("YELLOW_B"))
+						{
+						gps.uccolor[14][2]=convert_string_to_long(token2);
+						gps.ccolor[14][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("WHITE_R"))
+						{
+						gps.uccolor[15][0]=convert_string_to_long(token2);
+						gps.ccolor[15][0]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("WHITE_G"))
+						{
+						gps.uccolor[15][1]=convert_string_to_long(token2);
+						gps.ccolor[15][1]=(float)convert_string_to_long(token2)/255.0f;
+						}
+					if (!token.compare("WHITE_B"))
+						{
+						gps.uccolor[15][2]=convert_string_to_long(token2);
+						gps.ccolor[15][2]=(float)convert_string_to_long(token2)/255.0f;
+						}
 					}
 				}
 			}
+			fseed2.close();
 		}
-	fseed2.close();
         
 #ifdef _DEBUG
         enabler.window.isFullScreen = FALSE;

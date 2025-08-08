@@ -852,12 +852,17 @@ class enablerst : public enabler_inputst
   };
 
   struct async_msg {
-    enum msg_t { quit, complete, set_fps, set_gfps, push_resize, pop_resize, reset_textures } msg;
+    enum msg_t { quit, complete, set_fps, set_gfps, push_resize, pop_resize, reset_textures, show_message } msg;
     union {
       int fps; // set_fps, set_gfps
       struct { // push_resize
         int x, y;
       };
+	  struct {
+		  const char *text;
+		  const char *caption;
+		  UINT type;
+		  };
     };
     async_msg() {}
     async_msg(msg_t m) { msg = m; }
@@ -962,9 +967,18 @@ class enablerst : public enabler_inputst
   std::array<char, 32> last_text_input;
   bool listening_to_text;
   inline const char* get_text_input() { return last_text_input.data(); }
+  std::atomic_int last_message_result=-1;
   void set_listen_to_text(bool listening);
   void set_text_input(SDL_Event ev);
   void clear_text_input();
+  void show_message_box(const char *text, const char *caption = "Alert", UINT type = MB_OK) {
+	async_msg msg(async_msg::show_message);
+	msg.text = text;
+	msg.caption = caption;
+	msg.type = type;
+	async_frombox.write(msg);
+	async_fromcomplete.acquire();
+	}
 };
 #endif
 

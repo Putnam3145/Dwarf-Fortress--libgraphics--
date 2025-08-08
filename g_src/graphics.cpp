@@ -832,7 +832,7 @@ void graphicst::prepare_graphics(const std::filesystem::path &src_dir)
 		//MUST INSURE THAT THEY ARE LOADED IN THE PROPER ORDER, IN CASE THEY REFER TO EACH OTHER
 	{
 
-	auto dir=filest(src_dir).any_location().value_or(filest(src_dir).canon_location())/"graphics";
+	auto dir=filest(src_dir).any_location_unchecked()/"graphics";
 	if (!std::filesystem::exists(dir)) return;
 	std::vector<std::filesystem::path> tile_page_files;
 	std::vector<std::filesystem::path> graphics_files;
