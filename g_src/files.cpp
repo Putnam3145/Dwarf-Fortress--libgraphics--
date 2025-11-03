@@ -688,7 +688,7 @@ void create_directory(const filest &src) {
 bool display_file_error(const std::error_code &ec,const std::string &message) {
 	if (ec)
 		{
-		MessageBox(NULL,(message+ec.message()).c_str(),"File error",MB_OK);
+		warning_modal_ok(message+ec.message());
 		return true;
 		}
 	return false;

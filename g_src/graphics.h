@@ -13,6 +13,8 @@ using std::string;
 #include "platform.h"
 #include "basics.h"
 
+#define GAME_LOOP_ANIMATION_MAXIMUM 10
+
 #define PALETTE_COLORNUM 18
 
 struct palettest
@@ -169,6 +171,19 @@ typedef int16_t Sphere;
 
 extern const unordered_bimap<string,Sphere> SPHERESTRINGS; // hopefully we never need gods of strings
 
+enum RamHeadType
+{
+	RAM_HEAD_TREE,
+	RAM_HEAD_BULL,
+	RAM_HEAD_RHINO,
+	RAM_HEAD_DRAGON,
+	RAM_HEAD_HORNS,
+	RAM_HEAD_GRID,
+	RAM_HEADNUM,
+	RAM_HEAD_NONE=-1
+};
+typedef int32_t RamHead;
+
 enum EngravingIntentType
 {
 	ENGRAVING_INTENT_MEMORIAL,
@@ -209,6 +224,7 @@ enum CombatAnimationSwishType
 	COMBAT_ANIMATION_SWISH_MISS,
 	COMBAT_ANIMATION_SWISH_BLOCK,
 	COMBAT_ANIMATION_SWISH_PARRY,
+	COMBAT_ANIMATION_SWISH_DIG,
 	COMBAT_ANIMATION_SWISHNUM,
 	COMBAT_ANIMATION_SWISH_NONE=-1
 };
@@ -231,6 +247,20 @@ typedef int32_t CombatAnimationSwishDirection;
 
 #define COMBAT_ANIMATION_SWISH_FRAME_COUNT 4
 #define COMBAT_ANIMATION_SWISH_FRAME_LENGTH_MS 100
+
+enum CombatAnimationRamDirectionType
+{
+	COMBAT_ANIMATION_RAM_DIRECTION_N,
+	COMBAT_ANIMATION_RAM_DIRECTION_E,
+	COMBAT_ANIMATION_RAM_DIRECTION_S,
+	COMBAT_ANIMATION_RAM_DIRECTION_W,
+	COMBAT_ANIMATION_RAM_DIRECTIONNUM,
+	COMBAT_ANIMATION_RAM_DIRECTION_NONE=-1
+};
+typedef int32_t CombatAnimationRamDirection;
+
+#define COMBAT_ANIMATION_RAM_FRAME_COUNT 4
+#define COMBAT_ANIMATION_RAM_FRAME_LENGTH_MS 100
 
 enum GraphicsTrackingSymbolWeightType
 {
@@ -1725,6 +1755,7 @@ enum Texture
 	TEXTURE_DEVELOPER_SMALL,
 	TEXTURE_DEVELOPER_TINY,
 	TEXTURE_SOUND_SYSTEM,
+	TEXTURE_TITLE_SIEGE,
 	TEXTURENUM,
 	TEXTURE_NONE=-1
 };
@@ -2227,7 +2258,9 @@ enum EdgingType
 	EDGING_CUSTOM_GRASS_30,
 	EDGING_CUSTOM_GRASS_31,
 	EDGING_CUSTOM_GRASS_32,
-	EDGING_UNUSED_42//max=255
+	EDGING_SHODDY_CONSTRUCTION_WOOD,
+	EDGING_SHODDY_CONSTRUCTION_STONE,
+	EDGING_UNUSED_44//max=255
 };
 typedef uint32_t Edging;
 
@@ -2280,6 +2313,9 @@ typedef uint32_t Edging;
 	#define VIEWPORT_WALL_FLAG_TYPE_WORN_STONE_2 (23<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 	#define VIEWPORT_WALL_FLAG_TYPE_WORN_STONE_3 (24<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 	#define VIEWPORT_WALL_FLAG_TYPE_ICE_SMOOTH (25<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
+	#define VIEWPORT_WALL_FLAG_TYPE_REINFORCED_METAL_BAR (26<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
+	#define VIEWPORT_WALL_FLAG_TYPE_REINFORCED_ROCK_BLOCK (27<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
+	#define VIEWPORT_WALL_FLAG_TYPE_REINFORCED_WOODEN (28<<VIEWPORT_WALL_FLAG_TYPE_SHIFT)
 #define VIEWPORT_WALL_FLAG_VARIANT_BITS (BIT21|BIT22)
 	#define VIEWPORT_WALL_FLAG_VARIANT_SHIFT 20
 	#define VIEWPORT_WALL_FLAG_VARIANT_1 0
@@ -2917,6 +2953,10 @@ enum InterfaceButtonMainType
  	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_S,
  	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_W,
  	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_E,
+ 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_NE,
+ 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_SE,
+ 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_SW,
+ 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_NW,
 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_PRESSURE_PLATE_ACTIVE_TRIGGER,
 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_PRESSURE_PLATE_INACTIVE_TRIGGER,
 	INTERFACE_BUTTON_MAIN_BUILDING_PLACEMENT_PRESSURE_PLATE_WATER_0_ON,
@@ -3062,6 +3102,7 @@ enum InterfaceButtonMainType
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_PLANT_GATHERERS,
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_HAULERS,
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_ORDERLIES,
+	INTERFACE_BUTTON_MAIN_WORK_DETAIL_SIEGE_OPERATORS,
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_CUSTOM_1,
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_CUSTOM_2,
 	INTERFACE_BUTTON_MAIN_WORK_DETAIL_CUSTOM_3,
@@ -3454,6 +3495,8 @@ enum InterfaceButtonBuildingInfoType
 	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_FIRE_AT_WILL,
 	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_PREPARE_TO_FIRE_ACTIVE,
 	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_PREPARE_TO_FIRE,
+	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_KEEP_LOADED_ACTIVE,
+	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_KEEP_LOADED,
 	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_NOT_IN_USE_ACTIVE,
 	INTERFACE_BUTTON_BUILDING_INFO_SIEGE_ENGINE_NOT_IN_USE,
 	INTERFACE_BUTTON_BUILDING_INFO_ANIMAL_TRAP_MEAT_ACTIVE,
@@ -4665,6 +4708,17 @@ class graphicst
 		int32_t smooth_floor_texpos;
 		int32_t workshop_floor_texpos;
 
+		int32_t texpos_scaffold_floor_wood[4];
+		int32_t texpos_scaffold_stair_updown_wood;
+		int32_t texpos_scaffold_stair_up_wood;
+		int32_t texpos_scaffold_stair_down_wood;
+		int32_t texpos_scaffold_underside_wood;
+		int32_t texpos_scaffold_floor_stone[4];
+		int32_t texpos_scaffold_stair_updown_stone;
+		int32_t texpos_scaffold_stair_up_stone;
+		int32_t texpos_scaffold_stair_down_stone;
+		int32_t texpos_scaffold_underside_stone;
+
 		int32_t texpos_fortification;
 		int32_t texpos_fortification_open_nswe;
 		int32_t texpos_fortification_open_nsw;
@@ -4768,6 +4822,7 @@ class graphicst
 		int32_t texpos_building_icon_door;
 		int32_t texpos_building_icon_hatch;
 		int32_t texpos_building_icon_wall;
+		int32_t texpos_building_icon_reinforced_wall;
 		int32_t texpos_building_icon_floor;
 		int32_t texpos_building_icon_ramp;
 		int32_t texpos_building_icon_stairs;
@@ -4808,9 +4863,10 @@ class graphicst
 		int32_t texpos_building_icon_armor_stand;
 		int32_t texpos_building_icon_ballista;
 		int32_t texpos_building_icon_catapult;
+		int32_t texpos_building_icon_bolt_thrower;
 		int32_t texpos_building_icon_wagon;
 
-		int32_t texpos_planned_construction[37];
+		int32_t texpos_planned_construction[38];//same as BUILDINGTYPE_CONSTRUCTIONNUM
 
 		int32_t texpos_zone_inactive_n_s_w_e;
 		int32_t texpos_zone_inactive_n_w;
@@ -5023,6 +5079,11 @@ class graphicst
 		int32_t texpos_wagon_goods_s[3][4][4];
 		int32_t texpos_wagon_goods_w[4][3][4];
 		int32_t texpos_wagon_goods_e[4][3][4];
+
+		int32_t texpos_ram_wood[4][3];
+		int32_t texpos_ram_banded[4][3];
+		int32_t texpos_ram_bands[4][3];
+		int32_t texpos_ram_head[RAM_HEADNUM][4];
 
 		int32_t texpos_calendar_month[12][3];
 		int32_t texpos_calendar_day_past[3];
@@ -5503,6 +5564,7 @@ class graphicst
 
 		int32_t texpos_combat_animation_swish[COMBAT_ANIMATION_SWISHNUM][COMBAT_ANIMATION_SWISH_DIRECTIONNUM][COMBAT_ANIMATION_SWISH_FRAME_COUNT];
 		int32_t texpos_combat_animation_sparks[COMBAT_ANIMATION_SWISHNUM][COMBAT_ANIMATION_SWISH_DIRECTIONNUM][COMBAT_ANIMATION_SWISH_FRAME_COUNT];
+		int32_t texpos_combat_animation_ram[COMBAT_ANIMATION_RAM_DIRECTIONNUM][COMBAT_ANIMATION_RAM_FRAME_COUNT];
 
 		int32_t texpos_move_indicator[MOVE_INDICATORNUM][MOVE_INDICATOR_DIRECTIONNUM][MOVE_INDICATOR_FRAME_COUNT];
 
@@ -6026,6 +6088,26 @@ class graphicst
 		int32_t rock_blocks_wall_ne_texpos;
 		int32_t rock_blocks_wall_sw_texpos;
 		int32_t rock_blocks_wall_se_texpos;
+
+		int32_t reinforced_metal_wall_nswe_texpos;
+		int32_t reinforced_metal_wall_swe_texpos;
+		int32_t reinforced_metal_wall_nwe_texpos;
+		int32_t reinforced_metal_wall_nse_texpos;
+		int32_t reinforced_metal_wall_nsw_texpos;
+		int32_t reinforced_metal_wall_n_w_texpos;
+		int32_t reinforced_metal_wall_n_e_texpos;
+		int32_t reinforced_metal_wall_s_w_texpos;
+		int32_t reinforced_metal_wall_s_e_texpos;
+		int32_t reinforced_metal_wall_n_s_texpos;
+		int32_t reinforced_metal_wall_w_e_texpos;
+		int32_t reinforced_metal_wall_n_texpos;
+		int32_t reinforced_metal_wall_s_texpos;
+		int32_t reinforced_metal_wall_w_texpos;
+		int32_t reinforced_metal_wall_e_texpos;
+		int32_t reinforced_metal_wall_nw_texpos;
+		int32_t reinforced_metal_wall_ne_texpos;
+		int32_t reinforced_metal_wall_sw_texpos;
+		int32_t reinforced_metal_wall_se_texpos;
 
 		int32_t stone_wall_nswe_texpos[4];
 		int32_t stone_wall_swe_texpos;
@@ -7143,22 +7225,34 @@ class graphicst
 		int32_t texpos_item_door_metal_open;
 		int32_t texpos_item_door_glass;
 		int32_t texpos_item_door_glass_open;
+		int32_t texpos_item_door_stone_open_damaged[3];
+		int32_t texpos_item_door_wooden_open_damaged[3];
+		int32_t texpos_item_door_metal_open_damaged[3];
+		int32_t texpos_item_door_glass_open_damaged[3];
 			int32_t texpos_item_door_wood_closed[7];
 			int32_t texpos_item_door_stone_closed[7];
 			int32_t texpos_item_door_metal_closed[7];
 			int32_t texpos_item_door_glass_closed[7];
 			int32_t texpos_item_door_variant[4];
+			int32_t texpos_item_door_wood_closed_damaged[7][3];
+			int32_t texpos_item_door_stone_closed_damaged[7][3];
+			int32_t texpos_item_door_metal_closed_damaged[7][3];
+			int32_t texpos_item_door_glass_closed_damaged[7][3];
+			int32_t texpos_item_door_variant_damaged[4][3];
 			int32_t texpos_item_door_spikes;
 			int32_t texpos_item_door_rings;
 			int32_t texpos_item_door_studs;
 			int32_t texpos_item_door_engraving;
-			int32_t texpos_item_door_damage[3];
 			int32_t texpos_item_door_bands;
 			int32_t texpos_item_door_blood;
 			int32_t texpos_item_door_vomit;
 			int32_t texpos_item_door_water;
 			int32_t texpos_item_door_mud;
 			int32_t texpos_item_door_forbidden;
+		svector<int32_t> texpos_item_door_stone_debris;
+		svector<int32_t> texpos_item_door_wooden_debris;
+		svector<int32_t> texpos_item_door_metal_debris;
+		svector<int32_t> texpos_item_door_glass_debris;
 
 		int32_t texpos_item_grate_stone;
 		int32_t texpos_item_grate_wooden;
@@ -7387,6 +7481,7 @@ class graphicst
 		int32_t texpos_item_trap_component;
 		int32_t texpos_item_catapult_parts;
 		int32_t texpos_item_ballista_parts;
+		int32_t texpos_item_bolt_thrower_parts;
 		int32_t texpos_item_anvil;
 		int32_t texpos_item_ammo;
 		int32_t texpos_item_ballista_arrowhead;
@@ -7707,10 +7802,60 @@ class graphicst
 		int32_t texpos_ballista_s[3][3];
 		int32_t texpos_ballista_w[3][3];
 		int32_t texpos_ballista_e[3][3];
+		int32_t texpos_ballista_nw[3][3];
+		int32_t texpos_ballista_ne[3][3];
+		int32_t texpos_ballista_sw[3][3];
+		int32_t texpos_ballista_se[3][3];
+		int32_t texpos_ballista_n_firing[3][3];
+		int32_t texpos_ballista_s_firing[3][3];
+		int32_t texpos_ballista_w_firing[3][3];
+		int32_t texpos_ballista_e_firing[3][3];
+		int32_t texpos_ballista_nw_firing[3][3];
+		int32_t texpos_ballista_ne_firing[3][3];
+		int32_t texpos_ballista_sw_firing[3][3];
+		int32_t texpos_ballista_se_firing[3][3];
+		int32_t texpos_ballista_const[4][3][3];
 		int32_t texpos_catapult_n[3][3];
 		int32_t texpos_catapult_s[3][3];
 		int32_t texpos_catapult_w[3][3];
 		int32_t texpos_catapult_e[3][3];
+		int32_t texpos_catapult_nw[3][3];
+		int32_t texpos_catapult_ne[3][3];
+		int32_t texpos_catapult_sw[3][3];
+		int32_t texpos_catapult_se[3][3];
+		int32_t texpos_catapult_n_firing[3][3];
+		int32_t texpos_catapult_s_firing[3][3];
+		int32_t texpos_catapult_w_firing[3][3];
+		int32_t texpos_catapult_e_firing[3][3];
+		int32_t texpos_catapult_nw_firing[3][3];
+		int32_t texpos_catapult_ne_firing[3][3];
+		int32_t texpos_catapult_sw_firing[3][3];
+		int32_t texpos_catapult_se_firing[3][3];
+		int32_t texpos_catapult_const[4][3][3];
+		int32_t texpos_bolt_thrower_ready_n;
+		int32_t texpos_bolt_thrower_ready_ne;
+		int32_t texpos_bolt_thrower_ready_e;
+		int32_t texpos_bolt_thrower_ready_se;
+		int32_t texpos_bolt_thrower_ready_s;
+		int32_t texpos_bolt_thrower_ready_sw;
+		int32_t texpos_bolt_thrower_ready_w;
+		int32_t texpos_bolt_thrower_ready_nw;
+		int32_t texpos_bolt_thrower_firing_n;
+		int32_t texpos_bolt_thrower_firing_ne;
+		int32_t texpos_bolt_thrower_firing_e;
+		int32_t texpos_bolt_thrower_firing_se;
+		int32_t texpos_bolt_thrower_firing_s;
+		int32_t texpos_bolt_thrower_firing_sw;
+		int32_t texpos_bolt_thrower_firing_w;
+		int32_t texpos_bolt_thrower_firing_nw;
+		int32_t texpos_bolt_thrower_ammo_n[5];
+		int32_t texpos_bolt_thrower_ammo_ne[5];
+		int32_t texpos_bolt_thrower_ammo_e[5];
+		int32_t texpos_bolt_thrower_ammo_se[5];
+		int32_t texpos_bolt_thrower_ammo_s[5];
+		int32_t texpos_bolt_thrower_ammo_sw[5];
+		int32_t texpos_bolt_thrower_ammo_w[5];
+		int32_t texpos_bolt_thrower_ammo_nw[5];
 
 		int32_t texpos_flow_miasma[4];
 		int32_t texpos_flow_dust[4];

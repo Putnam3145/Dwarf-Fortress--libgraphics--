@@ -559,4 +559,71 @@ using array_2d=std::array<std::array<T,b>,a>;
 template<typename T, size_t a, size_t b, size_t c>
 using array_3d=std::array<std::array<std::array<T,c>,b>,a>;
 
+
+void crashlog_post_func(std::string filename);
+
+enum struct CrashlogDataType : uint8_t {
+	// Objects that have a pointer to their respective type included
+	BUILDING,
+	ITEM,
+	ENTITY,
+	NEMESIS,
+	UNIT,
+	HF,
+	SQUAD,
+	STRING,
+	// All below are just strings
+	ADVANCING_ACTIVITIES,
+	ADVANCING_BUILDING_STATES,
+	DAMAGING_REFUSE_PILE,
+	ADVANCING_SEASONS,
+	ADVANCING_ARMIES,
+	MAKE_NEMESIS_FROM_SPEC,
+	UPDATING_HIST_FIG_UNIT,
+	HANDLING_JOB_APPLICATIONS,
+	MOVE_UNIT_WITH_CONTEXT,
+	LOAD_NEMESIS_UNIT,
+	CREATE_NEMESIS_UNIT,
+	SOCIAL_ACTIONS,
+	LOADING_UNIT_CHUNK,
+	VEGETATION_ADVANCE, // vegst
+	ADVANCING_INTERACTIONS,
+	AGING_ITEMS,
+	ADVANCING_MAP_BLOCKS,
+	ADVANCING_SITES,
+	ADVANCING_ENTITIES,
+	FORT_MODE_WEATHER,
+	UNIT_MOVES,
+	HF_DEATHS,
+	HF_CONCEPTIONS,
+	WILDERPOPS,
+	ENT_POPS,
+	HF_BIRTHS,
+	HF_GROWING,
+	HF_MARRIAGE,
+	PERIODIC_CLEANUP,
+	VERIFY_SQUAD_ORDERS,
+	SQUAD_SCHEDULER,
+	WIDGET_LOGIC, // widget
+	WIDGET_RENDER, // widget
+	WIDGET_FEED, // widget
+	};
+
+void get_crashlog_location_string(CrashlogDataType loc,string &str);
+
+// Still generate minidump info on Linux, we just don't use it (might be useful anyway)
+
+struct crashlog_datast {
+	CrashlogDataType location;
+	void *metadata=NULL;
+	};
+
+struct crash_log_minidump_entryst {
+	crash_log_minidump_entryst(crashlog_datast data);
+	crash_log_minidump_entryst(CrashlogDataType loc);
+	crash_log_minidump_entryst(CrashlogDataType loc,void *ptr);
+	crash_log_minidump_entryst()=delete;
+	~crash_log_minidump_entryst();
+	};
+
 #endif

@@ -1,19 +1,20 @@
 #pragma once
 
-#include <array>
+#include <span>
 #include <vector>
 #include <memory>
-#include <set>
+#include <map>
 #include <unordered_set>
+#include <algorithm>
 
 template<class T, size_t N>
 class object_pool
 {
-	using pool_array=std::array<T,N>;
-	std::vector<pool_array*> pool;
-	std::set<size_t> unused_slots;
+	using pool_array=std::span<T,std::dynamic_extent>;
+	std::vector<pool_array> pool;
+	std::map<size_t,bool> unused_slots; // False is uninit, true is just unused
 	std::vector<T*> *glob;
-	size_t get_next_slot()
+	std::pair<size_t,bool> get_next_slot()
 	{
 		if (no_empty_slots())
 			{
@@ -23,61 +24,75 @@ class object_pool
 				}
 			if (no_empty_slots())
 				{
-				pool.push_back(new pool_array());
-				const auto end=pool.size()*N;
-				auto it=unused_slots.begin();
-				for (auto i=end-N; i<end; i++)
-					{
-					it=unused_slots.emplace_hint(it,i);
-					}
+				const auto current_capacity=capacity();
+				add_capacity(current_capacity>N?current_capacity:N);
 				}
 			}
 		auto smallest=unused_slots.begin();
-		size_t slot=*smallest;
-		unused_slots.erase(smallest);
+		std::pair<size_t, bool> slot=*smallest;
+		unused_slots.erase(smallest->first);
 		return slot;
 	}
 
 public:
 	T *get(size_t n)
 		{
-		const size_t v=n/N;
-		const size_t a=n%N;
-		return &(pool[v]->data()[a]);
+		for (auto &p : pool)
+			{
+			if (n<p.size())
+				{
+				return &(p[n]);
+				}
+			n-=p.size();
+			}
+		return NULL; // really should not happen, but necessary
 		}
 	template<class... Args>
 	size_t make_new(Args&&... args)
 		{
 		auto next_slot=get_next_slot();
-		void *b=get(next_slot);
+		T *b=get(next_slot.first);
+		if (next_slot.second)
+			{
+			b->T::~T();
+			}
 		new (b) T(args...);
-		return next_slot;
+		return next_slot.first;
 		}
 	void clear()
 		{
-		for (auto i=0; i<pool.size()*N; i++)
+		for(auto i=0; i<capacity(); i++)
 			{
-			erase(i);
+			if (const auto &p=unused_slots.find(i); p!=unused_slots.end())
+				{
+				if (p->second)
+					{
+					get(i)->T::~T();
+					}
+				}
+			else
+				{
+				get(i)->T::~T();
+				}
 			}
-		}
-	size_t push(T obj)
-		{
-		auto next_slot=get_next_slot();
-		*get(next_slot)=obj;
-		return next_slot;
+		unused_slots.clear();
+		for (auto &p : pool)
+			{
+			free(p.data());
+			}
+		pool.clear();
 		}
 	void erase(size_t idx)
 		{
 		if (!unused_slots.contains(idx))
 			{
-			unused_slots.insert(idx);
-			get(idx)->T::~T();
+			unused_slots[idx]=true;
 			}
 		}
 	void remove(T *ptr)
 		{
 		// hell yeah we're doing a linear search
-		for (int i=0; i<pool.size()*N; i++)
+		for (int i=0; i<pool.capacity(); i++)
 			{
 			if (get(i)==ptr)
 				{
@@ -91,7 +106,33 @@ public:
 		return unused_slots.empty();
 		}
 	size_t capacity() const {
-		return pool.size() * N;
+		size_t total=0;
+		for (auto &p : pool)
+			{
+			total+=p.size();
+			}
+		return total;
+		}
+	void add_capacity(size_t n) {
+		T *arr=static_cast<T*>(calloc(n,sizeof(T)));
+		pool.emplace_back(arr,n);
+		auto it=unused_slots.begin();
+		const auto end=capacity();
+		for (auto i=end-n; i<end; i++)
+			{
+			it=unused_slots.emplace_hint(it,std::pair(i,false));
+			}
+		}
+	void reserve(size_t n) {
+		if (n>capacity())
+			{
+			const size_t min_cap_add=capacity()*2;
+			if (n<min_cap_add)
+				{
+				n=min_cap_add;
+				}
+			add_capacity(n-capacity());
+			}
 		}
 	object_pool(std::vector<T *> *g=nullptr) : glob(g) {}
 	~object_pool()

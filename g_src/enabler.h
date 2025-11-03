@@ -698,6 +698,36 @@ struct std::hash<texture_fullid>
 	};
 #endif
 
+struct benchmark_callbackst {
+	using clock=std::chrono::steady_clock;
+	using time_point=std::chrono::time_point<clock>;
+	benchmark_callbackst()=delete;
+	benchmark_callbackst(std::function<void(time_point)> cb) : callback(cb) {
+		initial=std::chrono::steady_clock::now();
+		}
+	~benchmark_callbackst() {
+		callback(initial);
+		}
+private:
+	std::chrono::time_point<std::chrono::steady_clock> initial;
+	std::function<void(time_point)> callback;
+	};
+
+template<typename clock=std::chrono::steady_clock>
+struct timerst {
+	using time_point=std::chrono::time_point<clock>;
+	timerst() {
+		initial=clock::now();
+		}
+	template<typename count>
+	int64_t elapsed() {
+		auto now=clock::now();
+		return std::chrono::duration_cast<count>(now-initial).count();
+		}
+private:
+	std::chrono::time_point<std::chrono::steady_clock> initial;
+	};
+
 //typedef int texture_ttfid; // Just the texpos
 
 class renderer {

@@ -1081,6 +1081,7 @@ int enablerst::loop(string cmdline) {
 #ifdef WIN32
   glaiel::crashlogs::set_crashlog_folder("crashlogs");
   glaiel::crashlogs::set_crashlog_header_message("Crashed before main menu. Yikes!");
+  glaiel::crashlogs::set_on_write_crashlog_callback(crashlog_post_func);
   glaiel::crashlogs::begin_monitoring();
 #endif
   // Initialize the tick counters

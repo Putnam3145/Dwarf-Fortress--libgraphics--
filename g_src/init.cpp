@@ -704,13 +704,15 @@ void initst::begin() {
 		gps.tex[TEXTURE_TITLE]=enabler.textures.load("data/art/df_logo.png", true);
 		gps.tex[TEXTURE_TITLE_BACKGROUND]=enabler.textures.load("data/art/title_background.png", true);
 		gps.tex[TEXTURE_TITLE_ADV]=enabler.textures.load("data/art/title_adv.png", true);
+		gps.tex[TEXTURE_TITLE_SIEGE]=enabler.textures.load("data/art/title_siege.png", true);
 		gps.tex[TEXTURE_DEVELOPER]=enabler.textures.load("data/art/bay12.png", true);
 		gps.tex[TEXTURE_DEVELOPER_SMALL]=enabler.textures.load("data/art/bay12_small.png", true);
 		gps.tex[TEXTURE_DEVELOPER_TINY]=enabler.textures.load("data/art/bay12_tiny.png", true);
 		gps.tex[TEXTURE_SOUND_SYSTEM]=enabler.textures.load("data/art/fmod.png", true);
 		}
 
-	gps.last_display_background=TEXTURE_TITLE_BACKGROUND;
+	//gps.last_display_background=TEXTURE_TITLE_BACKGROUND;
+	gps.last_display_background=TEXTURE_TITLE_SIEGE;
 
 	long d3,d4;
 	enabler.textures.load_multi_pdim("data/art/load_bar.png",load_bar_texpos,6,1,true,&d3,&d4);

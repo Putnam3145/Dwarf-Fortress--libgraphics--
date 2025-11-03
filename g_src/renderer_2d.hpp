@@ -2172,7 +2172,9 @@ else
 					Edging type=(ff & VIEWPORT_FLOOR_FLAG_N_EDGING)>>VIEWPORT_FLOOR_FLAG_N_EDGING_SHIFT;
 
 					texture_fullid background_tex;
-						if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][7];
+						if(type==EDGING_SHODDY_CONSTRUCTION_WOOD)background_tex.texpos=gps.texpos_scaffold_underside_wood;
+						else if(type==EDGING_SHODDY_CONSTRUCTION_STONE)background_tex.texpos=gps.texpos_scaffold_underside_stone;
+						else if(type==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][7];
 						else if(type==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][7];
 						else if(type==EDGING_SOIL)background_tex.texpos=gps.dirt_floor_texpos[0][7];
 						else if(type==EDGING_SOIL_SAND)background_tex.texpos=gps.texpos_floor_sand[0][7];
@@ -2315,7 +2317,9 @@ else
 
 					texture_fullid background_tex;
 						background_tex.texpos=0;
-						if(type_n==EDGING_STONE&&
+						if(type_n==EDGING_SHODDY_CONSTRUCTION_WOOD)background_tex.texpos=gps.texpos_scaffold_underside_wood;
+						else if(type_n==EDGING_SHODDY_CONSTRUCTION_STONE)background_tex.texpos=gps.texpos_scaffold_underside_stone;
+						else if(type_n==EDGING_STONE&&
 							type_w==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][8];
 						else if(type_n==EDGING_PEBBLES&&
 							type_w==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][8];
@@ -2368,7 +2372,9 @@ else
 
 					texture_fullid background_tex;
 						background_tex.texpos=0;
-						if(type_n==EDGING_STONE&&
+						if(type_n==EDGING_SHODDY_CONSTRUCTION_WOOD)background_tex.texpos=gps.texpos_scaffold_underside_wood;
+						else if(type_n==EDGING_SHODDY_CONSTRUCTION_STONE)background_tex.texpos=gps.texpos_scaffold_underside_stone;
+						else if(type_n==EDGING_STONE&&
 							type_e==EDGING_STONE)background_tex.texpos=gps.stone_floor_texpos[0][6];
 						else if(type_n==EDGING_PEBBLES&&
 							type_e==EDGING_PEBBLES)background_tex.texpos=gps.texpos_floor_pebbles[0][6];

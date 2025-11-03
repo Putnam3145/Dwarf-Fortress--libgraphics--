@@ -899,6 +899,11 @@ void draw_horizontal_nineslice(int32_t *texpos,int sy,int sx,int ey,int ex,overr
 	}
 
 std::shared_ptr<container> warning_modal_ok(const std::string &text) {
+	if (gview.grab_lastscreen()==NULL)
+		{
+		MessageBox(NULL,text.c_str(),"Warning Modal",MB_OK);
+		return NULL;
+		}
 	auto modal=gview.grab_lastscreen()->widgets.add_or_get_widget<container>("Warning Modal");
 	modal->set_active(true);
 	auto nineslice=modal->add_or_get_widget<widgets::nineslice>("Warning Modal Background",&init.texpos_border_nw);
@@ -1077,6 +1082,7 @@ void widget::locate(int32_t offset_y, int32_t offset_x) {
 
 void widget::render(uint32_t curtick)
 	{
+	crash_log_minidump_entryst temp_dump(CrashlogDataType::WIDGET_RENDER,this);
 	for (auto &fn : custom_render)
 		{
 		if(fn) fn(this, curtick);
@@ -1165,6 +1171,7 @@ void widget::feed(std::set<InterfaceKey> &ev)
 	// click-to-activate is such a common thing it's part of the "default behavior" here--custom feeds happen **first** so
 	// that custom feed functions can completely intercept the activation, which is far more specialized
 	// (but still highly useful for e.g. certain containers that might want to be keyboard controlled)
+	crash_log_minidump_entryst temp_dump(CrashlogDataType::WIDGET_FEED,this);
 	for (auto &fn : custom_feed)
 		{
 		if(fn) fn(ev, this);
@@ -1201,6 +1208,7 @@ void widget::feed(std::set<InterfaceKey> &ev)
 
 void widget::logic() 
 	{
+	crash_log_minidump_entryst temp_dump(CrashlogDataType::WIDGET_LOGIC,this);
 	for (auto &fn : custom_logic)
 		{
 		if(fn) fn(this);

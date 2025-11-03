@@ -5221,6 +5221,17 @@ void graphicst::zero_and_clear_all_texpos()
 	palette_stair_down_texpos=0;
 	smooth_floor_texpos=0;
 	workshop_floor_texpos=0;
+	
+	memset(texpos_scaffold_floor_wood,0,sizeof(int32_t)*4);
+	texpos_scaffold_stair_updown_wood=0;
+	texpos_scaffold_stair_up_wood=0;
+	texpos_scaffold_stair_down_wood=0;
+	texpos_scaffold_underside_wood=0;
+	memset(texpos_scaffold_floor_stone,0,sizeof(int32_t)*4);
+	texpos_scaffold_stair_updown_stone=0;
+	texpos_scaffold_stair_up_stone=0;
+	texpos_scaffold_stair_down_stone=0;
+	texpos_scaffold_underside_stone=0;
 
 	texpos_fortification=0;
 	texpos_fortification_open_nswe=0;
@@ -5322,6 +5333,7 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_building_icon_door=0;
 	texpos_building_icon_hatch=0;
 	texpos_building_icon_wall=0;
+	texpos_building_icon_reinforced_wall=0;
 	texpos_building_icon_floor=0;
 	texpos_building_icon_ramp=0;
 	texpos_building_icon_stairs=0;
@@ -5362,9 +5374,10 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_building_icon_armor_stand=0;
 	texpos_building_icon_ballista=0;
 	texpos_building_icon_catapult=0;
+	texpos_building_icon_bolt_thrower=0;
 	texpos_building_icon_wagon=0;
 	{int32_t c;
-	for(c=0;c<37;++c)texpos_planned_construction[c]=0;}
+	for(c=0;c<38;++c)texpos_planned_construction[c]=0;}
 	texpos_zone_inactive_n_s_w_e=0;
 	texpos_zone_inactive_n_w=0;
 	texpos_zone_inactive_n_e=0;
@@ -5569,6 +5582,11 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_wagon_goods_s,0,sizeof(int32_t)*3*4*4);
 	memset(texpos_wagon_goods_w,0,sizeof(int32_t)*4*3*4);
 	memset(texpos_wagon_goods_e,0,sizeof(int32_t)*4*3*4);
+
+	memset(texpos_ram_wood,0,sizeof(int32_t)*4*3);
+	memset(texpos_ram_banded,0,sizeof(int32_t)*4*3);
+	memset(texpos_ram_bands,0,sizeof(int32_t)*4*3);
+	memset(texpos_ram_head,0,sizeof(int32_t)*RAM_HEADNUM*4);
 
 	memset(texpos_border_top_left,0,sizeof(int32_t)*4*3);
 	memset(texpos_border_top_right,0,sizeof(int32_t)*4*3);
@@ -7442,6 +7460,26 @@ void graphicst::zero_and_clear_all_texpos()
 	rock_blocks_wall_ne_texpos=0;
 	rock_blocks_wall_sw_texpos=0;
 	rock_blocks_wall_se_texpos=0;
+
+	reinforced_metal_wall_nswe_texpos=0;
+	reinforced_metal_wall_swe_texpos=0;
+	reinforced_metal_wall_nwe_texpos=0;
+	reinforced_metal_wall_nse_texpos=0;
+	reinforced_metal_wall_nsw_texpos=0;
+	reinforced_metal_wall_n_w_texpos=0;
+	reinforced_metal_wall_n_e_texpos=0;
+	reinforced_metal_wall_s_w_texpos=0;
+	reinforced_metal_wall_s_e_texpos=0;
+	reinforced_metal_wall_n_s_texpos=0;
+	reinforced_metal_wall_w_e_texpos=0;
+	reinforced_metal_wall_n_texpos=0;
+	reinforced_metal_wall_s_texpos=0;
+	reinforced_metal_wall_w_texpos=0;
+	reinforced_metal_wall_e_texpos=0;
+	reinforced_metal_wall_nw_texpos=0;
+	reinforced_metal_wall_ne_texpos=0;
+	reinforced_metal_wall_sw_texpos=0;
+	reinforced_metal_wall_se_texpos=0;
 
 	wooden_wall_nswe_texpos=0;
 	wooden_wall_swe_texpos=0;
@@ -9745,6 +9783,14 @@ void graphicst::zero_and_clear_all_texpos()
 				texpos_combat_animation_sparks[i][s][s2]=0;
 				}}}}
 
+	{int32_t s,s2;
+	for(s=0;s<COMBAT_ANIMATION_RAM_DIRECTIONNUM;++s)
+		{
+		for(s2=0;s2<COMBAT_ANIMATION_RAM_FRAME_COUNT;++s2)
+			{
+			texpos_combat_animation_ram[s][s2]=0;
+			}}}
+
 	{int32_t i,s,s2;
 	for(i=0;i<GRAPHICS_TRACKING_SYMBOL_WEIGHTNUM;++i)
 		{
@@ -9964,24 +10010,48 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_door_metal_open=0;
 	texpos_item_door_glass=0;
 	texpos_item_door_glass_open=0;
+	{int32_t d;
+	for(d=0;d<3;++d)
+		{
+		texpos_item_door_stone_open_damaged[d]=0;
+		texpos_item_door_wooden_open_damaged[d]=0;
+		texpos_item_door_metal_open_damaged[d]=0;
+		texpos_item_door_glass_open_damaged[d]=0;
+		}}
 		for(s=0;s<7;++s)
 			{
 			texpos_item_door_wood_closed[s]=0;
 			texpos_item_door_stone_closed[s]=0;
 			texpos_item_door_metal_closed[s]=0;
 			texpos_item_door_glass_closed[s]=0;
+			{int32_t d;
+			for(d=0;d<3;++d)
+				{
+				texpos_item_door_wood_closed_damaged[s][d]=0;
+				texpos_item_door_stone_closed_damaged[s][d]=0;
+				texpos_item_door_metal_closed_damaged[s][d]=0;
+				texpos_item_door_glass_closed_damaged[s][d]=0;
+				}}
 			}
-		for(s=0;s<4;++s)texpos_item_door_variant[s]=0;
+		for(s=0;s<4;++s)
+			{
+			texpos_item_door_variant[s]=0;
+			{int32_t d;
+			for(d=0;d<3;++d)
+				{
+				texpos_item_door_variant_damaged[s][d]=0;
+				}}
+			}
 		texpos_item_door_spikes=0;
 		texpos_item_door_rings=0;
 		texpos_item_door_studs=0;
 		texpos_item_door_engraving=0;
-		for(s=0;s<3;++s)texpos_item_door_damage[s]=0;
 		texpos_item_door_bands=0;
 		texpos_item_door_blood=0;
 		texpos_item_door_vomit=0;
 		texpos_item_door_water=0;
 		texpos_item_door_mud=0;
+		texpos_item_door_forbidden=0;
 	texpos_item_chain_metal=0;
 	texpos_item_chain_rope=0;
 	texpos_item_flask_metal=0;
@@ -10202,6 +10272,7 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_trap_component=0;
 	texpos_item_catapult_parts=0;
 	texpos_item_ballista_parts=0;
+	texpos_item_bolt_thrower_parts=0;
 	texpos_item_anvil=0;
 	texpos_item_ammo=0;
 	texpos_item_ballista_arrowhead=0;
@@ -10550,10 +10621,60 @@ void graphicst::zero_and_clear_all_texpos()
 	memset(texpos_ballista_s,0,sizeof(int32_t)*3*3);
 	memset(texpos_ballista_w,0,sizeof(int32_t)*3*3);
 	memset(texpos_ballista_e,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_nw,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_ne,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_sw,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_se,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_n_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_s_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_w_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_e_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_nw_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_ne_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_sw_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_se_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_ballista_const,0,sizeof(int32_t)*4*3*3);
 	memset(texpos_catapult_n,0,sizeof(int32_t)*3*3);
 	memset(texpos_catapult_s,0,sizeof(int32_t)*3*3);
 	memset(texpos_catapult_w,0,sizeof(int32_t)*3*3);
 	memset(texpos_catapult_e,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_nw,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_ne,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_sw,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_se,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_n_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_s_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_w_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_e_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_nw_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_ne_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_sw_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_se_firing,0,sizeof(int32_t)*3*3);
+	memset(texpos_catapult_const,0,sizeof(int32_t)*4*3*3);
+	texpos_bolt_thrower_ready_n=0;
+	texpos_bolt_thrower_ready_ne=0;
+	texpos_bolt_thrower_ready_e=0;
+	texpos_bolt_thrower_ready_se=0;
+	texpos_bolt_thrower_ready_s=0;
+	texpos_bolt_thrower_ready_sw=0;
+	texpos_bolt_thrower_ready_w=0;
+	texpos_bolt_thrower_ready_nw=0;
+	texpos_bolt_thrower_firing_n=0;
+	texpos_bolt_thrower_firing_ne=0;
+	texpos_bolt_thrower_firing_e=0;
+	texpos_bolt_thrower_firing_se=0;
+	texpos_bolt_thrower_firing_s=0;
+	texpos_bolt_thrower_firing_sw=0;
+	texpos_bolt_thrower_firing_w=0;
+	texpos_bolt_thrower_firing_nw=0;
+	memset(texpos_bolt_thrower_ammo_n,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_ne,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_e,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_se,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_s,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_sw,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_w,0,sizeof(int32_t)*5);
+	memset(texpos_bolt_thrower_ammo_nw,0,sizeof(int32_t)*5);
 
 	int32_t fl;
 	for(fl=0;fl<4;++fl)
