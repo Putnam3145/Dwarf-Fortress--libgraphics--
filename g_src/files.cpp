@@ -118,6 +118,8 @@ char file_compressorst::read_file(string &str)
 
 	if(!read_file(ln))return 0;
 
+	if (ln<0)return 0;
+
 	if(ln==0)return 1;
 
 	char *strar=new char[ln+1];

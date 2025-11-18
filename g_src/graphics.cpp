@@ -10060,6 +10060,9 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_goblet_metal=0;
 	texpos_item_goblet_stone=0;
 	texpos_item_goblet_wood=0;
+	texpos_item_goblet_metal_encrusted=0;
+	texpos_item_goblet_stone_encrusted=0;
+	texpos_item_goblet_wood_encrusted=0;
 	texpos_item_instrument_keyboard_building=0;
 	texpos_item_instrument_stringed_building=0;
 	texpos_item_instrument_wind_building=0;
@@ -10263,8 +10266,11 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_sheet=0;
 	texpos_item_tanned_skin=0;
 	texpos_item_totem=0;
+	texpos_item_totem_encrusted=0;
 	texpos_item_book_wood=0;
 	texpos_item_book_metal=0;
+	texpos_item_book_stone=0;
+	texpos_item_book_glass=0;
 	texpos_item_liquid=0;
 	texpos_item_powder=0;
 	texpos_item_mechanisms=0;
@@ -10297,6 +10303,20 @@ void graphicst::zero_and_clear_all_texpos()
 	texpos_item_ring_wood=0;
 	texpos_item_bracelet_wood=0;
 	texpos_item_earring_wood=0;
+	texpos_item_figurine_metal_encrusted=0;
+	texpos_item_amulet_metal_encrusted=0;
+	texpos_item_scepter_metal_encrusted=0;
+	texpos_item_crown_metal_encrusted=0;
+	texpos_item_ring_metal_encrusted=0;
+	texpos_item_bracelet_metal_encrusted=0;
+	texpos_item_earring_metal_encrusted=0;
+	texpos_item_figurine_wood_encrusted=0;
+	texpos_item_amulet_wood_encrusted=0;
+	texpos_item_scepter_wood_encrusted=0;
+	texpos_item_crown_wood_encrusted=0;
+	texpos_item_ring_wood_encrusted=0;
+	texpos_item_bracelet_wood_encrusted=0;
+	texpos_item_earring_wood_encrusted=0;
 
 	texpos_item_bed=0;
 		for(s=0;s<7;++s)

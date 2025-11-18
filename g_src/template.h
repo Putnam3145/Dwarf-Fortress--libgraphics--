@@ -512,3 +512,24 @@ template<class Container> std::optional<typename Container::value_type> maybe_ge
 	}
 
 // Above are mostly useful for e.g. some maybe_get(map,key).and_then([](auto &val){...}); or maybe_get(map,key).value_or(default_val); or whatever, lots of good utility from std::optional
+
+template<typename T>
+T *flatten(T **ptr_ptr) {
+	if constexpr (std::is_pointer<T>::value)
+		{
+		return ptr_ptr?flatten(*ptr_ptr):nullptr;
+		}
+	else
+		{
+		return *ptr_ptr;
+		}
+	}
+
+template<typename T,typename... Types>
+std::optional<T> better_get_if(std::variant<Types...> &v) {
+	if (auto p=std::get_if<T>(&v);p)
+		{
+		return *p;
+		}
+	return std::nullopt;
+	}

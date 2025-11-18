@@ -940,6 +940,72 @@ std::shared_ptr<container> warning_modal_ok(const std::string &text) {
 	return modal;
 	}
 
+std::shared_ptr<container> confirm_modal_yesno(const std::string &text,std::function<void()> yes_callback,std::function<void()> no_callback) {
+	if (gview.grab_lastscreen()==NULL)
+		{
+		return NULL;
+		}
+	auto modal=gview.grab_lastscreen()->widgets.add_or_get_widget<container>("Yes/No Modal");
+	modal->set_active(true);
+	auto nineslice=modal->add_or_get_widget<widgets::nineslice>("Warning Modal Background",&init.texpos_border_nw);
+	nineslice->set_layout_preset(LayoutPreset::FULL);
+	auto text_widget=modal->add_or_get_widget<widgets::text_multiline>("Warning Text");
+	text_widget->set_text(text);
+	text_widget->set_color(7,0,1);
+	text_widget->set_layout_preset(LayoutPreset::FULL);
+	text_widget->set_offsets(1,-4,1,-1);
+	modal->set_layout_preset(LayoutPreset::CENTER);
+	modal->set_anchors(0.3f,0.7f,0.3f,0.7f);
+	modal->set_global_positioning(true);
+	{
+	auto button=modal->add_or_get_widget<container>("Yes Button");
+	button->min_w=6;
+	button->min_h=3;
+	button->set_layout_preset(LayoutPreset::BOTTOM_LEFT);
+	button->offset_bottom=-3;
+	button->offset_left=3;
+	{
+	auto n2=button->add_or_get_widget<widgets::nineslice>("Yes Button Background",(int32_t *)::init.texpos_confirm_intro_button);
+	auto text=button->add_or_get_widget<widgets::text>("Yes Text","Yes");
+	text->offset_left=2;
+	text->offset_top=1;
+	n2->set_layout_preset(LayoutPreset::FULL);
+	}
+	button->activation_hotkeys={INTERFACEKEY_MENU_CONFIRM,INTERFACEKEY_SELECT};
+	button->set_custom_activated([yes_callback](widget *w) {
+		gview.grab_lastscreen()->widgets.add_or_get_widget<widgets::container>("Yes/No Modal")->set_active(false);
+		if (yes_callback) yes_callback();
+		return true;
+		});
+	}
+	{
+	auto button=modal->add_or_get_widget<container>("No Button");
+	button->min_w=6;
+	button->min_h=3;
+	button->set_layout_preset(LayoutPreset::BOTTOM_RIGHT);
+	button->offset_bottom=-3;
+	button->offset_right=-3;
+	{
+	auto n2=button->add_or_get_widget<widgets::nineslice>("No Button Background",(int32_t *)::init.texpos_cancel_intro_button);
+	auto text=button->add_or_get_widget<widgets::text>("No Text","No");
+	text->offset_left=2;
+	text->offset_top=1;
+	n2->set_layout_preset(LayoutPreset::FULL);
+	}
+	button->activation_hotkeys={INTERFACEKEY_LEAVESCREEN};
+	button->set_custom_activated([no_callback](widget *w) {
+		gview.grab_lastscreen()->widgets.add_or_get_widget<widgets::container>("Yes/No Modal")->set_active(false);
+		if (no_callback) no_callback();
+		return true;
+		});
+	}
+	text_widget->arrange();
+	modal->min_h=text_widget->height()+5;
+	modal->min_w=text_widget->width()+2;
+	modal->arrange();
+	return modal;
+	}
+
 void draw_sort_widget(int sy,int sx,int ey,int ex,bool active,bool ascending)
 	{
 	int32_t *texpos=NULL;
@@ -1872,11 +1938,12 @@ std::shared_ptr<container> radio_rows::add_entry(const string &s,std::function<v
 	new_row->min_h=3;
 	new_row->set_anchors_preset(widgets::LayoutPreset::WIDE_TOP);
 	new_row->offset_right=-1;
+	auto n=new_row->add_or_get_widget<nineslice_horizontal>("Slice",(int32_t*)gps.texpos_button_category_rectangle);
+	n->set_anchors_preset(widgets::LayoutPreset::FULL);
 	auto t=new_row->add_or_get_widget<text>("Text",s);
 	t->set_anchors_preset(widgets::LayoutPreset::CENTER_LEFT);
 	t->offset_left=2;
-	auto n=new_row->add_or_get_widget<nineslice_horizontal>("Slice",(int32_t*)gps.texpos_button_category_rectangle);
-	n->set_anchors_preset(widgets::LayoutPreset::FULL);
+	t->set_color(7,0,1);
 	std::weak_ptr<nineslice> n_wk=n;
 	select_callback[row_idx]=f;
 	new_row->set_custom_activated([this, row_idx, f](widgets::widget *w) {
